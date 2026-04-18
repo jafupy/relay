@@ -1,11 +1,8 @@
-import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronLeft } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useFileSystemStore } from "@/features/file-system/controllers/store";
-import {
-  type OnboardingContext,
-  type OnboardingMode,
-} from "@/features/onboarding/lib/onboarding-state";
+import type { OnboardingContext } from "@/features/onboarding/lib/onboarding-state";
 import { useSettingsStore } from "@/features/settings/store";
 import { Button } from "@/ui/button";
 import Dialog from "@/ui/dialog";
@@ -18,7 +15,7 @@ interface OnboardingDialogProps {
 }
 
 interface StepDescriptor {
-  id: "privacy" | "preferences";
+  id: "preferences";
   title: string;
   description: string;
 }
@@ -30,60 +27,30 @@ const stepTransition = {
   transition: { duration: 0.16, ease: "easeOut" },
 } as const;
 
-function getModeCopy(mode: OnboardingMode, currentVersion: string, previousVersion?: string) {
-  if (mode === "updated") {
-    return {
-      privacyDescription: previousVersion
-        ? `Updated from ${previousVersion}. Anonymous telemetry is off by default.`
-        : "Anonymous telemetry is off by default.",
-    };
-  }
-
-  if (mode === "preview") {
-    return {
-      privacyDescription: "Anonymous telemetry is off by default.",
-    };
-  }
-
-  return {
-    privacyDescription: "Anonymous telemetry is off by default.",
-  };
-}
-
-export default function OnboardingDialog({ context, onClose, onComplete }: OnboardingDialogProps) {
+export default function OnboardingDialog({ onClose, onComplete }: OnboardingDialogProps) {
   const { settings, updateSetting } = useSettingsStore();
   const handleOpenFolder = useFileSystemStore.use.handleOpenFolder();
   const [currentStep, setCurrentStep] = useState(0);
-  const [telemetry, setTelemetry] = useState(settings.telemetry);
   const [syncSystemTheme, setSyncSystemTheme] = useState(settings.syncSystemTheme);
   const [vimMode, setVimMode] = useState(settings.vimMode);
   const [openFoldersInNewWindow, setOpenFoldersInNewWindow] = useState(
     settings.openFoldersInNewWindow,
   );
   const [horizontalTabScroll, setHorizontalTabScroll] = useState(settings.horizontalTabScroll);
-  const modeCopy = getModeCopy(context.mode, context.currentVersion, context.previousVersion);
 
   useEffect(() => {
-    setTelemetry(settings.telemetry);
     setSyncSystemTheme(settings.syncSystemTheme);
     setVimMode(settings.vimMode);
     setOpenFoldersInNewWindow(settings.openFoldersInNewWindow);
     setHorizontalTabScroll(settings.horizontalTabScroll);
   }, [
-    context.mode,
     settings.horizontalTabScroll,
     settings.openFoldersInNewWindow,
     settings.syncSystemTheme,
-    settings.telemetry,
     settings.vimMode,
   ]);
 
   const steps: StepDescriptor[] = [
-    {
-      id: "privacy",
-      title: "Telemetry",
-      description: modeCopy.privacyDescription,
-    },
     {
       id: "preferences",
       title: "Workspace defaults",
@@ -96,7 +63,6 @@ export default function OnboardingDialog({ context, onClose, onComplete }: Onboa
 
   const persistSelections = async () => {
     await Promise.all([
-      updateSetting("telemetry", telemetry),
       updateSetting("syncSystemTheme", syncSystemTheme),
       updateSetting("vimMode", vimMode),
       updateSetting("openFoldersInNewWindow", openFoldersInNewWindow),
@@ -114,24 +80,6 @@ export default function OnboardingDialog({ context, onClose, onComplete }: Onboa
   };
 
   const renderStepContent = () => {
-    if (activeStep.id === "privacy") {
-      return (
-        <div className="mx-auto max-w-[440px] rounded-lg bg-secondary-bg px-4 py-3">
-          <div className="flex items-center justify-between gap-4">
-            <div className="min-w-0">
-              <div className="ui-font ui-text-sm font-medium text-text">
-                Share anonymous telemetry
-              </div>
-              <p className="ui-font ui-text-sm mt-1 text-text-light">
-                Version, platform, architecture, and anonymous device ID only.
-              </p>
-            </div>
-            <Switch checked={telemetry} onChange={setTelemetry} />
-          </div>
-        </div>
-      );
-    }
-
     return (
       <div className="mx-auto max-w-[440px] space-y-2">
         {[
@@ -173,7 +121,7 @@ export default function OnboardingDialog({ context, onClose, onComplete }: Onboa
 
   return (
     <Dialog
-      title="Setup Athas"
+      title="Setup Relay"
       onClose={onClose}
       size="lg"
       headerBorder={false}

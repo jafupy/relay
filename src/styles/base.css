@@ -15,6 +15,9 @@ html {
   overflow: hidden;
   overscroll-behavior: none !important;
   background: transparent;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "ss01", "ss02", "cv01";
 }
 
 body {
@@ -23,6 +26,19 @@ body {
   overflow: hidden;
   overscroll-behavior: none !important;
   background: transparent;
+}
+
+/* Subtle grain texture overlay — pointer-events none so it never blocks interaction */
+#root::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9990;
+  opacity: 0.028;
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='256' height='256'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='256' height='256' filter='url(%23g)'/></svg>");
+  background-repeat: repeat;
+  background-size: 256px 256px;
 }
 
 @layer base {
@@ -47,27 +63,27 @@ button {
 
 textarea {
   scrollbar-width: thin;
-  scrollbar-color: #ccc #f5f5f5;
+  scrollbar-color: var(--border) var(--secondary-bg);
   overflow: auto !important;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: none !important;
 }
 
 textarea::-webkit-scrollbar {
-  width: 12px;
+  width: 8px;
 }
 
 textarea::-webkit-scrollbar-track {
-  background: #f5f5f5;
+  background: var(--secondary-bg);
 }
 
 textarea::-webkit-scrollbar-thumb {
-  background: #ccc;
-  border-radius: 6px;
+  background: var(--border);
+  border-radius: 4px;
 }
 
 textarea::-webkit-scrollbar-thumb:hover {
-  background: #999;
+  background: var(--text-lighter);
 }
 
 [class*="overflow-auto"],

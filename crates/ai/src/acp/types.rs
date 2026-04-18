@@ -234,7 +234,7 @@ pub struct SessionConfigOption {
    pub kind: SessionConfigOptionKind,
 }
 
-/// Events emitted to the frontend via Tauri
+/// Events emitted to the frontend via Relay
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum AcpEvent {

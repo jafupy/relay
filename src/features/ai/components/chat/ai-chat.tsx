@@ -1,4 +1,3 @@
-import { listen } from "@tauri-apps/api/event";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import ProviderApiKeyModal from "@/features/ai/components/provider-api-key-modal";
 import {
@@ -16,14 +15,15 @@ import { AcpStreamHandler } from "@/features/ai/services/acp-stream-handler";
 import { getChatCompletionStream, isAcpAgent } from "@/features/ai/services/ai-chat-service";
 import { useAIChatStore } from "@/features/ai/store/store";
 import type { AcpEvent } from "@/features/ai/types/acp";
-import type { ContextInfo } from "@/features/ai/types/ai-context";
 import { AGENT_OPTIONS, type AIChatProps, type Message } from "@/features/ai/types/ai-chat";
+import type { ContextInfo } from "@/features/ai/types/ai-context";
 import type { ChatAcpEvent } from "@/features/ai/types/chat-ui";
 import { useBufferStore } from "@/features/editor/stores/buffer-store";
 import { useToast } from "@/features/layout/contexts/toast-context";
 import { useSettingsStore } from "@/features/settings/store";
 import { useAuthStore } from "@/features/window/stores/auth-store";
 import { useProjectStore } from "@/features/window/stores/project-store";
+import { listen } from "@/lib/platform/events";
 import Badge from "@/ui/badge";
 import { Button } from "@/ui/button";
 import { useChatActions, useChatState } from "../../hooks/use-chat-store";
@@ -337,7 +337,7 @@ const AIChat = memo(function AIChat({
           if (directAction.kind === "open_web_viewer" && directAction.url) {
             bufferActions.openWebViewerBuffer(directAction.url);
             chatActions.updateMessage(chatId, currentAssistantMessageId, {
-              content: `Opened ${directAction.url} in Athas web viewer.`,
+              content: `Opened ${directAction.url} in Relay web viewer.`,
               isStreaming: false,
             });
           } else if (directAction.kind === "open_terminal" && directAction.command) {
@@ -392,9 +392,9 @@ const AIChat = memo(function AIChat({
             .find((message) => message.id === currentAssistantMessageId);
           const hasVisibleResponse = Boolean(
             currentMessage?.content?.trim() ||
-            currentMessage?.toolCalls?.length ||
-            currentMessage?.images?.length ||
-            currentMessage?.resources?.length,
+              currentMessage?.toolCalls?.length ||
+              currentMessage?.images?.length ||
+              currentMessage?.resources?.length,
           );
 
           if (!hasVisibleResponse && isAcpAgent(currentAgentId)) {

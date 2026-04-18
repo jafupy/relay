@@ -1,9 +1,10 @@
-import { invoke } from "@tauri-apps/api/core";
 import isEqual from "fast-deep-equal";
 import { immer } from "zustand/middleware/immer";
 import { createWithEqualityFn } from "zustand/traditional";
 import type { DatabaseType } from "@/features/database/models/provider.types";
 import { EDITOR_CONSTANTS } from "@/features/editor/config/constants";
+import { cleanupBufferHistoryTracking } from "@/features/editor/stores/editor-app-store";
+import { createWorkspaceSessionSaveQueue } from "@/features/editor/stores/workspace-session-save-queue";
 import { detectLanguageFromFileName } from "@/features/editor/utils/language-detection";
 import { logger } from "@/features/editor/utils/logger";
 import { readFileContent } from "@/features/file-system/controllers/file-operations";
@@ -11,7 +12,6 @@ import { useRecentFilesStore } from "@/features/file-system/controllers/recent-f
 import type { MultiFileDiff } from "@/features/git/types/git-diff-types";
 import type { GitDiff } from "@/features/git/types/git-types";
 import { usePaneStore } from "@/features/panes/stores/pane-store";
-import { cleanupBufferHistoryTracking } from "@/features/editor/stores/editor-app-store";
 import type {
   EditorContent,
   OpenContentSpec,
@@ -20,15 +20,15 @@ import type {
   TokenEntry,
 } from "@/features/panes/types/pane-content";
 import {
-  isEditorContent,
   isEditableContent,
+  isEditorContent,
   isVirtualContent,
   shouldStartLsp,
 } from "@/features/panes/types/pane-content";
-import { createWorkspaceSessionSaveQueue } from "@/features/editor/stores/workspace-session-save-queue";
 import { useProjectStore } from "@/features/window/stores/project-store";
 import type { BufferSession } from "@/features/window/stores/session-store";
 import { useSessionStore } from "@/features/window/stores/session-store";
+import { invoke } from "@/lib/platform/core";
 import { createSelectors } from "@/utils/zustand-selectors";
 
 /** @deprecated Use `PaneContent` directly. Kept for backward compatibility. */
@@ -468,6 +468,15 @@ const createPaneContent = (id: string, spec: OpenContentSpec): PaneContent => {
         name: spec.name,
         isPreview: false,
         terminalConnectionId: spec.terminalConnectionId,
+      };
+    case "settings":
+      return {
+        ...base,
+        type: "settings",
+        path: "relay://settings",
+        name: "Settings",
+        isPreview: false,
+        initialTab: spec.initialTab,
       };
   }
 };
@@ -1013,6 +1022,32 @@ export const useBufferStore = createSelectors(
 
               syncBufferToPane(newBuffer.id);
               saveSessionToStore(get().buffers, get().activeBufferId);
+              return newBuffer.id;
+            }
+
+            case "settings": {
+              // If settings tab already exists, just activate it
+              const existing = buffers.find((b) => b.type === "settings");
+              if (existing) {
+                set((state) => {
+                  state.activeBufferId = existing.id;
+                  state.buffers = state.buffers.map((b) => ({
+                    ...b,
+                    isActive: b.id === existing.id,
+                  }));
+                });
+                syncBufferToPane(existing.id);
+                return existing.id;
+              }
+
+              const id = generateBufferId("relay://settings");
+              const newBuffer = createPaneContent(id, spec);
+              let newBuffers = closeNewTabInActivePane([...buffers]);
+              set((state) => {
+                state.buffers = [...newBuffers.map((b) => ({ ...b, isActive: false })), newBuffer];
+                state.activeBufferId = newBuffer.id;
+              });
+              syncBufferToPane(newBuffer.id);
               return newBuffer.id;
             }
           }

@@ -1,6 +1,6 @@
-import { getVersion } from "@tauri-apps/api/app";
 import { create } from "zustand";
 import { useBufferStore } from "@/features/editor/stores/buffer-store";
+import { getVersion } from "@/lib/platform/app";
 import type { UpdateInfo } from "../hooks/use-updater";
 import { hydrateWhatsNew, queuePendingWhatsNew, type WhatsNewInfo } from "../lib/whats-new";
 
@@ -13,7 +13,7 @@ interface WhatsNewState {
 }
 
 function buildWhatsNewMarkdown(info: WhatsNewInfo): string {
-  const lines = [`# What's New in Athas ${info.version}`, ""];
+  const lines = [`# What's New in Relay ${info.version}`, ""];
 
   if (info.previousVersion) {
     lines.push(`Updated from \`${info.previousVersion}\`.`, "");
@@ -31,7 +31,7 @@ function buildWhatsNewMarkdown(info: WhatsNewInfo): string {
 
   lines.push("---");
   lines.push(
-    `[View release on GitHub](https://github.com/athasdev/athas/releases/tag/v${info.version})`,
+    `[View release on GitHub](https://github.com/relay/relay/releases/tag/v${info.version})`,
   );
 
   return lines.join("\n");

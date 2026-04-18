@@ -1,23 +1,23 @@
-import { invoke } from "@tauri-apps/api/core";
 import { AlertCircle, CheckCircle, Globe, RefreshCw, RotateCcw, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ProviderModelSelector } from "@/features/ai/components/selectors/provider-model-selector";
+import { setOllamaBaseUrl } from "@/features/ai/services/providers/ai-provider-registry";
+import { checkOllamaConnection } from "@/features/ai/services/providers/ollama-provider";
 import { useAIChatStore } from "@/features/ai/store/store";
 import type { AgentConfig, SessionConfigOption, SessionMode } from "@/features/ai/types/acp";
 import { getAvailableProviders, updateAgentStatus } from "@/features/ai/types/providers";
+import { fetchAutocompleteModels } from "@/features/editor/services/editor-autocomplete-service";
 import { useToast } from "@/features/layout/contexts/toast-context";
 import { getDefaultSetting, useSettingsStore } from "@/features/settings/store";
 import { useAuthStore } from "@/features/window/stores/auth-store";
+import { invoke } from "@/lib/platform/core";
 import Badge from "@/ui/badge";
 import { Button } from "@/ui/button";
 import Input from "@/ui/input";
-import Section, { SETTINGS_CONTROL_WIDTHS, SettingRow } from "../settings-section";
 import Select from "@/ui/select";
 import Switch from "@/ui/switch";
-import { fetchAutocompleteModels } from "@/features/editor/services/editor-autocomplete-service";
 import { cn } from "@/utils/cn";
-import { setOllamaBaseUrl } from "@/features/ai/services/providers/ai-provider-registry";
-import { checkOllamaConnection } from "@/features/ai/services/providers/ollama-provider";
+import Section, { SETTINGS_CONTROL_WIDTHS, SettingRow } from "../settings-section";
 
 const DEFAULT_OLLAMA_BASE_URL = "http://localhost:11434";
 const DEFAULT_AUTOCOMPLETE_MODEL_ID = "mistralai/devstral-small";
@@ -45,7 +45,6 @@ export const AISettings = () => {
   const managedPolicy = enterprisePolicy?.managedMode ? enterprisePolicy : null;
   const aiCompletionAllowedByPolicy = managedPolicy ? managedPolicy.aiCompletionEnabled : true;
   const byokAllowedByPolicy = managedPolicy ? managedPolicy.allowByok : true;
-  const isPro = subscription?.status === "pro";
 
   const [availableModes, setAvailableModes] = useState<SessionMode[]>([]);
   const [sessionConfigOptions, setSessionConfigOptions] = useState<SessionConfigOption[]>([]);
@@ -156,20 +155,13 @@ export const AISettings = () => {
 
   return (
     <div className="space-y-4">
-      <Section title="Athas Agent">
+      <Section title="Relay Agent">
         <div className="ui-font ui-text-sm px-1 pb-1 text-text-lighter">
-          When `Athas Agent` is selected in chat, it uses the provider and model configured here.
+          When `Relay Agent` is selected in chat, it uses the provider and model configured here.
         </div>
-        {isPro ? (
-          <div className="ui-font ui-text-sm rounded-xl border border-border bg-secondary-bg/60 px-3 py-2 text-text-lighter">
-            <span className="text-text">Athas Pro detected.</span> Chat provider routing is
-            currently configured through the model selection below; autocomplete already uses
-            Athas-hosted credit on Pro.
-          </div>
-        ) : null}
         <SettingRow
           label="Provider & Model"
-          description="Choose the provider and model used by Athas Agent"
+          description="Choose the provider and model used by Relay Agent"
           onReset={() => {
             updateSetting("aiProviderId", getDefaultSetting("aiProviderId"));
             updateSetting("aiModelId", getDefaultSetting("aiModelId"));
@@ -368,8 +360,7 @@ export const AISettings = () => {
           </div>
         )}
         <div className="ui-font ui-text-sm px-1 text-text-lighter">
-          Pro uses Athas-hosted autocomplete credit. Free can use BYOK by setting an OpenRouter API
-          key in the API Keys section.
+          Autocomplete can use BYOK by setting an OpenRouter API key in the API Keys section.
         </div>
         {managedPolicy ? (
           <div className="ui-font ui-text-sm px-1 text-text-lighter">

@@ -1,5 +1,5 @@
-import { invoke } from "@tauri-apps/api/core";
-import { load } from "@tauri-apps/plugin-store";
+import { invoke } from "@/lib/platform/core";
+import { load } from "@/lib/platform/store";
 
 const CONNECTIONS_STORE = "remote-connections.json";
 const CREDENTIALS_STORE = "credentials.json";
@@ -139,7 +139,7 @@ class ConnectionStore {
 
   async migrateFromLocalStorage() {
     try {
-      const stored = localStorage.getItem("athas-remote-connections");
+      const stored = localStorage.getItem("relay-remote-connections");
       if (stored) {
         const connections = JSON.parse(stored);
 
@@ -150,8 +150,7 @@ class ConnectionStore {
           });
         }
 
-        localStorage.removeItem("athas-remote-connections");
-        console.log("Successfully migrated connections from localStorage to Tauri Store");
+        localStorage.removeItem("relay-remote-connections");
       }
 
       await this.migrateLegacyCredentialsStore();
@@ -186,7 +185,6 @@ class ConnectionStore {
     }
 
     await credentialsStore.save();
-    console.log("Successfully migrated remote credentials to secure storage");
   }
 
   private async getConnectedIds(): Promise<string[]> {

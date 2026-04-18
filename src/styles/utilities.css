@@ -58,15 +58,15 @@
   overscroll-behavior: contain;
 }
 
-[data-tauri-drag-region] {
+[data-relay-drag-region] {
   -webkit-app-region: drag;
   app-region: drag;
 }
 
-[data-tauri-drag-region] button,
-[data-tauri-drag-region] input,
-[data-tauri-drag-region] select,
-[data-tauri-drag-region] textarea {
+[data-relay-drag-region] button,
+[data-relay-drag-region] input,
+[data-relay-drag-region] select,
+[data-relay-drag-region] textarea {
   -webkit-app-region: no-drag;
   app-region: no-drag;
 }

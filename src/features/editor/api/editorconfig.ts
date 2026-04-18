@@ -1,4 +1,4 @@
-import { invoke } from "@tauri-apps/api/core";
+import { invoke } from "@/lib/platform/core";
 
 export interface EditorConfigProperties {
   indentStyle?: "tab" | "space";

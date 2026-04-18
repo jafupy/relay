@@ -1,5 +1,5 @@
 [package]
-name = "athas-database"
+name = "relay-database"
 version = "0.1.0"
 edition = "2024"
 

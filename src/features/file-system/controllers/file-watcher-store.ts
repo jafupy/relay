@@ -1,9 +1,9 @@
-import { invoke } from "@tauri-apps/api/core";
-import { listen, type UnlistenFn } from "@tauri-apps/api/event";
-import { dirname } from "@tauri-apps/api/path";
 import { create } from "zustand";
 import { combine } from "zustand/middleware";
 import { useBufferStore } from "@/features/editor/stores/buffer-store";
+import { invoke } from "@/lib/platform/core";
+import { listen, type UnlistenFn } from "@/lib/platform/events";
+import { dirname } from "@/lib/platform/path";
 import { useFileSystemStore } from "./store";
 
 interface FileChangeEvent {

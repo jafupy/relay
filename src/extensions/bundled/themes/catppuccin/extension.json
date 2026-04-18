@@ -1,10 +1,10 @@
 {
-  "id": "athas.catppuccin",
+  "id": "relay.catppuccin",
   "name": "Catppuccin",
   "displayName": "Catppuccin Theme",
   "description": "Soothing pastel theme for the high-spirited",
   "version": "1.0.0",
-  "publisher": "Athas",
+  "publisher": "Relay",
   "license": "MIT",
   "category": "theme",
   "bundled": true,

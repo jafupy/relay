@@ -1,32 +1,27 @@
-use crate::{config::TerminalConfig, connection::TerminalConnection};
+use crate::{TerminalEventSink, config::TerminalConfig, connection::TerminalConnection};
 use anyhow::{Result, anyhow};
 use std::{
    collections::HashMap,
    sync::{Arc, Mutex},
 };
-use tauri::AppHandle;
 use uuid::Uuid;
 
 pub struct TerminalManager {
    connections: Arc<Mutex<HashMap<String, TerminalConnection>>>,
-}
-
-impl Default for TerminalManager {
-   fn default() -> Self {
-      Self::new()
-   }
+   event_sink: Arc<dyn TerminalEventSink>,
 }
 
 impl TerminalManager {
-   pub fn new() -> Self {
+   pub fn new(event_sink: Arc<dyn TerminalEventSink>) -> Self {
       Self {
          connections: Arc::new(Mutex::new(HashMap::new())),
+         event_sink,
       }
    }
 
-   pub fn create_terminal(&self, config: TerminalConfig, app_handle: AppHandle) -> Result<String> {
+   pub fn create_terminal(&self, config: TerminalConfig) -> Result<String> {
       let id = Uuid::new_v4().to_string();
-      let connection = TerminalConnection::new(id.clone(), config, app_handle)?;
+      let connection = TerminalConnection::new(id.clone(), config, self.event_sink.clone())?;
 
       // Start the reader thread
       connection.start_reader_thread();

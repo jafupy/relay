@@ -1,4 +1,4 @@
-use crate::{config::TerminalConfig, shell::get_shell_by_id};
+use crate::{TerminalEventSink, config::TerminalConfig, shell::get_shell_by_id};
 use anyhow::{Result, anyhow};
 use portable_pty::{Child, CommandBuilder, PtyPair, PtySize};
 use std::{
@@ -7,18 +7,21 @@ use std::{
    sync::{Arc, Mutex},
    thread,
 };
-use tauri::{AppHandle, Emitter};
 
 pub struct TerminalConnection {
    pub id: String,
    pub pty_pair: PtyPair,
-   pub app_handle: AppHandle,
+   pub event_sink: Arc<dyn TerminalEventSink>,
    pub writer: Arc<Mutex<Option<Box<dyn Write + Send>>>>,
    pub child: Arc<Mutex<Option<Box<dyn Child + Send + Sync>>>>,
 }
 
 impl TerminalConnection {
-   pub fn new(id: String, config: TerminalConfig, app_handle: AppHandle) -> Result<Self> {
+   pub fn new(
+      id: String,
+      config: TerminalConfig,
+      event_sink: Arc<dyn TerminalEventSink>,
+   ) -> Result<Self> {
       let pty_system = portable_pty::native_pty_system();
 
       let pty_pair = pty_system.openpty(PtySize {
@@ -36,7 +39,7 @@ impl TerminalConnection {
       Ok(Self {
          id,
          pty_pair,
-         app_handle,
+         event_sink,
          writer,
          child,
       })
@@ -164,7 +167,7 @@ impl TerminalConnection {
       // Then override with terminal-specific environment variables
       cmd.env("TERM", "xterm-256color");
       cmd.env("COLORTERM", "truecolor");
-      cmd.env("TERM_PROGRAM", "athas");
+      cmd.env("TERM_PROGRAM", "relay");
       cmd.env("TERM_PROGRAM_VERSION", "1.0.0");
       if let Some(shell_path) = shell_path {
          cmd.env("SHELL", shell_path);
@@ -185,7 +188,7 @@ impl TerminalConnection {
 
    pub fn start_reader_thread(&self) {
       let id = self.id.clone();
-      let app_handle = self.app_handle.clone();
+      let event_sink = self.event_sink.clone();
       let child = self.child.clone();
       let mut reader = self
          .pty_pair
@@ -218,16 +221,16 @@ impl TerminalConnection {
                      }
                   }
 
-                  let _ = app_handle.emit(
+                  event_sink.emit_json(
                      &format!("pty-exit-{}", id),
                      serde_json::json!({
-                        "exitCode": exit_code,
-                        "signal": signal
+                       "exitCode": exit_code,
+                       "signal": signal
                      }),
                   );
 
                   // End of stream
-                  let _ = app_handle.emit(&format!("pty-closed-{}", id), ());
+                  event_sink.emit_json(&format!("pty-closed-{}", id), serde_json::json!(null));
                   break;
                }
                Ok(n) => {
@@ -253,7 +256,7 @@ impl TerminalConnection {
                   if !data_to_process.is_empty() {
                      // Safe to use from_utf8 since we validated the boundary
                      let data = String::from_utf8_lossy(&data_to_process).to_string();
-                     let _ = app_handle.emit(
+                     event_sink.emit_json(
                         &format!("pty-output-{}", id),
                         serde_json::json!({ "data": data }),
                      );
@@ -261,7 +264,7 @@ impl TerminalConnection {
                }
                Err(e) => {
                   eprintln!("Error reading from PTY: {}", e);
-                  let _ = app_handle.emit(
+                  event_sink.emit_json(
                      &format!("pty-error-{}", id),
                      serde_json::json!({ "error": e.to_string() }),
                   );

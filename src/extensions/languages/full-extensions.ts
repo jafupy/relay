@@ -7,20 +7,20 @@
 import type { ExtensionManifest } from "../types/extension-manifest";
 
 // CDN base URL for extensions
-const CDN_BASE_URL = import.meta.env.VITE_PARSER_CDN_URL || "https://athas.dev/extensions";
+const CDN_BASE_URL = import.meta.env.VITE_PARSER_CDN_URL || "/assets/extension";
 
 /**
  * Full extension manifests for languages with LSP support
  */
 export const fullExtensions: ExtensionManifest[] = [
   {
-    id: "athas.php",
+    id: "relay.php",
     name: "PHP",
     displayName: "PHP",
     description:
       "Full PHP language support with IntelliSense, diagnostics, formatting, and snippets via Intelephense",
     version: "1.0.0",
-    publisher: "Athas",
+    publisher: "Relay",
     categories: ["Language", "Formatter", "Linter", "Snippets"],
     languages: [
       {

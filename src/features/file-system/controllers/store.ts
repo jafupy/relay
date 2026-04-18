@@ -1,7 +1,3 @@
-import { invoke } from "@tauri-apps/api/core";
-import { basename, dirname, extname, join } from "@tauri-apps/api/path";
-import { copyFile, readFile } from "@tauri-apps/plugin-fs";
-import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { useAIChatStore } from "@/features/ai/store/store";
@@ -11,27 +7,32 @@ import {
   useBufferStore,
 } from "@/features/editor/stores/buffer-store";
 import { fileOpenBenchmark } from "@/features/editor/utils/file-open-benchmark";
-import { getAncestorDirectoryPaths } from "@/features/file-explorer/utils/file-explorer-tree-utils";
 import { useFileTreeStore } from "@/features/file-explorer/stores/file-explorer-tree-store";
+import { getAncestorDirectoryPaths } from "@/features/file-explorer/utils/file-explorer-tree-utils";
 import { getGitStatus } from "@/features/git/api/git-status-api";
 import { useGitBlameStore } from "@/features/git/stores/git-blame-store";
 import { useGitStore } from "@/features/git/stores/git-store";
 import { gitDiffCache } from "@/features/git/utils/git-diff-cache";
 import { isDiffFile, parseRawDiffContent } from "@/features/git/utils/git-diff-parser";
+import { useSidebarStore } from "@/features/layout/stores/sidebar-store";
+import type { PaneContent } from "@/features/panes/types/pane-content";
 import { connectionStore } from "@/features/remote/services/remote-connection-store";
 import { parseRemotePath } from "@/features/remote/utils/remote-path";
 import { useSettingsStore } from "@/features/settings/store";
-import { useSidebarStore } from "@/features/layout/stores/sidebar-store";
+import { loadWorkspaceTerminalsFromStorage } from "@/features/terminal/lib/terminal-session-storage";
 import { useProjectStore } from "@/features/window/stores/project-store";
 import type { BufferSession } from "@/features/window/stores/session-store";
 import { useSessionStore } from "@/features/window/stores/session-store";
+import { useWorkspaceTabsStore } from "@/features/window/stores/workspace-tabs-store";
 import {
   persistCurrentProjectUiState,
   restoreProjectUiState,
 } from "@/features/window/stores/workspace-ui-session";
-import { useWorkspaceTabsStore } from "@/features/window/stores/workspace-tabs-store";
 import { createAppWindow } from "@/features/window/utils/create-app-window";
-import { loadWorkspaceTerminalsFromStorage } from "@/features/terminal/lib/terminal-session-storage";
+import { invoke } from "@/lib/platform/core";
+import { copyFile, readFile } from "@/lib/platform/fs";
+import { revealItemInDir } from "@/lib/platform/opener";
+import { basename, dirname, extname, join } from "@/lib/platform/path";
 import { toast } from "@/ui/toast";
 import { frontendTrace } from "@/utils/frontend-trace";
 import { createSelectors } from "@/utils/zustand-selectors";
@@ -64,7 +65,6 @@ import { getSymlinkInfo, openFolder, readDirectory, renameFile } from "./platfor
 import { useRecentFoldersStore } from "./recent-folders-store";
 import { shouldIgnore, updateDirectoryContents } from "./utils";
 import { buildWorkspaceRestorePlan } from "./workspace-session";
-import type { PaneContent } from "@/features/panes/types/pane-content";
 
 const logWorkspaceOpenStep = (
   phase: "start" | "end" | "error",

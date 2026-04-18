@@ -183,6 +183,8 @@ export function ResizablePane({
       style={{ width: hidden ? "0px" : `${width}px` }}
       className={cn(
         "relative flex h-full min-w-0 shrink-0 flex-col overflow-hidden bg-secondary-bg",
+        !hidden && position === "left" && "border-r border-border/40",
+        !hidden && position === "right" && "border-l border-border/40",
         hidden && "pointer-events-none",
         className,
       )}
@@ -205,21 +207,7 @@ export function ResizablePane({
         />
       )}
       {isResizing && <div className="pointer-events-none fixed inset-0 z-40 cursor-col-resize" />}
-      <div
-        className={cn(
-          "flex min-h-0 flex-1 flex-col overflow-hidden py-0",
-          !hidden && (position === "left" ? "pl-2" : "pr-2"),
-        )}
-      >
-        <div
-          className={cn(
-            "flex min-h-0 flex-1 flex-col overflow-hidden border border-border/70 bg-primary-bg",
-            !hidden && "rounded-lg",
-          )}
-        >
-          {children}
-        </div>
-      </div>
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">{children}</div>
     </div>
   );
 }

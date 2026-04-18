@@ -1,8 +1,8 @@
-import { invoke } from "@tauri-apps/api/core";
-import { openUrl } from "@tauri-apps/plugin-opener";
 import { Copy, ExternalLink, MessageSquare, RefreshCw } from "lucide-react";
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { useBufferStore } from "@/features/editor/stores/buffer-store";
+import { invoke } from "@/lib/platform/core";
+import { openUrl } from "@/lib/platform/opener";
 import { Button } from "@/ui/button";
 import { toast } from "@/ui/toast";
 import Tooltip from "@/ui/tooltip";

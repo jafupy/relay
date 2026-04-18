@@ -1,4 +1,3 @@
-import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import {
   AlertCircle,
   AlertTriangle,
@@ -22,9 +21,10 @@ import { useBufferStore } from "@/features/editor/stores/buffer-store";
 import { useToast } from "@/features/layout/contexts/toast-context";
 import type { TerminalWidthMode } from "@/features/terminal/stores/terminal-store";
 import { useTerminalStore } from "@/features/terminal/stores/terminal-store";
+import { writeText } from "@/lib/platform/clipboard";
 import Badge from "@/ui/badge";
 import { Button } from "@/ui/button";
-import { ContextMenu, useContextMenu, type ContextMenuItem } from "@/ui/context-menu";
+import { ContextMenu, type ContextMenuItem, useContextMenu } from "@/ui/context-menu";
 import { PANE_CHIP_BASE, PaneIconButton, paneHeaderClassName } from "@/ui/pane";
 import { SearchPopover } from "@/ui/search";
 import { cn } from "@/utils/cn";

@@ -2,7 +2,7 @@
  * Theme Schema
  *
  * Theme files are standalone JSON files.
- * Users can create themes by dropping JSON files into ~/.config/athas/themes/
+ * Users can create themes by dropping JSON files into ~/.config/relay/themes/
  */
 
 /**

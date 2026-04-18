@@ -7,7 +7,7 @@ use crate::{
 };
 use serde::{Deserialize, Serialize};
 use std::path::Path;
-use tauri::AppHandle;
+use relay::AppHandle;
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]

@@ -3,4 +3,6 @@
 set -euo pipefail
 
 bun typecheck
-bunx vp check
+bun lint
+bun test
+bun run build

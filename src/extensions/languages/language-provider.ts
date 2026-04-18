@@ -3,14 +3,14 @@ import type {
   LanguageExtension,
   Token,
 } from "@/features/editor/extensions/types";
+import { indexedDBParserCache } from "@/features/editor/lib/wasm-parser/cache-indexeddb";
 import {
   convertToEditorTokens,
   tokenizeCode,
 } from "@/features/editor/lib/wasm-parser/wasm-parser-api";
-import { indexedDBParserCache } from "@/features/editor/lib/wasm-parser/cache-indexeddb";
 
 // CDN base URL for downloading WASM parsers and highlight queries
-const CDN_BASE_URL = import.meta.env.VITE_PARSER_CDN_URL || "https://athas.dev/extensions";
+const CDN_BASE_URL = import.meta.env.VITE_PARSER_CDN_URL || "/assets/extension";
 
 export interface LanguageConfig {
   id: string;

@@ -5,7 +5,7 @@ use std::{
    process::Command,
    sync::OnceLock,
 };
-use tauri::{AppHandle, Manager};
+use relay::{AppHandle, Manager};
 
 /// Get the user's login shell PATH by running `$SHELL -ilc 'echo $PATH'`.
 /// Cached for the lifetime of the process since the user's PATH doesn't change.

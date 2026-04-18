@@ -1,17 +1,15 @@
 [workspace]
 members = [
-  "src-tauri",
+  "crates/server",
   "crates/runtime",
-  "crates/tooling",
-  "crates/lsp",
-  "crates/remote",
   "crates/project",
   "crates/database",
-  "crates/version-control",
-  "crates/extensions",
-  "crates/terminal",
   "crates/ai",
-  "crates/github",
+  "crates/lsp",
+  "crates/remote",
+  "crates/terminal",
+  "crates/tooling",
+  "crates/version-control",
 ]
 resolver = "2"
 

@@ -8,16 +8,17 @@ import {
   Trash2,
 } from "lucide-react";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { openUrl } from "@tauri-apps/plugin-opener";
 import CodeEditor from "@/features/editor/components/code-editor";
 import Breadcrumb from "@/features/editor/components/toolbar/breadcrumb";
 import { EDITOR_CONSTANTS } from "@/features/editor/config/constants";
-import { FileExplorerIcon } from "@/features/file-explorer/components/file-explorer-icon";
 import { useBufferStore } from "@/features/editor/stores/buffer-store";
 import { useEditorSettingsStore } from "@/features/editor/stores/settings-store";
 import { calculateLineHeight, splitLines } from "@/features/editor/utils/lines";
-import { useZoomStore } from "@/features/window/stores/zoom-store";
+import { FileExplorerIcon } from "@/features/file-explorer/components/file-explorer-icon";
 import { useFileSystemStore } from "@/features/file-system/controllers/store";
+import { useZoomStore } from "@/features/window/stores/zoom-store";
+import { openUrl } from "@/lib/platform/opener";
+import Badge from "@/ui/badge";
 import { Button } from "@/ui/button";
 import Tooltip from "@/ui/tooltip";
 import { cn } from "@/utils/cn";
@@ -27,17 +28,16 @@ import { getGitStatus } from "../../api/git-status-api";
 import { useDiffEditorBuffer } from "../../hooks/use-diff-editor-buffer";
 import type { MultiFileDiff } from "../../types/git-diff-types";
 import type { GitDiff } from "../../types/git-types";
-import { gitDiffCache } from "../../utils/git-diff-cache";
-import { getFileStatus } from "../../utils/git-diff-helpers";
-import { buildWorkingTreeMultiDiff } from "../../utils/working-tree-multi-diff";
 import {
   serializeGitDiffSourceForEditor,
   serializeGitDiffSourceForSplitEditor,
 } from "../../utils/diff-editor-content";
+import { gitDiffCache } from "../../utils/git-diff-cache";
+import { getFileStatus } from "../../utils/git-diff-helpers";
+import { buildWorkingTreeMultiDiff } from "../../utils/working-tree-multi-diff";
 import DiffLineBackgroundLayer from "./diff-line-background-layer";
 import ImageDiffViewer from "./git-diff-image";
 import TextDiffViewer from "./git-diff-text";
-import Badge from "@/ui/badge";
 
 function countStats(diff: GitDiff) {
   let additions = 0;

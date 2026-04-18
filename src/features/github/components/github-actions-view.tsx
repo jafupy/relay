@@ -1,6 +1,4 @@
-import { invoke } from "@tauri-apps/api/core";
 import { Activity, AlertCircle } from "lucide-react";
-import { GitHubCliStatusMessage } from "./github-cli-status";
 import {
   memo,
   startTransition,
@@ -13,7 +11,8 @@ import {
 import { useBufferStore } from "@/features/editor/stores/buffer-store";
 import { useFileSystemStore } from "@/features/file-system/controllers/store";
 import { useRepositoryStore } from "@/features/git/stores/git-repository-store";
-import GitHubSidebarLoadingBar from "./github-sidebar-loading-bar";
+import { invoke } from "@/lib/platform/core";
+import { Button } from "@/ui/button";
 import { useGitHubStore } from "../stores/github-store";
 import type { WorkflowRunListItem } from "../types/github";
 import {
@@ -22,7 +21,8 @@ import {
   githubActionDetailsCache,
   githubActionListCache,
 } from "../utils/github-data-cache";
-import { Button } from "@/ui/button";
+import { GitHubCliStatusMessage } from "./github-cli-status";
+import GitHubSidebarLoadingBar from "./github-sidebar-loading-bar";
 
 interface WorkflowRunRowProps {
   run: WorkflowRunListItem;

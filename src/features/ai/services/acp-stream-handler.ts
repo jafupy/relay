@@ -1,10 +1,10 @@
-import { invoke } from "@tauri-apps/api/core";
-import { listen } from "@tauri-apps/api/event";
 import { useAIChatStore } from "@/features/ai/store/store";
 import type { AcpAgentStatus, AcpEvent, AgentConfig } from "@/features/ai/types/acp";
 import type { ContextInfo } from "@/features/ai/types/ai-context";
 import { useBufferStore } from "@/features/editor/stores/buffer-store";
 import { useProjectStore } from "@/features/window/stores/project-store";
+import { invoke } from "@/lib/platform/core";
+import { listen } from "@/lib/platform/events";
 import { buildContextPrompt } from "../utils/ai-context-builder";
 
 interface AcpHandlers {

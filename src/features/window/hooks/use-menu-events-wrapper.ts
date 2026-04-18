@@ -1,13 +1,13 @@
-import { invoke } from "@tauri-apps/api/core";
-import { save } from "@tauri-apps/plugin-dialog";
 import { useBufferStore } from "@/features/editor/stores/buffer-store";
+import { useEditorAppStore } from "@/features/editor/stores/editor-app-store";
 import { useFileSystemStore } from "@/features/file-system/controllers/store";
 import { usePaneStore } from "@/features/panes/stores/pane-store";
 import { useSettingsStore } from "@/features/settings/store";
-import { fetchRawAppVersion } from "@/features/window/utils/app-version";
-import { useEditorAppStore } from "@/features/editor/stores/editor-app-store";
 import { useUIState } from "@/features/window/stores/ui-state-store";
+import { fetchRawAppVersion } from "@/features/window/utils/app-version";
 import { createAppWindow } from "@/features/window/utils/create-app-window";
+import { invoke } from "@/lib/platform/core";
+import { save } from "@/lib/platform/dialog";
 import { useMenuEvents } from "./use-menu-events";
 
 export function useMenuEventsWrapper() {
@@ -182,19 +182,19 @@ export function useMenuEventsWrapper() {
     onThemeChange: (theme: string) => updateSetting("theme", theme),
     onAbout: async () => {
       const version = await fetchRawAppVersion();
-      const aboutText = `Athas Code Editor
+      const aboutText = `Relay Code Editor
 Version: ${version}
-Built with: React, TypeScript, Tauri
+Built with: React, TypeScript, Relay
 License: MIT
 
 A lightweight, fast code editor for developers.
 
-GitHub: https://github.com/athasdev/athas`;
+GitHub: https://github.com/relay/relay`;
 
       alert(aboutText);
     },
     onHelp: () => {
-      const helpText = `Athas Help - Keyboard Shortcuts
+      const helpText = `Relay Help - Keyboard Shortcuts
 
 File:
 • Ctrl+N (Cmd+N): New Tab
@@ -219,17 +219,17 @@ Go:
 • Ctrl+G (Cmd+G): Go to Line
 • Ctrl+Shift+P (Cmd+Shift+P): Command Palette
 
-For more help: https://github.com/athasdev/athas`;
+For more help: https://github.com/relay/relay`;
 
       alert(helpText);
     },
     onReportBug: async () => {
       try {
-        const { getVersion } = await import("@tauri-apps/api/app");
+        const { getVersion } = await import("@/lib/platform/app");
         const version = await getVersion();
         let osSummary = "";
         try {
-          const os = await import("@tauri-apps/plugin-os");
+          const os = await import("@/lib/platform/os");
           const plat = os.platform();
           const ver = os.version();
           osSummary = `${plat} ${ver}`;
@@ -237,31 +237,31 @@ For more help: https://github.com/athasdev/athas`;
           osSummary = navigator.userAgent;
         }
 
-        const text = `Environment\n\n- App: Athas ${version}\n- OS: ${osSummary}\n\nProblem\n\nDescribe the issue here. Steps to reproduce, expected vs actual.\n`;
+        const text = `Environment\n\n- App: Relay ${version}\n- OS: ${osSummary}\n\nProblem\n\nDescribe the issue here. Steps to reproduce, expected vs actual.\n`;
         try {
-          const { writeText } = await import("@tauri-apps/plugin-clipboard-manager");
+          const { writeText } = await import("@/lib/platform/clipboard");
           await writeText(text);
         } catch {
           // Fallback to browser clipboard
           await navigator.clipboard.writeText(text);
         }
 
-        const { openUrl } = await import("@tauri-apps/plugin-opener");
-        await openUrl("https://github.com/athasdev/athas/issues/new?template=01-bug.yml");
+        const { openUrl } = await import("@/lib/platform/opener");
+        await openUrl("https://github.com/relay/relay/issues/new?template=01-bug.yml");
       } catch (e) {
         console.error("Failed to prepare bug report:", e);
       }
     },
-    onAboutAthas: async () => {
+    onAboutRelay: async () => {
       const version = await fetchRawAppVersion();
-      const aboutText = `Athas Code Editor
+      const aboutText = `Relay Code Editor
 Version: ${version}
-Built with: React, TypeScript, Tauri
+Built with: React, TypeScript, Relay
 License: MIT
 
 A lightweight, fast code editor for developers.
 
-GitHub: https://github.com/athasdev/athas`;
+GitHub: https://github.com/relay/relay`;
 
       alert(aboutText);
     },

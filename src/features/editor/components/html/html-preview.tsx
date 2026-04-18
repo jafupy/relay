@@ -1,7 +1,7 @@
-import { convertFileSrc } from "@tauri-apps/api/core";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useBufferStore } from "@/features/editor/stores/buffer-store";
 import { hasTextContent } from "@/features/panes/types/pane-content";
+import { convertFileSrc } from "@/lib/platform/core";
 
 export function HtmlPreview() {
   const buffers = useBufferStore.use.buffers();
@@ -28,7 +28,7 @@ export function HtmlPreview() {
     const lastSlashIndex = sourcePath.lastIndexOf("/");
     const dirPath = lastSlashIndex !== -1 ? sourcePath.substring(0, lastSlashIndex) : sourcePath;
 
-    // Convert to Tauri asset URL
+    // Convert to Relay asset URL
     // convertFileSrc handles the protocol logic (e.g. asset:// or http://asset.localhost)
     const url = convertFileSrc(dirPath);
 

@@ -2,16 +2,16 @@ use super::{
    bridge_commands::{AcpCommand, run_worker_loop},
    bridge_init::initialize_worker,
    bridge_prompt::run_prompt,
-   client::{AthasAcpClient, PermissionResponse},
+   client::{PermissionResponse, RelayAcpClient},
    config::AgentRegistry,
+   events::{AcpEventSink, emit},
    types::{AcpAgentStatus, AcpEvent, AgentConfig, SessionConfigOption},
 };
 use acp::Agent;
 use agent_client_protocol as acp;
 use anyhow::{Context, Result, bail};
-use athas_terminal::TerminalManager;
+use relay_terminal::TerminalManager;
 use std::{sync::Arc, thread};
-use tauri::{AppHandle, Emitter};
 use tokio::{
    process::Child,
    runtime::Runtime,
@@ -26,9 +26,9 @@ pub(super) struct AcpWorker {
    auth_method_id: Option<String>,
    process: Option<Child>,
    io_handle: Option<tokio::task::JoinHandle<()>>,
-   client: Option<Arc<AthasAcpClient>>,
+   client: Option<Arc<RelayAcpClient>>,
    agent_id: Option<String>,
-   app_handle: Option<AppHandle>,
+   event_sink: Option<Arc<dyn AcpEventSink>>,
 }
 
 impl AcpWorker {
@@ -41,7 +41,7 @@ impl AcpWorker {
          io_handle: None,
          client: None,
          agent_id: None,
-         app_handle: None,
+         event_sink: None,
       }
    }
 
@@ -53,15 +53,17 @@ impl AcpWorker {
       match process.try_wait() {
          Ok(Some(status)) => {
             let session_id = self.session_id.as_ref().map(ToString::to_string);
-            if let Some(app_handle) = self.app_handle.as_ref() {
-               let _ = app_handle.emit(
+            if let Some(event_sink) = self.event_sink.as_ref() {
+               let _ = emit(
+                  event_sink.as_ref(),
                   "acp-event",
                   AcpEvent::Error {
                      session_id: session_id.clone(),
                      error: format!("ACP agent process exited: {}", status),
                   },
                );
-               let _ = app_handle.emit(
+               let _ = emit(
+                  event_sink.as_ref(),
                   "acp-event",
                   AcpEvent::StatusChanged {
                      status: AcpAgentStatus::default(),
@@ -78,7 +80,7 @@ impl AcpWorker {
             self.process = None;
             self.client = None;
             self.agent_id = None;
-            self.app_handle = None;
+            self.event_sink = None;
 
             bail!("ACP agent process exited: {}", status);
          }
@@ -90,7 +92,7 @@ impl AcpWorker {
    fn map_config_options(options: Vec<acp::SessionConfigOption>) -> Vec<SessionConfigOption> {
       options
          .into_iter()
-         .filter_map(AthasAcpClient::map_session_config_option)
+         .filter_map(RelayAcpClient::map_session_config_option)
          .collect()
    }
 
@@ -100,7 +102,7 @@ impl AcpWorker {
       workspace_path: Option<String>,
       session_id: Option<String>,
       config: AgentConfig,
-      app_handle: AppHandle,
+      event_sink: Arc<dyn AcpEventSink>,
       terminal_manager: Arc<TerminalManager>,
    ) -> Result<(AcpAgentStatus, mpsc::Sender<PermissionResponse>)> {
       // Stop any existing agent first
@@ -116,7 +118,7 @@ impl AcpWorker {
       let initialized = initialize_worker(
          &config,
          workspace_path,
-         app_handle.clone(),
+         event_sink.clone(),
          terminal_manager,
          session_id,
          Self::map_config_options,
@@ -130,7 +132,7 @@ impl AcpWorker {
       self.io_handle = Some(initialized.io_handle);
       self.client = Some(initialized.client);
       self.agent_id = Some(agent_id.clone());
-      self.app_handle = Some(app_handle.clone());
+      self.event_sink = Some(event_sink);
 
       let status = AcpAgentStatus {
          agent_id,
@@ -156,10 +158,10 @@ impl AcpWorker {
          .as_ref()
          .context("No active session")?
          .clone();
-      let app_handle = self
-         .app_handle
+      let event_sink = self
+         .event_sink
          .as_ref()
-         .context("No app handle available")?
+         .context("No event sink available")?
          .clone();
       let auth_method_id = self.auth_method_id.clone();
       let prompt = prompt.to_string();
@@ -168,14 +170,15 @@ impl AcpWorker {
          if let Err(err) = run_prompt(
             connection,
             session_id.clone(),
-            app_handle.clone(),
+            event_sink.clone(),
             prompt,
             auth_method_id,
          )
          .await
          {
             log::error!("Failed to run ACP prompt: {}", err);
-            let _ = app_handle.emit(
+            let _ = emit(
+               event_sink.as_ref(),
                "acp-event",
                AcpEvent::Error {
                   session_id: Some(session_id.to_string()),
@@ -255,7 +258,7 @@ impl AcpWorker {
       self.auth_method_id = None;
       self.client = None;
       self.agent_id = None;
-      self.app_handle = None;
+      self.event_sink = None;
 
       Ok(())
    }
@@ -277,7 +280,7 @@ impl AcpWorker {
 /// Manages ACP agent connections via a dedicated worker thread
 #[derive(Clone)]
 pub struct AcpAgentBridge {
-   app_handle: AppHandle,
+   event_sink: Arc<dyn AcpEventSink>,
    registry: AgentRegistry,
    command_tx: mpsc::Sender<AcpCommand>,
    status: Arc<Mutex<AcpAgentStatus>>,
@@ -286,8 +289,8 @@ pub struct AcpAgentBridge {
 }
 
 impl AcpAgentBridge {
-   pub fn new(app_handle: AppHandle, terminal_manager: Arc<TerminalManager>) -> Self {
-      let mut registry = AgentRegistry::new(&app_handle);
+   pub fn new(event_sink: Arc<dyn AcpEventSink>, terminal_manager: Arc<TerminalManager>) -> Self {
+      let mut registry = AgentRegistry::new(event_sink.data_dir());
       registry.detect_installed();
 
       let (command_tx, command_rx) = mpsc::channel::<AcpCommand>(32);
@@ -305,7 +308,7 @@ impl AcpAgentBridge {
       });
 
       Self {
-         app_handle,
+         event_sink,
          registry,
          command_tx,
          status,
@@ -316,6 +319,12 @@ impl AcpAgentBridge {
    /// Detect which agents are installed on the system
    pub fn detect_agents(&mut self) -> Vec<AgentConfig> {
       self.registry.detect_installed();
+      self.registry.list_all()
+   }
+
+   /// Force detection after a managed install changes wrapper files on disk.
+   pub fn refresh_agents(&mut self) -> Vec<AgentConfig> {
+      self.registry.refresh_installed();
       self.registry.list_all()
    }
 
@@ -341,7 +350,7 @@ impl AcpAgentBridge {
             workspace_path,
             session_id,
             config: Box::new(config),
-            app_handle: self.app_handle.clone(),
+            event_sink: self.event_sink.clone(),
             terminal_manager: self.terminal_manager.clone(),
             response_tx,
          })
@@ -427,9 +436,11 @@ impl AcpAgentBridge {
 
       // Emit SessionComplete before StatusChanged
       if let Some(sid) = session_id {
-         let _ = self
-            .app_handle
-            .emit("acp-event", AcpEvent::SessionComplete { session_id: sid });
+         let _ = emit(
+            self.event_sink.as_ref(),
+            "acp-event",
+            AcpEvent::SessionComplete { session_id: sid },
+         );
       }
 
       // Emit status change
@@ -490,7 +501,8 @@ impl AcpAgentBridge {
    }
 
    fn emit_status_change(&self, status: &AcpAgentStatus) {
-      let _ = self.app_handle.emit(
+      let _ = emit(
+         self.event_sink.as_ref(),
          "acp-event",
          AcpEvent::StatusChanged {
             status: status.clone(),

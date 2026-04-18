@@ -13,7 +13,7 @@ import type {
   ToolRuntime,
 } from "../types/extension-manifest";
 
-const CDN_BASE_URL = import.meta.env.VITE_PARSER_CDN_URL || "https://athas.dev/extensions";
+const CDN_BASE_URL = import.meta.env.VITE_PARSER_CDN_URL || "/assets/extension";
 const MANIFESTS_URL = `${CDN_BASE_URL}/manifests.json`;
 const BUNDLED_PARSER_BASE_URL = "/tree-sitter/parsers";
 
@@ -205,7 +205,7 @@ function convertLanguageManifest(
     displayName: manifest.displayName || manifest.name,
     description: manifest.description || `${manifest.name} language support`,
     version: manifest.version || "1.0.0",
-    publisher: manifest.publisher || "Athas",
+    publisher: manifest.publisher || "Relay",
     categories: toExtensionCategories(manifest.categories),
     languages,
     grammar: {

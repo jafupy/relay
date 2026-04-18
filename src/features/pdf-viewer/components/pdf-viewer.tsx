@@ -1,12 +1,10 @@
-import { invoke } from "@tauri-apps/api/core";
-import { readFile } from "@tauri-apps/plugin-fs";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
+import { invoke } from "@/lib/platform/core";
+import { readFile } from "@/lib/platform/fs";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 
-import { confirm } from "@tauri-apps/plugin-dialog";
-import { openUrl } from "@tauri-apps/plugin-opener"; // Keep for external links
 import { ExternalLink, Loader2 } from "lucide-react";
 // Configure PDF.js worker
 import pdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
@@ -14,6 +12,8 @@ import { useFileSystemStore } from "@/features/file-system/controllers/store";
 import { ImageZoomControls } from "@/features/image-viewer/components/image-zoom-controls";
 import { useImageZoom } from "@/features/image-viewer/hooks/use-image-zoom";
 import { useResizeObserver } from "@/features/panes/hooks/use-resize-observer";
+import { confirm } from "@/lib/platform/dialog";
+import { openUrl } from "@/lib/platform/opener"; // Keep for external links
 import { Button } from "@/ui/button";
 import { getRelativePath } from "@/utils/path-helpers";
 import { PdfViewerFooter } from "./pdf-viewer-footer";

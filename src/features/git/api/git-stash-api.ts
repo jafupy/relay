@@ -1,4 +1,4 @@
-import { invoke as tauriInvoke } from "@tauri-apps/api/core";
+import { invoke as relayInvoke } from "@/lib/platform/core";
 import type { GitStash } from "../types/git-types";
 import { isNotGitRepositoryError, resolveRepositoryPath } from "./git-repo-api";
 
@@ -9,7 +9,7 @@ export const getStashes = async (repoPath: string): Promise<GitStash[]> => {
       return [];
     }
 
-    const stashes = await tauriInvoke<GitStash[]>("git_get_stashes", {
+    const stashes = await relayInvoke<GitStash[]>("git_get_stashes", {
       repoPath: resolvedRepoPath,
     });
     return stashes;
@@ -28,7 +28,7 @@ export const createStash = async (
   files?: string[],
 ): Promise<boolean> => {
   try {
-    await tauriInvoke("git_create_stash", {
+    await relayInvoke("git_create_stash", {
       repoPath,
       message,
       includeUntracked,
@@ -43,7 +43,7 @@ export const createStash = async (
 
 export const applyStash = async (repoPath: string, stashIndex: number): Promise<boolean> => {
   try {
-    await tauriInvoke("git_apply_stash", { repoPath, stashIndex });
+    await relayInvoke("git_apply_stash", { repoPath, stashIndex });
     return true;
   } catch (error) {
     console.error("Failed to apply stash:", error);
@@ -53,7 +53,7 @@ export const applyStash = async (repoPath: string, stashIndex: number): Promise<
 
 export const popStash = async (repoPath: string, stashIndex?: number): Promise<boolean> => {
   try {
-    await tauriInvoke("git_pop_stash", { repoPath, stashIndex });
+    await relayInvoke("git_pop_stash", { repoPath, stashIndex });
     return true;
   } catch (error) {
     console.error("Failed to pop stash:", error);
@@ -63,7 +63,7 @@ export const popStash = async (repoPath: string, stashIndex?: number): Promise<b
 
 export const dropStash = async (repoPath: string, stashIndex: number): Promise<boolean> => {
   try {
-    await tauriInvoke("git_drop_stash", { repoPath, stashIndex });
+    await relayInvoke("git_drop_stash", { repoPath, stashIndex });
     return true;
   } catch (error) {
     console.error("Failed to drop stash:", error);

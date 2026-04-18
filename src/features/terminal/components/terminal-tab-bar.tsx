@@ -1,5 +1,3 @@
-import { save } from "@tauri-apps/plugin-dialog";
-import { writeTextFile } from "@tauri-apps/plugin-fs";
 import {
   AlignCenter,
   ArrowDown,
@@ -8,14 +6,14 @@ import {
   Maximize,
   Maximize2,
   Minimize2,
+  PanelLeft,
+  PanelRight,
   Pin,
   Plus,
+  Rows3,
   Search,
   SplitSquareHorizontal,
   Terminal as TerminalIcon,
-  PanelLeft,
-  PanelRight,
-  Rows3,
 } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
@@ -30,8 +28,10 @@ import {
 } from "@/features/terminal/stores/terminal-store";
 import type { Terminal } from "@/features/terminal/types/terminal";
 import { getAllTerminalProfiles } from "@/features/terminal/utils/terminal-profiles";
-import { Dropdown, MenuItemsList, type MenuItem } from "@/ui/dropdown";
+import { save } from "@/lib/platform/dialog";
+import { writeTextFile } from "@/lib/platform/fs";
 import { Button } from "@/ui/button";
+import { Dropdown, type MenuItem, MenuItemsList } from "@/ui/dropdown";
 import { cn } from "@/utils/cn";
 import Tooltip from "../../../ui/tooltip";
 import TerminalTabBarItem from "./terminal-tab-bar-item";

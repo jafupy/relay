@@ -1,7 +1,7 @@
-import { open } from "@tauri-apps/plugin-dialog";
 import { FolderOpen, Loader2, PlugZap } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useBufferStore } from "@/features/editor/stores/buffer-store";
+import { open } from "@/lib/platform/dialog";
 import { Button } from "@/ui/button";
 import Checkbox from "@/ui/checkbox";
 import Dialog from "@/ui/dialog";

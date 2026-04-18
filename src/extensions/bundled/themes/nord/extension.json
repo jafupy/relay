@@ -1,10 +1,10 @@
 {
-  "id": "athas.nord",
+  "id": "relay.nord",
   "name": "Nord",
   "displayName": "Nord Theme",
   "description": "An arctic, north-bluish color palette",
   "version": "1.0.0",
-  "publisher": "Athas",
+  "publisher": "Relay",
   "license": "MIT",
   "category": "theme",
   "bundled": true,

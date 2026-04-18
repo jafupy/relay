@@ -1,4 +1,3 @@
-import { open } from "@tauri-apps/plugin-dialog";
 import {
   Database,
   FileText,
@@ -17,8 +16,9 @@ import { readFileContent } from "@/features/file-system/controllers/file-operati
 import { useFileSystemStore } from "@/features/file-system/controllers/store";
 import { useCustomActionsStore } from "@/features/terminal/stores/custom-actions-store";
 import { useUIState } from "@/features/window/stores/ui-state-store";
+import { open } from "@/lib/platform/dialog";
 import { Button } from "@/ui/button";
-import { ContextMenu, useContextMenu, type ContextMenuItem } from "@/ui/context-menu";
+import { ContextMenu, type ContextMenuItem, useContextMenu } from "@/ui/context-menu";
 import Input from "@/ui/input";
 
 interface ActionItem {

@@ -1,5 +1,5 @@
-import { listen } from "@tauri-apps/api/event";
 import { useEffect } from "react";
+import { listen } from "@/lib/platform/events";
 import { handleWindowOpenRequest } from "../utils/window-open-request";
 
 interface CliOpenPayload {

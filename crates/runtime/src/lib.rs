@@ -145,7 +145,7 @@ pub enum RuntimeStatus {
    NotInstalled,
    /// Runtime is available on system PATH
    SystemAvailable,
-   /// Runtime was downloaded and managed by Athas
+   /// Runtime was downloaded and managed by Relay
    ManagedInstalled,
    /// Runtime path is configured by user in settings
    CustomConfigured,

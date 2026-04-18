@@ -1,14 +1,14 @@
-import {
-  convertToEditorTokens,
-  tokenizeCode,
-  wasmParserLoader,
-} from "../../lib/wasm-parser/wasm-parser-api";
+import { isEditorContent } from "@/features/panes/types/pane-content";
 import { indexedDBParserCache } from "../../lib/wasm-parser/cache-indexeddb";
 import {
   fetchHighlightQuery,
   getDefaultParserWasmUrl,
 } from "../../lib/wasm-parser/extension-assets";
-import { isEditorContent } from "@/features/panes/types/pane-content";
+import {
+  convertToEditorTokens,
+  tokenizeCode,
+  wasmParserLoader,
+} from "../../lib/wasm-parser/wasm-parser-api";
 import { useBufferStore } from "../../stores/buffer-store";
 import type { Change } from "../../types/editor";
 import { getLanguageIdFromPath } from "../../utils/language-id";
@@ -37,7 +37,6 @@ class SyntaxHighlighter {
   private abortController: AbortController | null = null;
   private contentVersion = 0; // Track content version to prevent stale tokens
 
-  // biome-ignore lint/complexity/noUselessConstructor: Required for API contract
   constructor(_editor: EditorAPI) {}
 
   setFilePath(filePath: string) {

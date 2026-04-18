@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   getTerminalSessionStorageKey,
   loadWorkspaceTerminalsFromStorage,
@@ -30,12 +30,20 @@ const createMockStorage = () => {
 };
 
 describe("terminal session storage", () => {
+  const originalLocalStorage = globalThis.localStorage;
+
   beforeEach(() => {
-    vi.stubGlobal("localStorage", createMockStorage());
+    Object.defineProperty(globalThis, "localStorage", {
+      configurable: true,
+      value: createMockStorage(),
+    });
   });
 
   afterEach(() => {
-    vi.unstubAllGlobals();
+    Object.defineProperty(globalThis, "localStorage", {
+      configurable: true,
+      value: originalLocalStorage,
+    });
   });
 
   it("stores terminals per workspace key", () => {

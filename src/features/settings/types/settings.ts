@@ -101,6 +101,4 @@ export interface Settings {
   gitLastPanelMode: "changes" | "stash" | "history" | "worktrees";
   enableInlineGitBlame: boolean;
   enableGitGutter: boolean;
-  // Telemetry
-  telemetry: boolean;
 }

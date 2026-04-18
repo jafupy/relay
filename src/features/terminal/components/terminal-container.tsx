@@ -1,18 +1,18 @@
-import { invoke } from "@tauri-apps/api/core";
 import { Maximize2, Minimize2, Plus, Search, SplitSquareHorizontal } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useRef } from "react";
 import { useSettingsStore } from "@/features/settings/store";
 import { useTerminalTabs } from "@/features/terminal/hooks/use-terminal-tabs";
 import { useTerminalProfilesStore } from "@/features/terminal/stores/profiles-store";
-import { useTerminalStore } from "@/features/terminal/stores/terminal-store";
 import { useTerminalShellsStore } from "@/features/terminal/stores/shells-store";
+import { useTerminalStore } from "@/features/terminal/stores/terminal-store";
 import {
   resolveTerminalLaunch,
   SYSTEM_DEFAULT_PROFILE_ID,
 } from "@/features/terminal/utils/terminal-profiles";
 import { useUIState } from "@/features/window/stores/ui-state-store";
 import { useZoomStore } from "@/features/window/stores/zoom-store";
+import { invoke } from "@/lib/platform/core";
 import { Button } from "@/ui/button";
 import Tooltip from "@/ui/tooltip";
 import { cn } from "@/utils/cn";

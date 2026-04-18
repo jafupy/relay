@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
 import { createElement } from "react";
-import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import type { HighlightToken } from "@/features/editor/lib/wasm-parser/types";
+import { writeText } from "@/lib/platform/clipboard";
 import { toast } from "@/ui/toast";
-import type { Commit, DiffSectionIndex, FileDiff, FilePatchData } from "../types/pr-viewer";
 import type { PullRequestFile } from "../types/github";
+import type { Commit, DiffSectionIndex, FileDiff, FilePatchData } from "../types/pr-viewer";
 
 export const EXPAND_ALL_EAGER_PATCH_LIMIT = 10;
 export const EXPANDED_PATCH_BACKGROUND_BATCH = 4;

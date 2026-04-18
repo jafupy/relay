@@ -2,23 +2,23 @@ import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } fro
 import type { DatabaseType } from "@/features/database/models/provider.types";
 import { PROVIDER_REGISTRY } from "@/features/database/providers/provider-registry";
 import CodeEditor from "@/features/editor/components/code-editor";
-import { useBufferStore } from "@/features/editor/stores/buffer-store";
 import type { Buffer } from "@/features/editor/stores/buffer-store";
+import { useBufferStore } from "@/features/editor/stores/buffer-store";
 import { readFileContent } from "@/features/file-system/controllers/file-operations";
 import { useFileSystemStore } from "@/features/file-system/controllers/store";
+import { extractDroppedFilePaths } from "@/features/file-system/utils/file-system-dropped-paths";
 import { stageHunk, unstageHunk } from "@/features/git/api/git-status-api";
 import type { GitHunk } from "@/features/git/types/git-types";
-import { useGitHubStore } from "@/features/github/stores/github-store";
 import { formatDiffBufferLabel } from "@/features/git/utils/diff-buffer-label";
+import { useGitHubStore } from "@/features/github/stores/github-store";
 import { useSettingsStore } from "@/features/settings/store";
 import TabBar from "@/features/tabs/components/tab-bar";
-import { extractDroppedFilePaths } from "@/features/file-system/utils/file-system-dropped-paths";
 import { cn } from "@/utils/cn";
-import { EmptyEditorState } from "./empty-editor-state";
 import { usePaneStore } from "../stores/pane-store";
 import type { PaneGroup } from "../types/pane";
-import { hasTextContent } from "../types/pane-content";
 import type { EditorContent, PullRequestContent } from "../types/pane-content";
+import { hasTextContent } from "../types/pane-content";
+import { EmptyEditorState } from "./empty-editor-state";
 import { type DropZone, SplitDropOverlay } from "./split-drop-overlay";
 
 const AgentTab = lazy(() =>
@@ -40,6 +40,11 @@ function getDatabaseViewer(dbType: DatabaseType) {
 const ExternalEditorTerminal = lazy(() =>
   import("@/features/editor/components/external-editor-terminal").then((m) => ({
     default: m.ExternalEditorTerminal,
+  })),
+);
+const SettingsPane = lazy(() =>
+  import("@/features/settings/components/settings-pane").then((m) => ({
+    default: m.SettingsPane,
   })),
 );
 const DiffViewer = lazy(() => import("@/features/git/components/diff/git-diff-viewer"));
@@ -656,7 +661,7 @@ export function PaneContainer({ pane }: PaneContainerProps) {
       setDraggedCarouselBufferId(bufferId);
       setCarouselDropBufferId(bufferId);
       e.dataTransfer.effectAllowed = "move";
-      e.dataTransfer.setData("application/x-athas-carousel-buffer", bufferId);
+      e.dataTransfer.setData("application/x-relay-carousel-buffer", bufferId);
     },
     [],
   );
@@ -676,7 +681,7 @@ export function PaneContainer({ pane }: PaneContainerProps) {
       e.preventDefault();
 
       const sourceBufferId =
-        draggedCarouselBufferId || e.dataTransfer.getData("application/x-athas-carousel-buffer");
+        draggedCarouselBufferId || e.dataTransfer.getData("application/x-relay-carousel-buffer");
       if (!sourceBufferId || sourceBufferId === targetBufferId) {
         setDraggedCarouselBufferId(null);
         setCarouselDropBufferId(null);
@@ -785,6 +790,9 @@ export function PaneContainer({ pane }: PaneContainerProps) {
               onEditorExit={handleExternalEditorExit}
             />
           );
+
+        case "settings":
+          return <SettingsPane initialTab={buffer.initialTab} />;
 
         default:
           return (

@@ -1,49 +1,22 @@
 import path from "node:path";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
-import { codeInspectorPlugin } from "code-inspector-plugin";
-import { defineConfig } from "vite-plus";
+import { defineConfig } from "vite";
 
-const host = process.env.TAURI_DEV_HOST;
-const isVitest = Boolean(process.env.VITEST);
-const enableCodeInspector = process.env.VITE_CODE_INSPECTOR === "true";
-
-// https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    !isVitest && enableCodeInspector
-      ? codeInspectorPlugin({
-          bundler: "vite",
-        })
-      : null,
-    react(),
-    tailwindcss(),
-  ].filter(Boolean),
+  plugins: [react(), tailwindcss()].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   },
 
-  // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
-  //
-  // 1. prevent vite from obscuring rust errors
   clearScreen: false,
-  // 2. tauri expects a fixed port, fail if that port is not available
   server: {
-    port: 1420,
-    strictPort: true,
-    host: host || false,
-    hmr: host
-      ? {
-          protocol: "ws",
-          host,
-          port: 1421,
-        }
-      : undefined,
+    host: "127.0.0.1",
+    middlewareMode: true,
     watch: {
-      // 3. tell vite to ignore watching `src-tauri` and `interceptor`
-      ignored: ["**/src-tauri/**", "**/interceptor/**"],
+      ignored: ["**/crates/**", "**/target/**", "**/interceptor/**"],
     },
   },
 });

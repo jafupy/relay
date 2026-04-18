@@ -1,7 +1,7 @@
 use anyhow::{Context, Result, bail};
-use athas_runtime::NodeRuntime;
 use crossbeam_channel::{Sender, bounded};
 use lsp_types::*;
+use relay_runtime::NodeRuntime;
 use serde_json::{Value, json};
 use std::{
    collections::HashMap,
@@ -15,10 +15,17 @@ use std::{
    },
    thread,
 };
-use tauri::{AppHandle, Emitter, Manager};
 use tokio::sync::oneshot;
 
 type PendingRequests = Arc<Mutex<HashMap<u64, oneshot::Sender<Result<Value>>>>>;
+
+pub trait LspEventSink: Send + Sync {
+   fn emit_json(&self, event: &str, payload: Value);
+
+   fn data_dir(&self) -> Option<PathBuf> {
+      None
+   }
+}
 
 #[derive(Clone)]
 pub struct LspClient {
@@ -34,7 +41,7 @@ impl LspClient {
       server_path: PathBuf,
       args: Vec<String>,
       _root_uri: Url,
-      app_handle: Option<AppHandle>,
+      event_sink: Option<Arc<dyn LspEventSink>>,
    ) -> Result<(Self, Child)> {
       // Check if this is a JavaScript-based language server
       let is_js_server = server_path
@@ -44,11 +51,10 @@ impl LspClient {
 
       let (command_path, final_args) = if is_js_server {
          // JS-based server requires Node.js runtime
-         let node_path = if let Some(ref handle) = app_handle {
+         let node_path = if let Some(ref sink) = event_sink {
             // Get Node.js runtime asynchronously
-            let managed_root = handle
-               .path()
-               .app_data_dir()
+            let managed_root = sink
+               .data_dir()
                .map(|dir| dir.join("runtimes"))
                .context("Failed to resolve runtime directory for JS-based language server")?;
             let runtime = NodeRuntime::get_or_install(Some(&managed_root))
@@ -58,7 +64,8 @@ impl LspClient {
          } else {
             // Fallback: try to find node on system PATH
             which::which("node").context(
-               "No AppHandle provided and Node.js not found on PATH for JS-based language server",
+               "No server data directory provided and Node.js not found on PATH for JS-based \
+                language server",
             )?
          };
 
@@ -103,7 +110,7 @@ impl LspClient {
       let (stdin_tx, stdin_rx) = bounded::<String>(100);
       let pending_requests = Arc::new(Mutex::new(HashMap::new()));
       let pending_requests_clone = Arc::clone(&pending_requests);
-      let app_handle_clone = app_handle.clone();
+      let event_sink_clone = event_sink.clone();
       let is_running = Arc::new(AtomicBool::new(true));
       let is_running_clone = Arc::clone(&is_running);
 
@@ -228,7 +235,7 @@ impl LspClient {
                if message.get("id").is_some() {
                   Self::handle_response(message, &pending_requests_clone);
                } else if message.get("method").is_some() {
-                  Self::handle_notification(message, &app_handle_clone);
+                  Self::handle_notification(message, &event_sink_clone);
                }
             }
          }
@@ -428,15 +435,15 @@ impl LspClient {
       }
    }
 
-   fn handle_notification(notification: Value, app_handle: &Option<AppHandle>) {
+   fn handle_notification(notification: Value, event_sink: &Option<Arc<dyn LspEventSink>>) {
       let method = notification.get("method").and_then(|m| m.as_str());
       let params = notification.get("params");
 
       log::info!(
-         "handle_notification called with method: {:?}, has_params: {}, has_app_handle: {}",
+         "handle_notification called with method: {:?}, has_params: {}, has_event_sink: {}",
          method,
          params.is_some(),
-         app_handle.is_some()
+         event_sink.is_some()
       );
 
       match method {
@@ -454,16 +461,19 @@ impl LspClient {
                         diagnostic_params.diagnostics.len()
                      );
                      // Emit event to frontend
-                     if let Some(app) = app_handle {
-                        match app.emit("lsp://diagnostics", &diagnostic_params) {
-                           Ok(_) => log::info!(
-                              "Successfully emitted diagnostics for file: {}",
-                              diagnostic_params.uri
-                           ),
-                           Err(e) => log::error!("Failed to emit diagnostics: {}", e),
+                     if let Some(sink) = event_sink {
+                        match serde_json::to_value(&diagnostic_params) {
+                           Ok(value) => {
+                              sink.emit_json("lsp://diagnostics", value);
+                              log::info!(
+                                 "Successfully emitted diagnostics for file: {}",
+                                 diagnostic_params.uri
+                              );
+                           }
+                           Err(e) => log::error!("Failed to serialize diagnostics: {}", e),
                         }
                      } else {
-                        log::error!("No app_handle available to emit diagnostics");
+                        log::error!("No event sink available to emit diagnostics");
                      }
                   }
                   Err(e) => {

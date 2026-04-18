@@ -1,5 +1,5 @@
-import { invoke as tauriInvoke } from "@tauri-apps/api/core";
-import { readDir } from "@tauri-apps/plugin-fs";
+import { invoke as relayInvoke } from "@/lib/platform/core";
+import { readDir } from "@/lib/platform/fs";
 
 const repoDiscoveryCache = new Map<string, string | null>();
 const workspaceRepoDiscoveryCache = new Map<string, { discoveredAt: number; repos: string[] }>();
@@ -121,7 +121,7 @@ async function discoverRepo(path: string): Promise<string | null> {
   }
 
   try {
-    const discovered = await tauriInvoke<string | null>("git_discover_repo", {
+    const discovered = await relayInvoke<string | null>("git_discover_repo", {
       path: normalizedPath,
     });
     const normalizedRepo = discovered ? normalizePath(discovered) : null;

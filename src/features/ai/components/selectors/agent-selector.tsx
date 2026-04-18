@@ -1,4 +1,3 @@
-import { invoke } from "@tauri-apps/api/core";
 import { ChevronDown, Download, LoaderCircle, Plus, Search, Settings2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ProviderIcon } from "@/features/ai/components/icons/provider-icons";
@@ -7,6 +6,7 @@ import { useAIChatStore } from "@/features/ai/store/store";
 import type { AgentConfig } from "@/features/ai/types/acp";
 import { AGENT_OPTIONS, type AgentType } from "@/features/ai/types/ai-chat";
 import { useToast } from "@/features/layout/contexts/toast-context";
+import { invoke } from "@/lib/platform/core";
 import { Button } from "@/ui/button";
 import { Dropdown } from "@/ui/dropdown";
 import Input from "@/ui/input";
@@ -351,8 +351,8 @@ export function AgentSelector({
                             ? "bg-accent/15 text-accent"
                             : "text-text-lighter hover:bg-secondary-bg hover:text-text",
                         )}
-                        tooltip="Athas Agent settings"
-                        aria-label="Open Athas Agent settings"
+                        tooltip="Relay Agent settings"
+                        aria-label="Open Relay Agent settings"
                       >
                         <Settings2 />
                       </Button>

@@ -16,7 +16,7 @@ export type ToolRuntime = "bun" | "node" | "python" | "go" | "rust" | "binary";
 
 export interface ExtensionManifest {
   // Core metadata
-  id: string; // Unique identifier (e.g., "athas.rust")
+  id: string; // Unique identifier (e.g., "relay.rust")
   name: string; // Display name (e.g., "Rust")
   displayName: string; // Human-readable name
   description: string;

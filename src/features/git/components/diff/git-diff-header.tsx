@@ -14,7 +14,6 @@ const DiffHeader = memo(
     diff,
     viewMode,
     onViewModeChange,
-    commitHash,
     totalFiles,
     onExpandAll,
     onCollapseAll,

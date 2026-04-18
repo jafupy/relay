@@ -1,20 +1,11 @@
-import { openUrl } from "@tauri-apps/plugin-opener";
-import {
-  BookOpen,
-  CircleUser,
-  CreditCard,
-  ExternalLink,
-  LogIn,
-  LogOut,
-  Settings,
-} from "lucide-react";
+import { CircleUser, LogIn, LogOut, Settings } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useDesktopSignIn } from "@/features/window/hooks/use-desktop-sign-in";
 import { useAuthStore } from "@/features/window/stores/auth-store";
 import { useUIState } from "@/features/window/stores/ui-state-store";
 import { Button } from "@/ui/button";
 import { Dropdown, type MenuItem } from "@/ui/dropdown";
 import Tooltip from "@/ui/tooltip";
-import { useDesktopSignIn } from "@/features/window/hooks/use-desktop-sign-in";
 
 interface AccountMenuProps {
   iconSize?: number;
@@ -24,7 +15,6 @@ interface AccountMenuProps {
 export const AccountMenu = ({ iconSize = 14, className }: AccountMenuProps) => {
   const user = useAuthStore((s) => s.user);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const subscription = useAuthStore((s) => s.subscription);
   const logout = useAuthStore((s) => s.logout);
   const setIsSettingsDialogVisible = useUIState((state) => state.setIsSettingsDialogVisible);
   const hasBlockingModalOpen = useUIState(
@@ -56,24 +46,9 @@ export const AccountMenu = ({ iconSize = 14, className }: AccountMenuProps) => {
     await logout();
   };
 
-  const handleManageAccount = async () => {
-    await openUrl("https://athas.dev/dashboard");
-  };
-
-  const handleViewPricing = async () => {
-    await openUrl("https://athas.dev/pricing");
-  };
-
-  const handleOpenDocs = async () => {
-    await openUrl("https://athas.dev/docs");
-  };
-
   const handleOpenSettings = () => {
     setIsSettingsDialogVisible(true);
   };
-
-  const subscriptionStatus = subscription?.status ?? "free";
-  const isEnterprise = subscription?.subscription?.plan === "enterprise";
 
   const signedOutItems: MenuItem[] = [
     {
@@ -81,18 +56,6 @@ export const AccountMenu = ({ iconSize = 14, className }: AccountMenuProps) => {
       label: "Settings",
       icon: <Settings />,
       onClick: handleOpenSettings,
-    },
-    {
-      id: "docs",
-      label: "Docs",
-      icon: <BookOpen />,
-      onClick: handleOpenDocs,
-    },
-    {
-      id: "settings-separator",
-      label: "",
-      separator: true,
-      onClick: () => {},
     },
     {
       id: "sign-in",
@@ -105,7 +68,7 @@ export const AccountMenu = ({ iconSize = 14, className }: AccountMenuProps) => {
   const signedInItems: MenuItem[] = [
     {
       id: "user-info",
-      label: user?.name || user?.email || "Account",
+      label: user?.name || user?.email || "Local Account",
       icon: user?.avatar_url ? (
         <img src={user.avatar_url} alt="" className="size-3 rounded-full" />
       ) : (
@@ -115,34 +78,10 @@ export const AccountMenu = ({ iconSize = 14, className }: AccountMenuProps) => {
       disabled: true,
     },
     {
-      id: "plan-separator",
-      label: "",
-      separator: true,
-      onClick: () => {},
-    },
-    {
-      id: "subscription",
-      label: `Plan: ${isEnterprise ? "Enterprise" : subscriptionStatus === "pro" ? "Pro" : "Free"}`,
-      icon: <CreditCard />,
-      onClick: handleViewPricing,
-    },
-    {
-      id: "manage-account",
-      label: "Manage Account",
-      icon: <ExternalLink />,
-      onClick: handleManageAccount,
-    },
-    {
       id: "settings",
       label: "Settings",
       icon: <Settings />,
       onClick: handleOpenSettings,
-    },
-    {
-      id: "docs",
-      label: "Docs",
-      icon: <BookOpen />,
-      onClick: handleOpenDocs,
     },
     {
       id: "sign-out-separator",

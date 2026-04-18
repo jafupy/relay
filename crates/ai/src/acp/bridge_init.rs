@@ -1,14 +1,14 @@
 use super::{
-   client::{AthasAcpClient, PermissionResponse},
+   client::{PermissionResponse, RelayAcpClient},
+   events::{AcpEventSink, emit},
    types::{AcpEvent, AgentConfig, SessionConfigOption, SessionMode, SessionModeState},
 };
 use acp::Agent;
 use agent_client_protocol as acp;
 use anyhow::{Result, bail};
-use athas_terminal::TerminalManager;
+use relay_terminal::TerminalManager;
 use serde_json::json;
 use std::{path::PathBuf, process::Stdio, sync::Arc};
-use tauri::{AppHandle, Emitter};
 use tokio::{
    process::{Child, Command},
    sync::mpsc,
@@ -21,14 +21,14 @@ pub(super) struct InitializedAcpWorker {
    pub auth_method_id: Option<String>,
    pub process: Child,
    pub io_handle: tokio::task::JoinHandle<()>,
-   pub client: Arc<AthasAcpClient>,
+   pub client: Arc<RelayAcpClient>,
    pub permission_sender: mpsc::Sender<PermissionResponse>,
 }
 
 pub(super) async fn initialize_worker(
    config: &AgentConfig,
    workspace_path: Option<String>,
-   app_handle: AppHandle,
+   event_sink: Arc<dyn AcpEventSink>,
    terminal_manager: Arc<TerminalManager>,
    requested_session_id: Option<String>,
    map_config_options: impl Fn(Vec<acp::SessionConfigOption>) -> Vec<SessionConfigOption>,
@@ -45,8 +45,8 @@ pub(super) async fn initialize_worker(
       .ok_or_else(|| anyhow::anyhow!("Failed to get stdout"))?;
    spawn_stderr_logger(&mut child, config.name.clone());
 
-   let client = Arc::new(AthasAcpClient::new(
-      app_handle.clone(),
+   let client = Arc::new(RelayAcpClient::new(
+      event_sink.clone(),
       workspace_path.clone(),
       terminal_manager,
    ));
@@ -97,7 +97,7 @@ pub(super) async fn initialize_worker(
    .await?;
 
    emit_initial_session_state(
-      &app_handle,
+      event_sink.as_ref(),
       session_bootstrap.session_id.as_ref(),
       session_bootstrap.initial_modes,
       session_bootstrap.initial_config_options,
@@ -192,11 +192,11 @@ async fn initialize_connection(
 ) -> Result<acp::InitializeResponse> {
    let mut client_meta = acp::Meta::new();
    client_meta.insert(
-      "athas".to_string(),
+      "relay".to_string(),
       json!({
          "extensionMethods": [
-            { "name": "athas.openWebViewer", "description": "Open a URL in Athas web viewer", "params": { "url": "string" } },
-            { "name": "athas.openTerminal", "description": "Open a terminal tab in Athas", "params": { "command": "string|null" } }
+            { "name": "relay.openWebViewer", "description": "Open a URL in Relay web viewer", "params": { "url": "string" } },
+            { "name": "relay.openTerminal", "description": "Open a terminal tab in Relay", "params": { "command": "string|null" } }
          ],
          "notes": "Call these via ACP extension methods, not shell commands."
       }),
@@ -213,7 +213,7 @@ async fn initialize_connection(
 
    let init_request = acp::InitializeRequest::new(acp::ProtocolVersion::LATEST)
       .client_capabilities(client_capabilities)
-      .client_info(acp::Implementation::new("Athas", env!("CARGO_PKG_VERSION")));
+      .client_info(acp::Implementation::new("Relay", env!("CARGO_PKG_VERSION")));
 
    let initialize_timeout_secs = if uses_npx_codex_adapter { 120 } else { 30 };
    log::info!(
@@ -249,7 +249,7 @@ async fn initialize_connection(
 
 async fn bootstrap_session(
    connection: Arc<acp::ClientSideConnection>,
-   client: Arc<AthasAcpClient>,
+   client: Arc<RelayAcpClient>,
    cwd: PathBuf,
    requested_session_id: Option<String>,
    ctx: SessionBootstrapContext<
@@ -420,13 +420,14 @@ fn map_mode_state(modes: acp::SessionModeState) -> SessionModeState {
 }
 
 fn emit_initial_session_state(
-   app_handle: &AppHandle,
+   event_sink: &dyn AcpEventSink,
    session_id: Option<&acp::SessionId>,
    initial_modes: Option<SessionModeState>,
    initial_config_options: Option<Vec<SessionConfigOption>>,
 ) {
    if let (Some(sid), Some(mode_state)) = (session_id, initial_modes)
-      && let Err(e) = app_handle.emit(
+      && let Err(e) = emit(
+         event_sink,
          "acp-event",
          AcpEvent::SessionModeUpdate {
             session_id: sid.to_string(),
@@ -438,7 +439,8 @@ fn emit_initial_session_state(
    }
 
    if let (Some(sid), Some(config_options)) = (session_id, initial_config_options)
-      && let Err(e) = app_handle.emit(
+      && let Err(e) = emit(
+         event_sink,
          "acp-event",
          AcpEvent::ConfigOptionsUpdate {
             session_id: sid.to_string(),

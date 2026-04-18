@@ -1,5 +1,3 @@
-import { invoke } from "@tauri-apps/api/core";
-import { listen } from "@tauri-apps/api/event";
 import type {
   CompletionItem,
   Hover,
@@ -15,6 +13,8 @@ import type {
   DiagnosticCodeAction,
 } from "@/features/diagnostics/types/diagnostics";
 import { hasTextContent } from "@/features/panes/types/pane-content";
+import { invoke } from "@/lib/platform/core";
+import { listen } from "@/lib/platform/events";
 import { useBufferStore } from "../stores/buffer-store";
 import { logger } from "../utils/logger";
 import { useLspStore } from "./lsp-store";

@@ -1,12 +1,12 @@
 import "./styles.css";
-import { exists } from "@tauri-apps/plugin-fs";
-import { open } from "@tauri-apps/plugin-shell";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useBufferStore } from "@/features/editor/stores/buffer-store";
 import { useEditorSettingsStore } from "@/features/editor/stores/settings-store";
 import { useFileSystemStore } from "@/features/file-system/controllers/store";
 import { hasTextContent } from "@/features/panes/types/pane-content";
 import { useSettingsStore } from "@/features/settings/store";
+import { exists } from "@/lib/platform/fs";
+import { open } from "@/lib/platform/shell";
 import { logger } from "../utils/logger";
 import { parseMarkdown } from "./parser";
 

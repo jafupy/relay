@@ -12,8 +12,8 @@ import { useUIState } from "@/features/window/stores/ui-state-store";
 import { useKeymapStore } from "../stores/store";
 import { evaluateWhenClause } from "../utils/context";
 import { eventToKey, keysMatch, matchKeybinding } from "../utils/matcher";
-import { parseKeybinding } from "../utils/parser";
 import type { ParsedKey } from "../utils/parser";
+import { parseKeybinding } from "../utils/parser";
 import { keymapRegistry } from "../utils/registry";
 
 const CHORD_TIMEOUT = 1000; // 1 second to complete chord
@@ -72,7 +72,7 @@ export function useKeymaps() {
         return;
       }
 
-      // When the native menu bar is active, let Tauri's menu accelerators be the only source
+      // When the native menu bar is active, let Relay's menu accelerators be the only source
       // of truth for overlapping shortcuts to avoid duplicate execution.
       if (useSettingsStore.getState().settings.nativeMenuBar && isNativeMenuAccelerator(e)) {
         return;

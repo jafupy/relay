@@ -1,5 +1,5 @@
-import { getVersion } from "@tauri-apps/api/app";
 import { getSettingsStore } from "@/features/settings/lib/settings-persistence";
+import { getVersion } from "@/lib/platform/app";
 
 const ONBOARDING_STATE_KEY = "product_onboarding_state_v1";
 export type OnboardingMode = "first-run" | "updated" | "preview";

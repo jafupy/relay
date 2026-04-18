@@ -1,4 +1,3 @@
-import { invoke } from "@tauri-apps/api/core";
 import { Upload } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { iconThemeRegistry } from "@/extensions/icon-themes/icon-theme-registry";
@@ -12,14 +11,15 @@ import {
   UI_FONT_SIZE_STEP,
 } from "@/features/settings/lib/ui-font-size";
 import { getDefaultSetting, useSettingsStore } from "@/features/settings/store";
+import { invoke } from "@/lib/platform/core";
 import { Button } from "@/ui/button";
 import NumberInput from "@/ui/number-input";
-import Section, { SETTINGS_CONTROL_WIDTHS, SettingRow } from "../settings-section";
 import Select from "@/ui/select";
 import Switch from "@/ui/switch";
 import { cn } from "@/utils/cn";
 import { IS_MAC } from "@/utils/platform";
 import { FontSelector } from "../font-selector";
+import Section, { SETTINGS_CONTROL_WIDTHS, SettingRow } from "../settings-section";
 
 export const AppearanceSettings = () => {
   const { settings, updateSetting } = useSettingsStore();

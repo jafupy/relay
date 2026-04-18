@@ -1,6 +1,6 @@
-import { describe, expect, it } from "vite-plus/test";
-import { formatCellValue } from "../hooks/use-cell-copy";
+import { describe, expect, it } from "vitest";
 import { isIsoDate, isJsonString, isUnixTimestamp } from "../components/cell-renderer";
+import { formatCellValue } from "../hooks/use-cell-copy";
 
 describe("cell-renderer detection heuristics", () => {
   describe("isIsoDate", () => {

@@ -1,4 +1,4 @@
-import { invoke as tauriInvoke } from "@tauri-apps/api/core";
+import { invoke as relayInvoke } from "@/lib/platform/core";
 import type { GitDiff } from "../types/git-types";
 import { gitDiffCache } from "../utils/git-diff-cache";
 import {
@@ -49,7 +49,7 @@ export const getFileDiff = async (
       return cached;
     }
 
-    const diff = await tauriInvoke<GitDiff>("git_diff_file", {
+    const diff = await relayInvoke<GitDiff>("git_diff_file", {
       repoPath: resolved.repoPath,
       filePath: resolved.filePath,
       staged,
@@ -90,7 +90,7 @@ export const getFileDiffAgainstContent = async (
       return cached;
     }
 
-    const diff = await tauriInvoke<GitDiff>("git_diff_file_with_content", {
+    const diff = await relayInvoke<GitDiff>("git_diff_file_with_content", {
       repoPath: resolved.repoPath,
       filePath: resolved.filePath,
       content,
@@ -120,7 +120,7 @@ export const getCommitDiff = async (
       return null;
     }
 
-    const diffs = await tauriInvoke<GitDiff[]>("git_commit_diff", {
+    const diffs = await relayInvoke<GitDiff[]>("git_commit_diff", {
       repoPath: resolvedRepoPath,
       commitHash,
     });
@@ -143,7 +143,7 @@ export const getStashDiff = async (
       return null;
     }
 
-    const diffs = await tauriInvoke<GitDiff[]>("git_stash_diff", {
+    const diffs = await relayInvoke<GitDiff[]>("git_stash_diff", {
       repoPath: resolvedRepoPath,
       stashIndex,
     });

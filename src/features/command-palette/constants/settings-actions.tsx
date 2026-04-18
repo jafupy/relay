@@ -88,11 +88,11 @@ export const createSettingsActions = (params: SettingsActionsParams): Action[] =
       action: async () => {
         try {
           onClose();
-          const { getVersion } = await import("@tauri-apps/api/app");
+          const { getVersion } = await import("@/lib/platform/app");
           const version = await getVersion();
           let osSummary = "";
           try {
-            const os = await import("@tauri-apps/plugin-os");
+            const os = await import("@/lib/platform/os");
             const plat = os.platform();
             const ver = os.version();
             osSummary = `${plat} ${ver}`;
@@ -100,17 +100,17 @@ export const createSettingsActions = (params: SettingsActionsParams): Action[] =
             osSummary = navigator.userAgent;
           }
 
-          const text = `Environment\n\n- App: Athas ${version}\n- OS: ${osSummary}\n\nProblem\n\nDescribe the issue here. Steps to reproduce, expected vs actual.\n`;
+          const text = `Environment\n\n- App: Relay ${version}\n- OS: ${osSummary}\n\nProblem\n\nDescribe the issue here. Steps to reproduce, expected vs actual.\n`;
 
           try {
-            const { writeText } = await import("@tauri-apps/plugin-clipboard-manager");
+            const { writeText } = await import("@/lib/platform/clipboard");
             await writeText(text);
           } catch {
             await navigator.clipboard.writeText(text);
           }
 
-          const { openUrl } = await import("@tauri-apps/plugin-opener");
-          await openUrl("https://github.com/athasdev/athas/issues/new?template=01-bug.yml");
+          const { openUrl } = await import("@/lib/platform/opener");
+          await openUrl("https://github.com/relay/relay/issues/new?template=01-bug.yml");
         } catch (e) {
           console.error("Failed to prepare bug report:", e);
         }

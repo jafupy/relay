@@ -1,14 +1,14 @@
-import { invoke } from "@tauri-apps/api/core";
+import { invoke } from "@/lib/platform/core";
 import { NODE_PLATFORM, PLATFORM_ARCH } from "@/utils/platform";
+import { extensionInstaller } from "../installer/extension-installer";
 import {
   getHighlightQueryUrl,
   getHighlightQueryUrlForExtension,
   getLanguageExtensionById,
   getWasmUrlForLanguage,
 } from "../languages/language-packager";
-import { extensionInstaller } from "../installer/extension-installer";
-import type { AvailableExtension, ExtensionRuntimeIssue } from "./extension-store-types";
 import type { ExtensionManifest, ToolRuntime } from "../types/extension-manifest";
+import type { AvailableExtension, ExtensionRuntimeIssue } from "./extension-store-types";
 
 type ToolType = "lsp" | "formatter" | "linter";
 type ToolPathMap = Partial<Record<ToolType, string>>;
@@ -210,7 +210,7 @@ export function resolveInstalledExtensionId(
   const candidates = [
     installed.extensionId,
     installed.extensionId?.replace(/-full$/, ""),
-    `athas.${installed.languageId}`,
+    `relay.${installed.languageId}`,
     `language.${installed.languageId}`,
   ].filter((candidate): candidate is string => Boolean(candidate));
 
@@ -226,7 +226,7 @@ export function resolveInstalledExtensionId(
     }
   }
 
-  return installed.extensionId || `athas.${installed.languageId}`;
+  return installed.extensionId || `relay.${installed.languageId}`;
 }
 
 async function installLanguageTools(
@@ -403,8 +403,9 @@ export async function registerLanguageProvider(params: {
     return;
   }
 
-  const { tokenizeCode, convertToEditorTokens } =
-    await import("@/features/editor/lib/wasm-parser/wasm-parser-api");
+  const { tokenizeCode, convertToEditorTokens } = await import(
+    "@/features/editor/lib/wasm-parser/wasm-parser-api"
+  );
 
   const languageExtension = {
     id: runtimeExtensionId,

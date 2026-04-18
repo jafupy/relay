@@ -171,7 +171,9 @@ function normalizeGitHubMarkdown(content: string, issueBaseUrl?: string): string
         return `[View attachment](${trimmedLine})`;
       }
       if (issueBaseUrl) {
-        return line.replace(/(^|[^\w/`])#(\d+)\b/g, (match, prefix, issueNumber) => {
+        return line.replace(/(^|[^\w/`])#(\d+)\b/g, (...args) => {
+          const prefix = args[1];
+          const issueNumber = args[2];
           return `${prefix}[#${issueNumber}](${issueBaseUrl}/issues/${issueNumber})`;
         });
       }

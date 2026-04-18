@@ -1,10 +1,10 @@
-# Contributing to Athas
+# Contributing to Relay
 
-Thank you for contributing to Athas! Please check existing issues and pull requests before creating new ones.
+Thank you for contributing to Relay! Please check existing issues and pull requests before creating new ones.
 
 ## Setup
 
-See [setup guides](https://athas.dev/docs/contributing) for your platform.
+Run `bun dev` to start the local Relay server.
 
 Prerequisites:
 

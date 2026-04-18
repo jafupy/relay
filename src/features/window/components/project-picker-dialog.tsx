@@ -1,7 +1,4 @@
-import { convertFileSrc } from "@tauri-apps/api/core";
-import { listen } from "@tauri-apps/api/event";
 import { Edit, Folder, Plus, Server, SquareArrowOutUpRight, Trash2, X } from "lucide-react";
-import { useWorkspaceTabsStore } from "@/features/window/stores/workspace-tabs-store";
 import { memo, useCallback, useEffect, useState } from "react";
 import { useRecentFoldersStore } from "@/features/file-system/controllers/recent-folders-store";
 import { useFileSystemStore } from "@/features/file-system/controllers/store";
@@ -12,15 +9,18 @@ import {
   connectRemoteConnection,
   loadRemoteConnections,
 } from "@/features/remote/services/remote-connection-actions";
+import { connectionStore } from "@/features/remote/services/remote-connection-store";
 import type { RemoteConnection, RemoteConnectionFormData } from "@/features/remote/types";
 import { getFriendlyRemoteError, isRemoteAuthFailure } from "@/features/remote/utils/remote-errors";
+import { useWorkspaceTabsStore } from "@/features/window/stores/workspace-tabs-store";
+import { createAppWindow } from "@/features/window/utils/create-app-window";
+import { convertFileSrc } from "@/lib/platform/core";
+import { listen } from "@/lib/platform/events";
 import { Button } from "@/ui/button";
 import Dialog from "@/ui/dialog";
 import { PaneIconButton, paneTitleClassName } from "@/ui/pane";
 import { toast } from "@/ui/toast";
 import { cn } from "@/utils/cn";
-import { connectionStore } from "@/features/remote/services/remote-connection-store";
-import { createAppWindow } from "@/features/window/utils/create-app-window";
 
 interface ProjectPickerDialogProps {
   isOpen: boolean;

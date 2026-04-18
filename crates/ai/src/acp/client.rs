@@ -1,4 +1,5 @@
 use super::{
+   events::{AcpEventSink, emit},
    terminal_state::AcpTerminalState,
    types::{
       AcpContentBlock, AcpEvent, AcpPlanEntry, AcpPlanEntryPriority, AcpPlanEntryStatus,
@@ -7,13 +8,12 @@ use super::{
 };
 use agent_client_protocol as acp;
 use async_trait::async_trait;
-use athas_terminal::{TerminalConfig, TerminalManager};
+use relay_terminal::{TerminalConfig, TerminalManager};
 use std::{
    collections::HashMap,
    path::PathBuf,
    sync::{Arc, Mutex as StdMutex},
 };
-use tauri::{AppHandle, Emitter, Listener};
 use tokio::sync::{Mutex, mpsc, oneshot};
 
 /// Response for permission requests
@@ -23,10 +23,10 @@ pub struct PermissionResponse {
    pub cancelled: bool,
 }
 
-/// Athas ACP Client implementation
+/// Relay ACP Client implementation
 /// Handles requests from the agent (file access, terminals, permissions)
-pub struct AthasAcpClient {
-   app_handle: AppHandle,
+pub struct RelayAcpClient {
+   event_sink: Arc<dyn AcpEventSink>,
    workspace_path: Option<String>,
    permission_tx: mpsc::Sender<PermissionResponse>,
    permission_rx: Arc<Mutex<mpsc::Receiver<PermissionResponse>>>,
@@ -36,15 +36,15 @@ pub struct AthasAcpClient {
    terminal_states: Arc<StdMutex<HashMap<String, AcpTerminalState>>>,
 }
 
-impl AthasAcpClient {
+impl RelayAcpClient {
    pub fn new(
-      app_handle: AppHandle,
+      event_sink: Arc<dyn AcpEventSink>,
       workspace_path: Option<String>,
       terminal_manager: Arc<TerminalManager>,
    ) -> Self {
       let (permission_tx, permission_rx) = mpsc::channel(32);
       Self {
-         app_handle,
+         event_sink,
          workspace_path,
          permission_tx,
          permission_rx: Arc::new(Mutex::new(permission_rx)),
@@ -64,7 +64,7 @@ impl AthasAcpClient {
    }
 
    fn emit_event(&self, event: AcpEvent) {
-      if let Err(e) = self.app_handle.emit("acp-event", &event) {
+      if let Err(e) = emit(self.event_sink.as_ref(), "acp-event", &event) {
          log::error!("Failed to emit ACP event: {}", e);
       }
    }
@@ -157,8 +157,8 @@ impl AthasAcpClient {
          .and_then(|value| serde_json::to_string(value).ok())
          .unwrap_or_default();
 
-      let references_webviewer = tool_title.contains("athas.openWebViewer")
-         || raw_input_text.contains("athas.openWebViewer")
+      let references_webviewer = tool_title.contains("relay.openWebViewer")
+         || raw_input_text.contains("relay.openWebViewer")
          || (raw_input_text.contains("openWebViewer") && raw_input_text.contains("ext_method"));
 
       if !references_webviewer {
@@ -176,8 +176,8 @@ impl AthasAcpClient {
          .and_then(|value| serde_json::to_string(value).ok())
          .unwrap_or_default();
 
-      let references_terminal = tool_title.contains("athas.openTerminal")
-         || raw_input_text.contains("athas.openTerminal")
+      let references_terminal = tool_title.contains("relay.openTerminal")
+         || raw_input_text.contains("relay.openTerminal")
          || (raw_input_text.contains("openTerminal") && raw_input_text.contains("ext_method"));
 
       if !references_terminal {
@@ -190,7 +190,7 @@ impl AthasAcpClient {
          if candidate.is_empty() {
             continue;
          }
-         if candidate.contains("ext_method") || candidate.contains("athas.openTerminal") {
+         if candidate.contains("ext_method") || candidate.contains("relay.openTerminal") {
             continue;
          }
          return Some(candidate.to_string());
@@ -292,7 +292,7 @@ impl AthasAcpClient {
 }
 
 #[async_trait(?Send)]
-impl acp::Client for AthasAcpClient {
+impl acp::Client for RelayAcpClient {
    async fn request_permission(
       &self,
       args: acp::RequestPermissionRequest,
@@ -345,7 +345,7 @@ impl acp::Client for AthasAcpClient {
             if response.approved {
                if let Some(url) = fallback_webviewer_url.clone() {
                   // Claude Code adapters may try to invoke ext_method via shell command.
-                  // Execute the equivalent Athas UI action directly and reject the shell tool call.
+                  // Execute the equivalent Relay UI action directly and reject the shell tool call.
                   self.emit_event(AcpEvent::UiAction {
                      session_id: session_id.clone(),
                      action: UiAction::OpenWebViewer { url },
@@ -354,7 +354,7 @@ impl acp::Client for AthasAcpClient {
                }
 
                if let Some(command) = fallback_terminal_command.clone() {
-                  // Same fallback for athas.openTerminal misuse through shell commands.
+                  // Same fallback for relay.openTerminal misuse through shell commands.
                   self.emit_event(AcpEvent::UiAction {
                      session_id: session_id.clone(),
                      action: UiAction::OpenTerminal {
@@ -612,9 +612,10 @@ impl acp::Client for AthasAcpClient {
       match tokio::fs::write(&path, &args.content).await {
          Ok(_) => {
             // Emit file change event so frontend can refresh
-            let _ = self
-               .app_handle
-               .emit("file-changed", path.to_string_lossy().to_string());
+            self.event_sink.emit_json(
+               "file-changed",
+               serde_json::json!(path.to_string_lossy().to_string()),
+            );
             Ok(acp::WriteTextFileResponse::new())
          }
          Err(e) => Err(acp::Error::new(
@@ -669,33 +670,31 @@ impl acp::Client for AthasAcpClient {
          cols: 80,
       };
 
-      match self
-         .terminal_manager
-         .create_terminal(config, self.app_handle.clone())
-      {
-         Ok(athas_terminal_id) => {
-            let terminal_id = athas_terminal_id.clone();
+      match self.terminal_manager.create_terminal(config) {
+         Ok(relay_terminal_id) => {
+            let terminal_id = relay_terminal_id.clone();
             let output_limit = args.output_byte_limit.map(|l| l as u32);
-            let state = AcpTerminalState::new(athas_terminal_id.clone(), output_limit);
+            let state = AcpTerminalState::new(relay_terminal_id.clone(), output_limit);
             {
                let mut states = self.terminal_states.lock().unwrap();
                states.insert(terminal_id.clone(), state);
             }
 
             // Set up output listener
-            let output_event = format!("pty-output-{}", athas_terminal_id);
+            let output_event = format!("pty-output-{}", relay_terminal_id);
             let states_clone = self.terminal_states.clone();
             let terminal_id_clone = terminal_id.clone();
-            let output_listener_id = self.app_handle.listen(output_event, move |event| {
-               let payload = event.payload();
-               if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(payload)
-                  && let Some(data) = parsed.get("data").and_then(|d| d.as_str())
-                  && let Ok(mut states) = states_clone.lock()
-                  && let Some(state) = states.get_mut(&terminal_id_clone)
-               {
-                  state.append_output(data);
-               }
-            });
+            let output_listener_id = self.event_sink.listen_json(
+               &output_event,
+               Arc::new(move |payload| {
+                  if let Some(data) = payload.get("data").and_then(|d| d.as_str())
+                     && let Ok(mut states) = states_clone.lock()
+                     && let Some(state) = states.get_mut(&terminal_id_clone)
+                  {
+                     state.append_output(data);
+                  }
+               }),
+            );
             {
                let mut states = self.terminal_states.lock().unwrap();
                if let Some(state) = states.get_mut(&terminal_id) {
@@ -704,17 +703,17 @@ impl acp::Client for AthasAcpClient {
             }
 
             // Set up exit-status listener
-            let exit_event = format!("pty-exit-{}", athas_terminal_id);
+            let exit_event = format!("pty-exit-{}", relay_terminal_id);
             let states_clone = self.terminal_states.clone();
             let terminal_id_clone = terminal_id.clone();
-            let exit_listener_id = self.app_handle.listen(exit_event, move |event| {
-               let payload = event.payload();
-               if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(payload) {
-                  let exit_code = parsed
+            let exit_listener_id = self.event_sink.listen_json(
+               &exit_event,
+               Arc::new(move |payload| {
+                  let exit_code = payload
                      .get("exitCode")
                      .and_then(|v| v.as_u64())
                      .map(|v| v as u32);
-                  let signal = parsed
+                  let signal = payload
                      .get("signal")
                      .and_then(|v| v.as_str())
                      .map(str::to_string);
@@ -723,8 +722,8 @@ impl acp::Client for AthasAcpClient {
                   {
                      state.set_exit_status(exit_code, signal);
                   }
-               }
-            });
+               }),
+            );
             {
                let mut states = self.terminal_states.lock().unwrap();
                if let Some(state) = states.get_mut(&terminal_id) {
@@ -733,16 +732,19 @@ impl acp::Client for AthasAcpClient {
             }
 
             // Set up error listener
-            let error_event = format!("pty-error-{}", athas_terminal_id);
+            let error_event = format!("pty-error-{}", relay_terminal_id);
             let states_clone = self.terminal_states.clone();
             let terminal_id_clone = terminal_id.clone();
-            let error_listener_id = self.app_handle.listen(error_event, move |_| {
-               if let Ok(mut states) = states_clone.lock()
-                  && let Some(state) = states.get_mut(&terminal_id_clone)
-               {
-                  state.set_exit_status(Some(1), Some("pty_error".to_string()));
-               }
-            });
+            let error_listener_id = self.event_sink.listen_json(
+               &error_event,
+               Arc::new(move |_| {
+                  if let Ok(mut states) = states_clone.lock()
+                     && let Some(state) = states.get_mut(&terminal_id_clone)
+                  {
+                     state.set_exit_status(Some(1), Some("pty_error".to_string()));
+                  }
+               }),
+            );
             {
                let mut states = self.terminal_states.lock().unwrap();
                if let Some(state) = states.get_mut(&terminal_id) {
@@ -751,16 +753,19 @@ impl acp::Client for AthasAcpClient {
             }
 
             // Set up close listener
-            let close_event = format!("pty-closed-{}", athas_terminal_id);
+            let close_event = format!("pty-closed-{}", relay_terminal_id);
             let states_clone = self.terminal_states.clone();
             let terminal_id_clone = terminal_id.clone();
-            let close_listener_id = self.app_handle.listen(close_event, move |_| {
-               if let Ok(mut states) = states_clone.lock()
-                  && let Some(state) = states.get_mut(&terminal_id_clone)
-               {
-                  state.set_exit_status(Some(0), None);
-               }
-            });
+            let close_listener_id = self.event_sink.listen_json(
+               &close_event,
+               Arc::new(move |_| {
+                  if let Ok(mut states) = states_clone.lock()
+                     && let Some(state) = states.get_mut(&terminal_id_clone)
+                  {
+                     state.set_exit_status(Some(0), None);
+                  }
+               }),
+            );
             {
                let mut states = self.terminal_states.lock().unwrap();
                if let Some(state) = states.get_mut(&terminal_id) {
@@ -822,11 +827,11 @@ impl acp::Client for AthasAcpClient {
 
       if let Some(state) = removed_state {
          for listener_id in state.listener_ids {
-            self.app_handle.unlisten(listener_id);
+            self.event_sink.unlisten(listener_id);
          }
          if let Err(e) = self
             .terminal_manager
-            .close_terminal(&state.athas_terminal_id)
+            .close_terminal(&state.relay_terminal_id)
          {
             log::warn!("Failed to close terminal {}: {}", terminal_id, e);
          }
@@ -874,18 +879,18 @@ impl acp::Client for AthasAcpClient {
       args: acp::KillTerminalCommandRequest,
    ) -> acp::Result<acp::KillTerminalCommandResponse> {
       let terminal_id = args.terminal_id.to_string();
-      let athas_id = {
+      let relay_id = {
          let states = self
             .terminal_states
             .lock()
             .map_err(|_| acp::Error::new(-32603, "Lock poisoned".to_string()))?;
          states
             .get(&terminal_id)
-            .map(|s| s.athas_terminal_id.clone())
+            .map(|s| s.relay_terminal_id.clone())
       };
 
-      if let Some(athas_terminal_id) = athas_id
-         && let Err(e) = self.terminal_manager.kill_terminal(&athas_terminal_id)
+      if let Some(relay_terminal_id) = relay_id
+         && let Err(e) = self.terminal_manager.kill_terminal(&relay_terminal_id)
       {
          log::warn!("Failed to kill terminal {}: {}", terminal_id, e);
       }
@@ -916,7 +921,7 @@ impl acp::Client for AthasAcpClient {
          serde_json::from_str(args.params.get()).unwrap_or(serde_json::Value::Null);
 
       match &*args.method {
-         "athas.openWebViewer" => {
+         "relay.openWebViewer" => {
             let url = params
                .get("url")
                .and_then(|v| v.as_str())
@@ -933,7 +938,7 @@ impl acp::Client for AthasAcpClient {
                serde_json::value::to_raw_value(&response).unwrap().into(),
             ))
          }
-         "athas.openTerminal" => {
+         "relay.openTerminal" => {
             let command = params
                .get("command")
                .and_then(|v| v.as_str())

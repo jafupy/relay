@@ -52,8 +52,8 @@ const ProviderApiKeyModal = ({
 
   const getApiKeyPlaceholder = () => {
     switch (providerId) {
-      case "athas":
-        return "No API key needed - subscription based";
+      case "relay":
+        return "Configured by this Relay server";
       case "openrouter":
         return "sk-or-v1-xxxxxxxxxxxxxxxxxxxx";
       case "grok":
@@ -65,16 +65,15 @@ const ProviderApiKeyModal = ({
 
   const getInstructions = () => {
     switch (providerId) {
-      case "athas":
+      case "relay":
         return {
-          title: "Athas AI Subscription:",
+          title: "Relay AI:",
           steps: [
-            "Choose a subscription plan that fits your needs",
-            "Get unlimited access to premium AI models",
-            "No API key management required",
-            "Focus on coding, we handle the rest",
+            "Configure Relay AI on the server",
+            "Use local account access for this Relay instance",
+            "Add provider keys when required",
           ],
-          link: "https://athas.dev/pricing",
+          link: "",
         };
       case "openrouter":
         return {

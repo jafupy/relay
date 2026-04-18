@@ -1,8 +1,6 @@
 import type { EditorAPI } from "@/features/editor/extensions/types";
 import { BaseThemeExtension } from "./base-theme-extension";
-// Import all theme JSON files
 import ayuThemes from "./builtin/ayu.json";
-import athasThemes from "./builtin/athas.json";
 import catppuccinThemes from "./builtin/catppuccin.json";
 import christmasThemes from "./builtin/christmas.json";
 import contrastThemes from "./builtin/contrast-themes.json";
@@ -10,14 +8,12 @@ import draculaThemes from "./builtin/dracula.json";
 import githubThemes from "./builtin/github.json";
 import nordThemes from "./builtin/nord.json";
 import oneThemes from "./builtin/one.json";
+import relayThemes from "./builtin/relay.json";
 import solarizedThemes from "./builtin/solarized.json";
 import tokyoNightThemes from "./builtin/tokyo-night.json";
 import vitesseThemes from "./builtin/vitesse.json";
 import type { ThemeDefinition } from "./types";
 
-/**
- * New theme format from JSON files
- */
 interface JsonTheme {
   id: string;
   name: string;
@@ -42,12 +38,9 @@ export class ThemeLoader extends BaseThemeExtension {
 
   async onInitialize(_editor: EditorAPI): Promise<void> {
     try {
-      console.log("ThemeLoader: Loading themes from JSON files");
-
-      // Combine all theme files
       const allThemeFiles: ThemeFile[] = [
         ayuThemes as ThemeFile,
-        athasThemes as ThemeFile,
+        relayThemes as ThemeFile,
         catppuccinThemes as ThemeFile,
         christmasThemes as ThemeFile,
         contrastThemes as ThemeFile,
@@ -60,27 +53,16 @@ export class ThemeLoader extends BaseThemeExtension {
         vitesseThemes as ThemeFile,
       ];
 
-      // Flatten all themes from all files
       const allThemes: JsonTheme[] = allThemeFiles.flatMap((file) => file.themes);
 
-      console.log(
-        `ThemeLoader: Loaded ${allThemes.length} themes from JSON files:`,
-        allThemes.map((t) => t.name),
-      );
-
-      // Convert to ThemeDefinition format
       this.themes = allThemes.map((jsonTheme) => this.convertJsonToThemeDefinition(jsonTheme));
 
-      // Register themes with the theme registry
       const { themeRegistry } = await import("./theme-registry");
       this.themes.forEach((theme) => {
         themeRegistry.registerTheme(theme);
       });
-
-      console.log(`ThemeLoader: Registered ${this.themes.length} themes`);
     } catch (error) {
       console.error("ThemeLoader: Failed to load JSON themes:", error);
-      // Fall back to empty themes array
       this.themes = [];
     }
   }
@@ -114,7 +96,6 @@ export class ThemeLoader extends BaseThemeExtension {
 
   async loadFromFile(filePath: string): Promise<ThemeDefinition[]> {
     try {
-      // Read JSON file
       const response = await fetch(filePath);
       if (!response.ok) {
         throw new Error(`Failed to fetch theme file: ${response.statusText}`);
@@ -129,7 +110,6 @@ export class ThemeLoader extends BaseThemeExtension {
   }
 
   async getCachedThemes(): Promise<ThemeDefinition[]> {
-    // Since themes are now loaded directly via imports, just return the loaded themes
     return this.themes;
   }
 }

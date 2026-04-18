@@ -1,16 +1,18 @@
-use super::types::{AcpEvent, StopReason};
+use super::{
+   events::{AcpEventSink, emit},
+   types::{AcpEvent, StopReason},
+};
 use acp::Agent;
 use agent_client_protocol as acp;
 use anyhow::{Context, Result, bail};
 use std::sync::Arc;
-use tauri::{AppHandle, Emitter};
 
 const ACP_PROMPT_TIMEOUT_SECONDS: u64 = 90;
 
 pub(super) async fn run_prompt(
    connection: Arc<acp::ClientSideConnection>,
    session_id: acp::SessionId,
-   app_handle: AppHandle,
+   event_sink: Arc<dyn AcpEventSink>,
    prompt: String,
    auth_method_id: Option<String>,
 ) -> Result<()> {
@@ -21,7 +23,8 @@ pub(super) async fn run_prompt(
    let response = send_prompt_with_auth_retry(connection, prompt_request, auth_method_id).await?;
 
    let stop_reason: StopReason = response.stop_reason.into();
-   if let Err(e) = app_handle.emit(
+   if let Err(e) = emit(
+      event_sink.as_ref(),
       "acp-event",
       AcpEvent::PromptComplete {
          session_id: session_id.to_string(),

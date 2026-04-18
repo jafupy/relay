@@ -1,4 +1,4 @@
-import { fetch as tauriFetch } from "@tauri-apps/plugin-http";
+import { fetch as relayFetch } from "@/lib/platform/http";
 
 /**
  * Fetches a web page and extracts readable text content
@@ -9,8 +9,8 @@ export async function fetchWebPageContent(url: string): Promise<string> {
   }
 
   try {
-    // Use Tauri's fetch to bypass CORS
-    const response = await tauriFetch(url, {
+    // Use Relay's fetch to bypass CORS
+    const response = await relayFetch(url, {
       method: "GET",
       headers: {
         "User-Agent":

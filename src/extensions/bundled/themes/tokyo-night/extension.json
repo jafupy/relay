@@ -1,10 +1,10 @@
 {
-  "id": "athas.tokyo-night",
+  "id": "relay.tokyo-night",
   "name": "Tokyo Night",
   "displayName": "Tokyo Night Theme",
   "description": "A clean theme that celebrates the lights of Downtown Tokyo at night",
   "version": "1.0.0",
-  "publisher": "Athas",
+  "publisher": "Relay",
   "license": "MIT",
   "category": "theme",
   "bundled": true,

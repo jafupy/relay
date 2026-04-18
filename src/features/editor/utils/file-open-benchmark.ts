@@ -1,5 +1,5 @@
-import { logger } from "./logger";
 import { frontendTrace } from "@/utils/frontend-trace";
+import { logger } from "./logger";
 
 interface FileOpenBenchmarkSession {
   path: string;
@@ -13,7 +13,7 @@ interface FileOpenBenchmarkSession {
 
 const sessions = new Map<string, FileOpenBenchmarkSession>();
 const DEV_ENABLED = import.meta.env.DEV;
-const STORAGE_KEY = "athas:file-open-benchmark";
+const STORAGE_KEY = "relay:file-open-benchmark";
 
 function now(): number {
   return performance.now();

@@ -60,8 +60,8 @@ const tabVariants = cva(
       },
       variant: {
         default: "rounded-md",
-        pill: "rounded-md border border-transparent",
-        segmented: "h-full rounded-none border-0",
+        pill: "rounded-full border border-transparent",
+        segmented: "h-full rounded-full border-0",
       },
       active: {
         true: "",
@@ -82,22 +82,22 @@ const tabVariants = cva(
       {
         variant: "default",
         active: true,
-        className: "bg-primary-bg/45 text-text",
+        className: "text-text",
       },
       {
         variant: "default",
         active: false,
-        className: "text-text-lighter/90 hover:bg-hover hover:text-text",
+        className: "text-text-lighter hover:text-text",
       },
       {
         variant: "pill",
         active: true,
-        className: "border-border/70 bg-primary-bg text-text",
+        className: "border-border/50 bg-hover text-text",
       },
       {
         variant: "pill",
         active: false,
-        className: "text-text-lighter hover:bg-hover hover:text-text",
+        className: "text-text-lighter hover:bg-hover/50 hover:text-text",
       },
       {
         variant: "segmented",
@@ -117,23 +117,23 @@ const tabVariants = cva(
       {
         variant: "segmented",
         active: true,
-        className: "bg-hover/80 text-text",
+        className: "bg-hover/70 text-text",
       },
       {
         variant: "segmented",
         active: false,
-        className: "text-text-lighter hover:bg-hover/50 hover:text-text",
+        className: "text-text-lighter hover:bg-hover/40 hover:text-text",
       },
     ],
   },
 );
 
-const tabsListVariants = cva("flex rounded-lg border border-border/70 bg-primary-bg/65", {
+const tabsListVariants = cva("flex overflow-hidden backdrop-blur-md", {
   variants: {
     variant: {
-      default: "items-center gap-0.5 p-0.5",
-      pill: "items-center gap-0.5 p-0.5",
-      segmented: "h-6 items-stretch overflow-hidden",
+      default: "items-center gap-0.5 rounded-lg border border-border/50 bg-secondary-bg/80 p-0.5",
+      pill: "items-center gap-0.5 rounded-full border border-border/40 bg-primary-bg/60 p-0.5",
+      segmented: "h-[22px] items-stretch rounded-full border border-border/30 bg-primary-bg/50",
     },
   },
   defaultVariants: {

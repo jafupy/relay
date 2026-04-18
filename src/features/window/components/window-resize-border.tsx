@@ -1,4 +1,4 @@
-import { getCurrentWindow } from "@tauri-apps/api/window";
+import { getCurrentWindow } from "@/lib/platform/window";
 import { IS_LINUX } from "@/utils/platform";
 
 type ResizeDirection =

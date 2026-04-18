@@ -1,5 +1,5 @@
-import { save } from "@tauri-apps/plugin-dialog";
-import { writeFile } from "@tauri-apps/plugin-fs";
+import { save } from "@/lib/platform/dialog";
+import { writeFile } from "@/lib/platform/fs";
 import { dataURLToBlob } from "./canvas-utils";
 
 /**

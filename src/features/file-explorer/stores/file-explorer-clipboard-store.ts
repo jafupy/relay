@@ -1,5 +1,5 @@
-import { invoke } from "@tauri-apps/api/core";
 import { create } from "zustand";
+import { invoke } from "@/lib/platform/core";
 import { createSelectors } from "@/utils/zustand-selectors";
 
 export interface ClipboardEntry {

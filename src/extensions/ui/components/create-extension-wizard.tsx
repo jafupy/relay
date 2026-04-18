@@ -3,18 +3,18 @@ import {
   ArrowRight,
   Check,
   Columns3,
-  LogIn,
   Loader2,
+  LogIn,
   MousePointerClick,
   Puzzle,
   Sparkles,
   Terminal,
 } from "lucide-react";
 import { createElement, type ReactNode, useCallback, useEffect, useRef, useState } from "react";
-import Badge from "@/ui/badge";
-import { Button } from "@/ui/button";
 import { useDesktopSignIn } from "@/features/window/hooks/use-desktop-sign-in";
 import { useUIState } from "@/features/window/stores/ui-state-store";
+import Badge from "@/ui/badge";
+import { Button } from "@/ui/button";
 import { useProFeature } from "../hooks/use-pro-feature";
 import { requestUIExtensionGeneration } from "../services/ui-extension-generation-service";
 import { useUIExtensionStore } from "../stores/ui-extension-store";
@@ -67,7 +67,7 @@ interface GeneratedExtension {
 }
 
 export function CreateExtensionWizard({ onClose }: { onClose: () => void }) {
-  const { isAuthenticated, isPro } = useProFeature();
+  const { isAuthenticated } = useProFeature();
   const { signIn, isSigningIn } = useDesktopSignIn();
   const setActiveView = useUIState((state) => state.setActiveView);
   const setIsSidebarVisible = useUIState((state) => state.setIsSidebarVisible);
@@ -637,10 +637,10 @@ export function CreateExtensionWizard({ onClose }: { onClose: () => void }) {
   }, [generatedExtension, setActiveView, setIsSidebarVisible]);
 
   const renderLockedState = () => {
-    const title = isAuthenticated ? "Upgrade to generate extensions" : "Sign in to continue";
+    const title = isAuthenticated ? "Generation unavailable" : "Sign in to continue";
     const description = isAuthenticated
-      ? "Hosted UI generation is available on Athas Pro. Upgrade your account to generate and install extensions directly in the app."
-      : "Sign in with your Athas account to generate and install extensions directly in the app.";
+      ? "UI extension generation is not enabled on this Relay server."
+      : "Sign in with your Relay account to generate and install extensions directly in the app.";
 
     return (
       <div className="flex h-full flex-col">
@@ -676,17 +676,7 @@ export function CreateExtensionWizard({ onClose }: { onClose: () => void }) {
             <Button onClick={onClose} variant="ghost" size="sm">
               Close
             </Button>
-            {isAuthenticated ? (
-              <Button
-                onClick={() =>
-                  window.open("https://athas.dev/pricing", "_blank", "noopener,noreferrer")
-                }
-                variant="primary"
-                size="sm"
-              >
-                Upgrade to Pro
-              </Button>
-            ) : (
+            {!isAuthenticated ? (
               <Button
                 onClick={() => void signIn()}
                 variant="primary"
@@ -697,14 +687,14 @@ export function CreateExtensionWizard({ onClose }: { onClose: () => void }) {
                 <LogIn className="size-3.5" />
                 {isSigningIn ? "Signing in..." : "Sign in"}
               </Button>
-            )}
+            ) : null}
           </div>
         </div>
       </div>
     );
   };
 
-  if (!isAuthenticated || !isPro) {
+  if (!isAuthenticated) {
     return renderLockedState();
   }
 
@@ -744,7 +734,7 @@ export function CreateExtensionWizard({ onClose }: { onClose: () => void }) {
             <p className="font-medium text-sm text-text">Build a UI extension from a prompt</p>
             <p className="mt-1 text-text-lighter text-xs">
               Choose where it should live, describe the workflow, then install it directly into
-              Athas.
+              Relay.
             </p>
           </div>
           {CONTRIBUTION_OPTIONS.map((option) => (

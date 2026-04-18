@@ -1,6 +1,6 @@
-import { fetch as tauriFetch } from "@tauri-apps/plugin-http";
 import { getProviderApiToken } from "@/features/ai/services/ai-token-service";
 import { getAuthToken } from "@/features/window/services/auth-api";
+import { fetch as relayFetch } from "@/lib/platform/http";
 import { getApiBase } from "@/utils/api-base";
 
 const API_BASE = getApiBase();
@@ -58,7 +58,7 @@ export async function requestInlineEdit(
     }
   }
 
-  const response = await tauriFetch(`${API_BASE}/api/ai/inline-edit`, {
+  const response = await relayFetch(`${API_BASE}/api/ai/inline-edit`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

@@ -1,4 +1,4 @@
-import { listen, type UnlistenFn } from "@tauri-apps/api/event";
+import { listen, type UnlistenFn } from "@/lib/platform/events";
 import { type FileClipboardState, useFileClipboardStore } from "./file-explorer-clipboard-store";
 
 let unlistenChanged: UnlistenFn | null = null;

@@ -80,7 +80,7 @@ export function ImageContextMenu({
 
   const handleCopyPath = async () => {
     try {
-      const { writeText } = await import("@tauri-apps/plugin-clipboard-manager");
+      const { writeText } = await import("@/lib/platform/clipboard");
       await writeText(filePath);
     } catch (error) {
       console.error("Failed to copy path:", error);

@@ -1,9 +1,9 @@
-import { load, type Store } from "@tauri-apps/plugin-store";
 import {
   defaultSettings,
   getDefaultSettingsSnapshot,
 } from "@/features/settings/config/default-settings";
 import type { Settings } from "@/features/settings/types/settings";
+import { load, type Store } from "@/lib/platform/store";
 
 let storeInstance: Store;
 

@@ -1,7 +1,7 @@
 // Store GitHub token securely
 export const storeGitHubToken = async (token: string): Promise<void> => {
   try {
-    const { invoke } = await import("@tauri-apps/api/core");
+    const { invoke } = await import("@/lib/platform/core");
     await invoke("store_github_token", { token });
   } catch (error) {
     console.error("Error storing GitHub token:", error);
@@ -12,7 +12,7 @@ export const storeGitHubToken = async (token: string): Promise<void> => {
 // Remove GitHub token from storage
 export const removeGitHubToken = async (): Promise<void> => {
   try {
-    const { invoke } = await import("@tauri-apps/api/core");
+    const { invoke } = await import("@/lib/platform/core");
     await invoke("remove_github_token");
   } catch (error) {
     console.error("Error removing GitHub token:", error);

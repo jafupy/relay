@@ -3,10 +3,10 @@
  * Connects Extension Registry (manifests) with Extension Manager (lifecycle)
  */
 
-import { convertFileSrc } from "@tauri-apps/api/core";
 import { extensionManager } from "@/features/editor/extensions/manager";
 import type { EditorAPI, ExtensionContext } from "@/features/editor/extensions/types";
 import { logger } from "@/features/editor/utils/logger";
+import { convertFileSrc } from "@/lib/platform/core";
 import { extensionRegistry } from "../registry/extension-registry";
 import type { BundledExtension } from "../types/extension-manifest";
 
@@ -49,7 +49,7 @@ function createDummyEditorAPI(): EditorAPI {
       tabSize: 2,
       lineNumbers: true,
       wordWrap: false,
-      theme: "athas-dark",
+      theme: "relay-dark",
     }),
     updateSettings: () => {},
     on: () => () => {},
@@ -60,14 +60,14 @@ function createDummyEditorAPI(): EditorAPI {
 
 /**
  * Convert a local file path to a fetchable URL
- * Uses convertFileSrc for absolute paths in Tauri
+ * Uses convertFileSrc for absolute paths in Relay
  */
 async function toFetchableUrl(path: string): Promise<string> {
   // If it's already a URL (starts with http, https, or /), return as-is
   if (path.startsWith("http://") || path.startsWith("https://") || path.startsWith("/")) {
     return path;
   }
-  // For absolute file paths, convert using Tauri's asset protocol
+  // For absolute file paths, convert using Relay's asset protocol
   return convertFileSrc(path);
 }
 
@@ -175,8 +175,9 @@ class GenericLspExtension {
       }
 
       // Load the tree-sitter parser
-      const { wasmParserLoader } =
-        await import("@/features/editor/lib/wasm-parser/wasm-parser-api");
+      const { wasmParserLoader } = await import(
+        "@/features/editor/lib/wasm-parser/wasm-parser-api"
+      );
       await wasmParserLoader.loadParser({
         languageId: grammar.languageId,
         wasmPath,

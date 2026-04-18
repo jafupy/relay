@@ -9,10 +9,7 @@ class ThemeRegistry implements ThemeRegistryAPI {
   private readyCallbacks = new Set<() => void>();
 
   registerTheme(theme: ThemeDefinition): void {
-    console.log("Theme registry: Registering theme", theme.id, theme.name);
     this.themes.set(theme.id, theme);
-    console.log("Theme registry: Total themes after registration:", this.themes.size);
-    console.log("Theme registry: All themes:", Array.from(this.themes.keys()));
     this.notifyRegistryChange();
   }
 
@@ -43,22 +40,18 @@ class ThemeRegistry implements ThemeRegistryAPI {
       return;
     }
 
-    // Apply CSS variables to document root
     const root = document.documentElement;
 
-    // Apply CSS variables
     Object.entries(theme.cssVariables).forEach(([key, value]) => {
       root.style.setProperty(key, value);
     });
 
-    // Apply syntax token variables if defined
     if (theme.syntaxTokens) {
       Object.entries(theme.syntaxTokens).forEach(([key, value]) => {
         root.style.setProperty(key, value);
       });
     }
 
-    // Set data attribute for the current theme
     root.setAttribute("data-theme", id);
     root.setAttribute("data-theme-type", theme.isDark ? "dark" : "light");
 
@@ -107,7 +100,6 @@ class ThemeRegistry implements ThemeRegistryAPI {
   markAsReady(): void {
     if (!this.isReady) {
       this.isReady = true;
-      console.log("Theme registry: Marked as ready");
       this.notifyReady();
     }
   }
@@ -118,7 +110,6 @@ class ThemeRegistry implements ThemeRegistryAPI {
 
   onReady(callback: () => void): () => void {
     if (this.isReady) {
-      // If already ready, call immediately
       callback();
       return () => {};
     }

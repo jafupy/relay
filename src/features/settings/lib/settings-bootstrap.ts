@@ -1,4 +1,3 @@
-import { invoke } from "@tauri-apps/api/core";
 import { defaultSettings } from "@/features/settings/config/default-settings";
 import { applySettingsSideEffects } from "@/features/settings/lib/settings-effects";
 import { normalizeSettings } from "@/features/settings/lib/settings-normalization";
@@ -7,6 +6,7 @@ import {
   saveSettingsToStore,
 } from "@/features/settings/lib/settings-persistence";
 import type { Settings } from "@/features/settings/types/settings";
+import { invoke } from "@/lib/platform/core";
 
 function getSystemThemePreference(): "light" | "dark" {
   if (typeof window !== "undefined" && window.matchMedia) {
@@ -21,14 +21,12 @@ function getSystemThemePreference(): "light" | "dark" {
 }
 
 async function detectInitialTheme() {
-  let detectedTheme = getSystemThemePreference() === "dark" ? "athas-dark" : "athas-light";
+  let detectedTheme = getSystemThemePreference() === "dark" ? "relay-dark" : "relay-light";
 
   try {
-    const tauriDetectedTheme = await invoke<string>("get_system_theme");
-    detectedTheme = tauriDetectedTheme === "dark" ? "athas-dark" : "athas-light";
-  } catch {
-    console.log("Tauri theme detection not available, using browser detection");
-  }
+    const relayDetectedTheme = await invoke<string>("get_system_theme");
+    detectedTheme = relayDetectedTheme === "dark" ? "relay-dark" : "relay-light";
+  } catch {}
 
   return detectedTheme;
 }

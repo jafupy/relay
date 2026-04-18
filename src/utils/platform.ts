@@ -1,10 +1,9 @@
-import { arch, type Platform, platform } from "@tauri-apps/plugin-os";
-
 import type { Platform as NodePlatform, PlatformArch } from "@/extensions/types/extension-manifest";
+import { arch, type Platform, platform } from "@/lib/platform/os";
 
 /**
  * Single source of truth for platform detection.
- * The Tauri v2 `platform()` call is synchronous — evaluated once at module load.
+ * The Relay v2 `platform()` call is synchronous — evaluated once at module load.
  * Falls back to a sensible default when evaluated outside a browser/webview
  * (for example during unit tests in node) so modules that transitively import
  * from platform can still load without a window reference.
@@ -63,12 +62,12 @@ export function getModifierKey(): "cmd" | "ctrl" {
 
 /**
  * Node.js-style platform name used by the extension system.
- * Maps Tauri's "macos"→"darwin", "windows"→"win32", others pass through.
+ * Maps Relay's "macos"→"darwin", "windows"→"win32", others pass through.
  */
 export const NODE_PLATFORM: NodePlatform = IS_MAC ? "darwin" : IS_WINDOWS ? "win32" : "linux";
 
 /**
- * Current CPU architecture from the Tauri OS plugin (synchronous).
+ * Current CPU architecture from the Relay OS plugin (synchronous).
  * Falls back to a default when evaluated outside a webview so tests can
  * still load modules that transitively import platform.
  */

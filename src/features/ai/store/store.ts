@@ -2,15 +2,6 @@ import { produce } from "immer";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
-import type { AgentType, Chat } from "@/features/ai/types/ai-chat";
-import {
-  getProviderApiToken,
-  removeProviderApiToken,
-  storeProviderApiToken,
-  validateProviderApiKey,
-} from "@/features/ai/services/ai-token-service";
-import { AI_PROVIDERS } from "@/features/ai/types/providers";
-import type { FileEntry } from "@/features/file-system/types/app";
 import {
   deleteChatFromDb,
   initChatDatabase,
@@ -18,6 +9,15 @@ import {
   loadChatFromDb,
   saveChatToDb,
 } from "@/features/ai/services/ai-chat-history-service";
+import {
+  getProviderApiToken,
+  removeProviderApiToken,
+  storeProviderApiToken,
+  validateProviderApiKey,
+} from "@/features/ai/services/ai-token-service";
+import type { AgentType, Chat } from "@/features/ai/types/ai-chat";
+import { AI_PROVIDERS } from "@/features/ai/types/providers";
+import type { FileEntry } from "@/features/file-system/types/app";
 import type { AIChatActions, AIChatState } from "./types";
 
 export const useAIChatStore = create<AIChatState & AIChatActions>()(
@@ -721,7 +721,7 @@ export const useAIChatStore = create<AIChatState & AIChatActions>()(
 
         changeSessionMode: async (modeId) => {
           try {
-            const { invoke } = await import("@tauri-apps/api/core");
+            const { invoke } = await import("@/lib/platform/core");
             await invoke("set_acp_session_mode", { modeId });
             // The mode will be updated via the event handler when the agent confirms
           } catch (error) {
@@ -754,7 +754,7 @@ export const useAIChatStore = create<AIChatState & AIChatActions>()(
           });
 
           try {
-            const { invoke } = await import("@tauri-apps/api/core");
+            const { invoke } = await import("@/lib/platform/core");
             await invoke("set_acp_session_config_option", { args: { configId, value } });
           } catch (error) {
             console.error("Failed to change session config option:", error);
@@ -899,7 +899,7 @@ export const useAIChatStore = create<AIChatState & AIChatActions>()(
         },
       }),
       {
-        name: "athas-ai-chat-settings-v7",
+        name: "relay-ai-chat-settings-v7",
         version: 3,
         partialize: (state) => ({
           mode: state.mode,

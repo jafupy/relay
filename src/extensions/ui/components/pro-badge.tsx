@@ -12,7 +12,7 @@ export function ProBadge({ className }: ProBadgeProps) {
         className,
       )}
     >
-      PRO
+      LOCAL
     </span>
   );
 }

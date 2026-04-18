@@ -18,7 +18,11 @@ use crate::{
 };
 pub use file_ops::RemoteFileEntry;
 use serde::{Deserialize, Serialize};
-use tauri::Manager;
+use std::sync::Arc;
+
+pub trait RemoteEventSink: Send + Sync {
+   fn emit_json(&self, event: &str, payload: serde_json::Value);
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SshConnection {
@@ -77,7 +81,7 @@ pub async fn ssh_connect(
    Ok(connection)
 }
 
-pub async fn ssh_disconnect(app: tauri::AppHandle, connection_id: String) -> Result<(), String> {
+pub async fn ssh_disconnect(connection_id: String) -> Result<(), String> {
    let mut connections = CONNECTIONS
       .lock()
       .map_err(|e| format!("Failed to lock connections: {}", e))?;
@@ -87,12 +91,6 @@ pub async fn ssh_disconnect(app: tauri::AppHandle, connection_id: String) -> Res
          drop(sftp);
       }
       let _ = session.disconnect(None, "Disconnecting", None);
-   }
-
-   // Close the remote window if it exists
-   let window_label = format!("remote-{}", connection_id);
-   if let Some(window) = app.get_webview_window(&window_label) {
-      let _ = window.close();
    }
 
    Ok(())
@@ -216,7 +214,7 @@ pub async fn ssh_copy_path(
 
 #[allow(clippy::too_many_arguments)]
 pub async fn create_remote_terminal(
-   app: tauri::AppHandle,
+   events: Arc<dyn RemoteEventSink>,
    host: String,
    port: u16,
    username: String,
@@ -227,7 +225,7 @@ pub async fn create_remote_terminal(
    cols: u16,
 ) -> Result<String, String> {
    create_remote_terminal_inner(
-      app,
+      events,
       host,
       port,
       username,

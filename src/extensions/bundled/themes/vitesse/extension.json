@@ -1,10 +1,10 @@
 {
-  "id": "athas.vitesse",
+  "id": "relay.vitesse",
   "name": "Vitesse",
   "displayName": "Vitesse Theme",
   "description": "A theme with fine-tuned colors based on Vue's official color scheme",
   "version": "1.0.0",
-  "publisher": "Athas",
+  "publisher": "Relay",
   "license": "MIT",
   "category": "theme",
   "bundled": true,

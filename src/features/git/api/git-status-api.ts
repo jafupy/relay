@@ -1,4 +1,4 @@
-import { invoke as tauriInvoke } from "@tauri-apps/api/core";
+import { invoke as relayInvoke } from "@/lib/platform/core";
 import type { GitHunk, GitStatus } from "../types/git-types";
 import { isNotGitRepositoryError, resolveRepositoryPath } from "./git-repo-api";
 
@@ -8,7 +8,7 @@ export const getGitStatus = async (repoPath: string): Promise<GitStatus | null> 
     if (!resolvedRepoPath) {
       return null;
     }
-    const status = await tauriInvoke<GitStatus>("git_status", { repoPath: resolvedRepoPath });
+    const status = await relayInvoke<GitStatus>("git_status", { repoPath: resolvedRepoPath });
     return status;
   } catch (error) {
     if (!isNotGitRepositoryError(error)) {
@@ -20,7 +20,7 @@ export const getGitStatus = async (repoPath: string): Promise<GitStatus | null> 
 
 export const stageFile = async (repoPath: string, filePath: string): Promise<boolean> => {
   try {
-    await tauriInvoke("git_add", { repoPath, filePath });
+    await relayInvoke("git_add", { repoPath, filePath });
     return true;
   } catch (error) {
     console.error("Failed to stage file:", error);
@@ -30,7 +30,7 @@ export const stageFile = async (repoPath: string, filePath: string): Promise<boo
 
 export const unstageFile = async (repoPath: string, filePath: string): Promise<boolean> => {
   try {
-    await tauriInvoke("git_reset", { repoPath, filePath });
+    await relayInvoke("git_reset", { repoPath, filePath });
     return true;
   } catch (error) {
     console.error("Failed to unstage file:", error);
@@ -40,7 +40,7 @@ export const unstageFile = async (repoPath: string, filePath: string): Promise<b
 
 export const stageAllFiles = async (repoPath: string): Promise<boolean> => {
   try {
-    await tauriInvoke("git_add_all", { repoPath });
+    await relayInvoke("git_add_all", { repoPath });
     return true;
   } catch (error) {
     console.error("Failed to stage all files:", error);
@@ -50,7 +50,7 @@ export const stageAllFiles = async (repoPath: string): Promise<boolean> => {
 
 export const unstageAllFiles = async (repoPath: string): Promise<boolean> => {
   try {
-    await tauriInvoke("git_reset_all", { repoPath });
+    await relayInvoke("git_reset_all", { repoPath });
     return true;
   } catch (error) {
     console.error("Failed to unstage all files:", error);
@@ -60,7 +60,7 @@ export const unstageAllFiles = async (repoPath: string): Promise<boolean> => {
 
 export const stageHunk = async (repoPath: string, hunk: GitHunk): Promise<boolean> => {
   try {
-    await tauriInvoke("git_stage_hunk", { repoPath, hunk });
+    await relayInvoke("git_stage_hunk", { repoPath, hunk });
     return true;
   } catch (error) {
     console.error("Failed to stage hunk:", error);
@@ -70,7 +70,7 @@ export const stageHunk = async (repoPath: string, hunk: GitHunk): Promise<boolea
 
 export const unstageHunk = async (repoPath: string, hunk: GitHunk): Promise<boolean> => {
   try {
-    await tauriInvoke("git_unstage_hunk", { repoPath, hunk });
+    await relayInvoke("git_unstage_hunk", { repoPath, hunk });
     return true;
   } catch (error) {
     console.error("Failed to unstage hunk:", error);
@@ -80,7 +80,7 @@ export const unstageHunk = async (repoPath: string, hunk: GitHunk): Promise<bool
 
 export const discardAllChanges = async (repoPath: string): Promise<boolean> => {
   try {
-    await tauriInvoke("git_discard_all_changes", { repoPath });
+    await relayInvoke("git_discard_all_changes", { repoPath });
     return true;
   } catch (error) {
     console.error("Failed to discard all changes:", error);
@@ -90,7 +90,7 @@ export const discardAllChanges = async (repoPath: string): Promise<boolean> => {
 
 export const discardFileChanges = async (repoPath: string, filePath: string): Promise<boolean> => {
   try {
-    await tauriInvoke("git_discard_file_changes", { repoPath, filePath });
+    await relayInvoke("git_discard_file_changes", { repoPath, filePath });
     return true;
   } catch (error) {
     console.error("Failed to discard file changes:", error);
@@ -100,7 +100,7 @@ export const discardFileChanges = async (repoPath: string, filePath: string): Pr
 
 export const initRepository = async (repoPath: string): Promise<boolean> => {
   try {
-    await tauriInvoke("git_init", { repoPath });
+    await relayInvoke("git_init", { repoPath });
     return true;
   } catch (error) {
     console.error("Failed to initialize repository:", error);

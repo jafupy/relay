@@ -3,7 +3,6 @@ import {
   Bug,
   GitBranch,
   GitPullRequest,
-  Icon,
   MessageSquare,
   Navigation,
   Search,

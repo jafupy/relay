@@ -1,5 +1,5 @@
 use super::{
-   client::LspClient,
+   client::{LspClient, LspEventSink},
    config::{LspRegistry, LspSettings},
    manager_state::{LspInstance, WorkspaceClients},
    manager_support, utils,
@@ -9,24 +9,26 @@ use lsp_types::*;
 use std::{
    fs,
    path::{Path, PathBuf},
+   sync::Arc,
    time::Instant,
 };
-use tauri::{AppHandle, Manager as TauriManager};
 
 pub struct LspManager {
    // Map (workspace path, language) to their LSP clients with reference counting
    workspace_clients: WorkspaceClients,
    registry: LspRegistry,
-   app_handle: AppHandle,
+   event_sink: Arc<dyn LspEventSink>,
+   data_dir: PathBuf,
    settings: LspSettings,
 }
 
 impl LspManager {
-   pub fn new(app_handle: AppHandle) -> Self {
+   pub fn new(event_sink: Arc<dyn LspEventSink>, data_dir: PathBuf) -> Self {
       Self {
          workspace_clients: WorkspaceClients::new(),
          registry: LspRegistry::new(),
-         app_handle,
+         event_sink,
+         data_dir,
          settings: LspSettings::default(),
       }
    }
@@ -58,13 +60,9 @@ impl LspManager {
       }
 
       // Look for bundled executable
-      let app_dir = self
-         .app_handle
-         .path()
-         .app_data_dir()
-         .context("Failed to get app dir")?;
-
-      let bundled_path = app_dir.join(format!("{}-language-server", server_name));
+      let bundled_path = self
+         .data_dir
+         .join(format!("{}-language-server", server_name));
 
       if bundled_path.exists() {
          log::info!("Using bundled language server: {:?}", bundled_path);
@@ -112,7 +110,7 @@ impl LspManager {
 
       if server_path.components().count() == 1 {
          bail!(
-            "LSP tool '{}' is unavailable. Athas could not resolve an installed binary. Reinstall \
+            "LSP tool '{}' is unavailable. Relay could not resolve an installed binary. Reinstall \
              the language tools.",
             server_path.display()
          );
@@ -172,7 +170,7 @@ impl LspManager {
          server_path,
          server_args,
          root_uri.clone(),
-         Some(self.app_handle.clone()),
+         Some(self.event_sink.clone()),
       )
       .await?;
 
@@ -268,7 +266,7 @@ impl LspManager {
          server_path,
          server_args,
          root_uri.clone(),
-         Some(self.app_handle.clone()),
+         Some(self.event_sink.clone()),
       )
       .await?;
 

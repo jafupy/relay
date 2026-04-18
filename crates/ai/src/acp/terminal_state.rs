@@ -1,22 +1,22 @@
+use super::events::AcpListenerId;
 use agent_client_protocol as acp;
-use tauri::EventId;
 use tokio::sync::oneshot;
 
 /// Tracks state for an ACP terminal session
 pub(super) struct AcpTerminalState {
-   pub athas_terminal_id: String,
+   pub relay_terminal_id: String,
    pub output_buffer: String,
    pub max_output_bytes: usize,
    pub truncated: bool,
    pub exit_status: Option<acp::TerminalExitStatus>,
    pub exit_waiters: Vec<oneshot::Sender<acp::TerminalExitStatus>>,
-   pub listener_ids: Vec<EventId>,
+   pub listener_ids: Vec<AcpListenerId>,
 }
 
 impl AcpTerminalState {
-   pub fn new(athas_terminal_id: String, max_output_bytes: Option<u32>) -> Self {
+   pub fn new(relay_terminal_id: String, max_output_bytes: Option<u32>) -> Self {
       Self {
-         athas_terminal_id,
+         relay_terminal_id,
          output_buffer: String::new(),
          max_output_bytes: max_output_bytes.unwrap_or(1_000_000) as usize,
          truncated: false,

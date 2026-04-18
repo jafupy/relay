@@ -1,8 +1,8 @@
-import { invoke } from "@tauri-apps/api/core";
+import { invoke } from "@/lib/platform/core";
 
 /**
  * Token management utilities for AI providers
- * Handles secure storage and retrieval of API tokens using Tauri's secure storage
+ * Handles secure storage and retrieval of API tokens using Relay's secure storage
  */
 
 // Get API token for a specific provider

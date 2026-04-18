@@ -1,12 +1,12 @@
-import { invoke } from "@tauri-apps/api/core";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { extensionRegistry } from "@/extensions/registry/extension-registry";
+import { writeFile } from "@/features/file-system/controllers/platform";
 import { useFileSystemStore } from "@/features/file-system/controllers/store";
 import { gitDiffCache } from "@/features/git/utils/git-diff-cache";
 import { isEditorContent } from "@/features/panes/types/pane-content";
+import { invoke } from "@/lib/platform/core";
 import { createSelectors } from "@/utils/zustand-selectors";
-import { writeFile } from "@/features/file-system/controllers/platform";
 
 const HISTORY_DEBOUNCE_MS = 500;
 const historyDebounceTimers = new Map<string, NodeJS.Timeout>();
@@ -56,8 +56,9 @@ export const useEditorAppStore = createSelectors(
       actions: {
         handleContentChange: async (content: string) => {
           const { useBufferStore } = await import("@/features/editor/stores/buffer-store");
-          const { useFileWatcherStore } =
-            await import("@/features/file-system/controllers/file-watcher-store");
+          const { useFileWatcherStore } = await import(
+            "@/features/file-system/controllers/file-watcher-store"
+          );
           const { useSettingsStore } = await import("@/features/settings/store");
           const { useHistoryStore } = await import("@/features/editor/stores/history-store");
 
@@ -147,8 +148,9 @@ export const useEditorAppStore = createSelectors(
         handleSave: async () => {
           const { useBufferStore } = await import("@/features/editor/stores/buffer-store");
           const { useSettingsStore } = await import("@/features/settings/store");
-          const { useFileWatcherStore } =
-            await import("@/features/file-system/controllers/file-watcher-store");
+          const { useFileWatcherStore } = await import(
+            "@/features/file-system/controllers/file-watcher-store"
+          );
 
           const { activeBufferId, buffers } = useBufferStore.getState();
           const { markBufferDirty } = useBufferStore.getState().actions;
@@ -159,7 +161,7 @@ export const useEditorAppStore = createSelectors(
           if (!activeBuffer || !isEditorContent(activeBuffer)) return;
 
           if (activeBuffer.path.startsWith("untitled:")) {
-            const { save: saveDialog } = await import("@tauri-apps/plugin-dialog");
+            const { save: saveDialog } = await import("@/lib/platform/dialog");
             const result = await saveDialog({
               title: "Save",
               defaultPath: activeBuffer.name,
@@ -207,8 +209,9 @@ export const useEditorAppStore = createSelectors(
               const { settings } = useSettingsStore.getState();
 
               if (settings.formatOnSave) {
-                const { formatContent } =
-                  await import("@/features/editor/formatter/formatter-service");
+                const { formatContent } = await import(
+                  "@/features/editor/formatter/formatter-service"
+                );
                 const languageId = extensionRegistry.getLanguageId(activeBuffer.path);
 
                 const formatResult = await formatContent({

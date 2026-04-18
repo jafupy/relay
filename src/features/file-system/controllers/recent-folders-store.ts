@@ -81,7 +81,7 @@ export const useRecentFoldersStore = create<RecentFoldersState & RecentFoldersAc
         },
       }),
       {
-        name: "athas-code-recent-folders",
+        name: "relay-code-recent-folders",
         version: 1,
       },
     ),

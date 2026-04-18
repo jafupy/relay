@@ -1,5 +1,5 @@
-import { fetch as tauriFetch } from "@tauri-apps/plugin-http";
 import { getAuthToken } from "@/features/window/services/auth-api";
+import { fetch as relayFetch } from "@/lib/platform/http";
 import { getApiBase } from "@/utils/api-base";
 
 const API_BASE = getApiBase();
@@ -29,10 +29,10 @@ export async function requestUIExtensionGeneration(params: {
 }): Promise<UIExtensionGenerationResult> {
   const token = await getAuthToken();
   if (!token) {
-    throw new UIExtensionGenerationError("Sign in to Athas to use hosted UI generation.", 401);
+    throw new UIExtensionGenerationError("Sign in to Relay to generate UI extensions.", 401);
   }
 
-  const response = await tauriFetch(`${API_BASE}/api/ai/ui-extension`, {
+  const response = await relayFetch(`${API_BASE}/api/ai/ui-extension`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -58,9 +58,9 @@ export async function requestUIExtensionGeneration(params: {
         : `UI extension generation failed (${response.status})`;
 
     if (response.status === 401) {
-      message = "Sign in to Athas to use hosted UI generation.";
+      message = "Sign in to Relay to generate UI extensions.";
     } else if (response.status === 403) {
-      message = "Athas Pro is required to generate hosted UI extensions.";
+      message = "UI extension generation is not enabled on this Relay server.";
     }
 
     throw new UIExtensionGenerationError(message, response.status);

@@ -33,7 +33,7 @@ pub struct RelayState {
 
 #[derive(Clone)]
 pub enum RelayMode {
-   Development,
+   Development { app_dir: PathBuf },
    Production { static_dir: PathBuf },
 }
 
@@ -63,8 +63,10 @@ impl RelayState {
          events: events.clone(),
       })));
       let terminal_manager = Arc::new(crate::terminal::TerminalManager::new(events.clone()));
-      let dev_vite = match mode {
-         RelayMode::Development => Some(Arc::new(DevVite::start().await?)),
+      let dev_vite = match &mode {
+         RelayMode::Development { app_dir } => {
+            Some(Arc::new(DevVite::start(app_dir.clone()).await?))
+         }
          RelayMode::Production { .. } => None,
       };
 

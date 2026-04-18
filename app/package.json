@@ -6,22 +6,22 @@
   "scripts": {
     "test": "vitest run --config vitest.config.ts",
     "typecheck": "tsc --noEmit",
-    "check": "bash scripts/check.sh",
+    "check": "bash scripts/check/frontend.sh && bun run check:rust",
     "check:frontend": "bash scripts/check/frontend.sh",
     "lint": "biome lint .",
     "fix": "biome check --write .",
     "format": "biome format --write .",
-    "check:rust": "bash scripts/check/rust.sh",
-    "reset:workspace": "concurrently --names \"node,rust\" --prefix-colors \"cyan,yellow\" \"rimraf dist build node_modules bun.lockb && bun install\" \"cargo clean && cargo build\"",
+    "check:rust": "bash ../backend/scripts/check/rust.sh",
+    "reset:workspace": "concurrently --names \"node,rust\" --prefix-colors \"cyan,yellow\" \"rimraf dist build node_modules bun.lockb && bun install\" \"cd ../backend && cargo clean && cargo build\"",
     "postinstall": "bun scripts/postinstall.ts",
     "prepare": "simple-git-hooks",
     "commitlint": "commitlint",
     "setup": "bun scripts/setup.ts",
-    "dev": "cargo run -p relay-server -- --dev",
+    "dev": "cd ../backend && cargo run -p relay-server -- --dev --app-dir ../app",
     "build": "vite build",
-    "build:server": "cargo build -p relay-server --release",
+    "build:server": "cd ../backend && cargo build -p relay-server --release",
     "build:all": "bun run build && bun run build:server",
-    "start": "cargo run -p relay-server -- --static-dir dist",
+    "start": "cd ../backend && cargo run -p relay-server -- --static-dir ../app/dist",
     "pre-commit": "bun scripts/hooks/pre-commit.ts"
   },
   "dependencies": {
@@ -126,8 +126,8 @@
     "vitest": "^4.1.4"
   },
   "simple-git-hooks": {
-    "pre-commit": "bun pre-commit",
-    "commit-msg": "bun commitlint --edit $1"
+    "pre-commit": "bun --cwd app pre-commit",
+    "commit-msg": "message_file=\"$1\"; case \"$message_file\" in /*) ;; *) message_file=\"$(pwd)/$message_file\" ;; esac; bun --cwd app commitlint --edit \"$message_file\""
   },
   "engines": {
     "node": ">=22.0.0"

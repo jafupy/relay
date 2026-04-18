@@ -43,9 +43,11 @@ struct Args {
 
 impl Args {
    fn parse() -> Self {
-      let mut mode = RelayMode::Production {
-         static_dir: PathBuf::from("dist"),
-      };
+      let mut dev = false;
+      let mut static_dir = PathBuf::from("dist");
+      let mut app_dir = std::env::var("RELAY_APP_DIR")
+         .map(PathBuf::from)
+         .unwrap_or_else(|_| PathBuf::from("../app"));
       let mut port = std::env::var("RELAY_PORT")
          .ok()
          .and_then(|value| value.parse::<u16>().ok())
@@ -59,13 +61,16 @@ impl Args {
       while let Some(arg) = args.next() {
          match arg.as_str() {
             "--dev" => {
-               mode = RelayMode::Development;
+               dev = true;
             }
             "--static-dir" => {
                if let Some(path) = args.next() {
-                  mode = RelayMode::Production {
-                     static_dir: PathBuf::from(path),
-                  };
+                  static_dir = PathBuf::from(path);
+               }
+            }
+            "--app-dir" => {
+               if let Some(path) = args.next() {
+                  app_dir = PathBuf::from(path);
                }
             }
             "--port" => {
@@ -81,6 +86,12 @@ impl Args {
             _ => {}
          }
       }
+
+      let mode = if dev {
+         RelayMode::Development { app_dir }
+      } else {
+         RelayMode::Production { static_dir }
+      };
 
       Self { mode, host, port }
    }

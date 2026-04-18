@@ -1,21 +1,22 @@
 ## Project Overview
 
 - Relay is a browser-based code editor served by a Rust backend with a React/TypeScript frontend.
-- Frontend feature code lives under `src/features/`.
-- Shared frontend code lives under `src/components`, `src/hooks`, and `src/utils`.
-- Extension-specific code lives under `src/extensions/`.
-- Rust feature logic should prefer `crates/[feature]`; keep `crates/server` focused on app serving, auth, routing, and integration.
+- Frontend feature code lives under `app/src/features/`.
+- Shared frontend code lives under `app/src/ui`, `app/src/hooks`, and `app/src/utils`.
+- Extension-specific code lives under `app/src/extensions/`.
+- Rust feature logic should prefer `backend/crates/[feature]`; keep `backend/crates/server` focused on app serving, auth, routing, and integration.
 
 ## Setup And Validation
 
 - Always use Bun for repo scripts and package management.
 - Required environment: Bun `1.3.2`, Node.js `22+`, and Rust.
-- Install dependencies with `bun install`.
-- Start the app with `bun dev`.
-- Run full checks with `bun check`.
-- Run tests with `bun test`.
-- Run TypeScript checks with `bun typecheck`.
-- Run Rust checks with `bun check:rust` when touching Rust code.
+- Run JavaScript and TypeScript commands from `app/`.
+- Install dependencies with `cd app && bun install`.
+- Start the app with `cd app && bun dev`.
+- Run full checks with `cd app && bun check`.
+- Run tests with `cd app && bun test`.
+- Run TypeScript checks with `cd app && bun typecheck`.
+- Run Rust checks with `cd app && bun check:rust` or from `backend/` when touching Rust code.
 
 ## Workflow Rules
 
@@ -67,15 +68,15 @@
 
 ## Code Organization
 
-- Group feature-specific code under `src/features/[feature]/`.
-- Keep `src/ui` for reusable UI primitives, `src/hooks` for shared hooks, and `src/utils` for genuinely shared helpers with no feature-specific behavior.
-- Do not add feature logic to `src/` root shared folders just because it is convenient.
-- Keep settings-related concerns such as fonts, themes, and UI preferences under `src/features/settings/`.
-- Keep keymaps and shortcut logic under `src/features/keymaps/`.
-- Keep extension and theme implementation under `src/extensions/`.
+- Group feature-specific code under `app/src/features/[feature]/`.
+- Keep `app/src/ui` for reusable UI primitives, `app/src/hooks` for shared hooks, and `app/src/utils` for genuinely shared helpers with no feature-specific behavior.
+- Do not add feature logic to `app/src/` root shared folders just because it is convenient.
+- Keep settings-related concerns such as fonts, themes, and UI preferences under `app/src/features/settings/`.
+- Keep keymaps and shortcut logic under `app/src/features/keymaps/`.
+- Keep extension and theme implementation under `app/src/extensions/`.
 - Prefer subfolders such as `components`, `hooks`, `services`, `stores`, `types`, `utils`, and `tests` instead of leaving feature logic in the feature root.
 - If a feature contains a distinct subfeature, give it a dedicated nested folder and keep its components, hooks, and helpers close to that subfeature instead of scattering them across the whole feature.
 - If a file is only used by one subfeature, keep it inside that subfeature folder instead of promoting it to the feature root.
 - Do not put feature-specific code in global shared folders unless it is genuinely shared across features.
-- Keep feature tests under `src/features/[feature]/tests/` when practical.
+- Keep feature tests under `app/src/features/[feature]/tests/` when practical.
 - New user-facing documentation belongs in the `www` repo under `www/docs/`, not in this repo.

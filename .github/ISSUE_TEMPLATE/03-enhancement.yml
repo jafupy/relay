@@ -6,7 +6,7 @@ body:
     id: current_feature
     attributes:
       label: Existing Feature
-      description: What existing part of Athas should be improved?
+      description: What existing part of Relay should be improved?
       placeholder: Editor, Terminal, AI, Git, etc.
     validations:
       required: true

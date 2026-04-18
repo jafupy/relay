@@ -16,12 +16,13 @@ pub struct DevVite {
 }
 
 impl DevVite {
-   pub async fn start() -> Result<Self> {
+   pub async fn start(app_dir: PathBuf) -> Result<Self> {
       let socket_path =
          std::env::temp_dir().join(format!("relay-vite-{}.sock", std::process::id()));
       let _ = tokio::fs::remove_file(&socket_path).await;
 
       let mut child = Command::new("bun")
+         .current_dir(&app_dir)
          .arg("scripts/relay-vite-dev-server.mjs")
          .arg("--socket")
          .arg(&socket_path)
@@ -29,7 +30,7 @@ impl DevVite {
          .stdout(Stdio::piped())
          .stderr(Stdio::inherit())
          .spawn()
-         .context("failed to start Vite sidecar with bun")?;
+         .with_context(|| format!("failed to start Vite sidecar from {}", app_dir.display()))?;
 
       let stdout = child
          .stdout

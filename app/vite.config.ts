@@ -16,7 +16,11 @@ export default defineConfig({
     host: "127.0.0.1",
     middlewareMode: true,
     watch: {
-      ignored: ["**/crates/**", "**/target/**", "**/interceptor/**"],
+      ignored: [
+        path.resolve(__dirname, "../backend/**"),
+        path.resolve(__dirname, "../common/**"),
+        "**/node_modules/**",
+      ],
     },
   },
 });

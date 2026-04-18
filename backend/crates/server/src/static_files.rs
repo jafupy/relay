@@ -44,7 +44,7 @@ pub async fn serve_app(
    request: axum::http::Request<Body>,
 ) -> Response {
    match &state.mode {
-      RelayMode::Development => serve_dev(state, request).await,
+      RelayMode::Development { .. } => serve_dev(state, request).await,
       RelayMode::Production { static_dir } => serve_static(static_dir, request.uri().path()).await,
    }
 }
@@ -54,7 +54,7 @@ pub async fn serve_dev_websocket(
    OriginalUri(original_uri): OriginalUri,
    websocket: WebSocketUpgrade,
 ) -> Response {
-   if !matches!(&state.mode, RelayMode::Development) {
+   if !matches!(&state.mode, RelayMode::Development { .. }) {
       return StatusCode::NOT_FOUND.into_response();
    }
 
@@ -76,7 +76,7 @@ async fn serve_static(static_dir: &PathBuf, request_path: &str) -> Response {
          return (
             StatusCode::NOT_FOUND,
             [(header::CONTENT_TYPE, "text/plain; charset=utf-8")],
-            "Relay static assets were not found. Run `bun run build` first."
+            "Relay static assets were not found. Run `cd app && bun run build` first."
                .as_bytes()
                .to_vec(),
          )
@@ -107,7 +107,7 @@ async fn serve_static(static_dir: &PathBuf, request_path: &str) -> Response {
       Err(_) => (
          StatusCode::NOT_FOUND,
          [(header::CONTENT_TYPE, "text/plain; charset=utf-8")],
-         "Relay static assets were not found. Run `bun run build` first."
+         "Relay static assets were not found. Run `cd app && bun run build` first."
             .as_bytes()
             .to_vec(),
       )

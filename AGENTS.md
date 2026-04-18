@@ -1,10 +1,10 @@
 ## Project Overview
 
-- Athas is a desktop code editor built with Tauri, React, TypeScript, and Rust.
+- Relay is a browser-based code editor served by a Rust backend with a React/TypeScript frontend.
 - Frontend feature code lives under `src/features/`.
 - Shared frontend code lives under `src/components`, `src/hooks`, and `src/utils`.
 - Extension-specific code lives under `src/extensions/`.
-- Rust feature logic should prefer `crates/[feature]`; keep `src-tauri` focused on app wiring and integration.
+- Rust feature logic should prefer `crates/[feature]`; keep `crates/server` focused on app serving, auth, routing, and integration.
 
 ## Setup And Validation
 
@@ -12,12 +12,10 @@
 - Required environment: Bun `1.3.2`, Node.js `22+`, and Rust.
 - Install dependencies with `bun install`.
 - Start the app with `bun dev`.
-- Use `bun smoke alpha` or `bun smoke prod` for quick local smoke tests of packaged app launches.
 - Run full checks with `bun check`.
 - Run tests with `bun test`.
 - Run TypeScript checks with `bun typecheck`.
 - Run Rust checks with `bun check:rust` when touching Rust code.
-- When touching release flow, validate locally with `bun scripts/release.ts <bump> --dry-run` before anything else, then run `bun release:check`.
 
 ## Workflow Rules
 
@@ -26,12 +24,11 @@
 - Do not use emojis in commit messages, logs, or documentation.
 - Validate the relevant checks after making changes instead of stopping at code edits.
 
-## Branches And Releases
+## Branches
 
 - Default to working directly on `master`.
 - If a branch is needed, branch from `master`.
 - Keep branch names short and descriptive.
-- Keep releases and release tags on `master`.
 
 ## Commits
 
@@ -82,11 +79,3 @@
 - Do not put feature-specific code in global shared folders unless it is genuinely shared across features.
 - Keep feature tests under `src/features/[feature]/tests/` when practical.
 - New user-facing documentation belongs in the `www` repo under `www/docs/`, not in this repo.
-
-## Release Rules
-
-- Validate release changes locally before publishing anything.
-- Do not use real release tags to debug release automation.
-- Keep Windows MSI versioning numeric-only via `tauri.bundle.windows.wix.version`.
-- Release automation is triggered by pushing `v*` tags.
-- Use `bun scripts/release.ts <bump> --dry-run` before running a real release command.

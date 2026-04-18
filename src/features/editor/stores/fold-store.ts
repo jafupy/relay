@@ -36,7 +36,7 @@ function detectDiffFoldRegions(content: string): FoldRegion[] {
   const fileStarts: number[] = [];
 
   for (let i = 0; i < lines.length; i++) {
-    if (lines[i].startsWith("\uE000ATHAS_DIFF_FILE ")) {
+    if (lines[i].startsWith("\uE000RELAY_DIFF_FILE ")) {
       fileStarts.push(i);
     }
   }

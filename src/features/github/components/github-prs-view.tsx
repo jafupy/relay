@@ -1,8 +1,6 @@
-import { open } from "@tauri-apps/plugin-dialog";
-import { GitHubCliStatusMessage } from "./github-cli-status";
 import {
-  AlertCircle,
   Activity,
+  AlertCircle,
   Check,
   ChevronDown,
   Copy,
@@ -29,8 +27,9 @@ import { isNotGitRepositoryError, resolveRepositoryPath } from "@/features/git/a
 import { useRepositoryStore } from "@/features/git/stores/git-repository-store";
 import { useSettingsStore } from "@/features/settings/store";
 import { useUIState } from "@/features/window/stores/ui-state-store";
+import { open } from "@/lib/platform/dialog";
 import { Button, buttonVariants } from "@/ui/button";
-import { ContextMenu, useContextMenu, type ContextMenuItem } from "@/ui/context-menu";
+import { ContextMenu, type ContextMenuItem, useContextMenu } from "@/ui/context-menu";
 import { Dropdown, dropdownItemClassName, dropdownTriggerClassName } from "@/ui/dropdown";
 import { PaneIconButton, paneHeaderClassName } from "@/ui/pane";
 import { Tab, TabsList } from "@/ui/tabs";
@@ -38,10 +37,11 @@ import { cn } from "@/utils/cn";
 import { getFolderName } from "@/utils/path-helpers";
 import { useGitHubStore } from "../stores/github-store";
 import type { PRFilter, PullRequest } from "../types/github";
+import { githubActionListCache, githubIssueListCache } from "../utils/github-data-cache";
 import GitHubActionsView from "./github-actions-view";
+import { GitHubCliStatusMessage } from "./github-cli-status";
 import GitHubIssuesView from "./github-issues-view";
 import GitHubSidebarLoadingBar from "./github-sidebar-loading-bar";
-import { githubActionListCache, githubIssueListCache } from "../utils/github-data-cache";
 
 const filterLabels: Record<PRFilter, string> = {
   all: "All PRs",

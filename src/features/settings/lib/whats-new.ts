@@ -10,7 +10,7 @@ interface WhatsNewStorageState {
   pending?: WhatsNewInfo;
 }
 
-const STORAGE_KEY = "athas-whats-new";
+const STORAGE_KEY = "relay-whats-new";
 
 function readState(): WhatsNewStorageState {
   if (typeof window === "undefined") {

@@ -175,7 +175,7 @@ export const createViewActions = (params: ViewActionsParams): Action[] => {
       action: async () => {
         const newValue = !settings.nativeMenuBar;
         updateSetting("nativeMenuBar", newValue);
-        const { invoke } = await import("@tauri-apps/api/core");
+        const { invoke } = await import("@/lib/platform/core");
         await invoke("toggle_menu_bar", { toggle: newValue });
         onClose();
       },

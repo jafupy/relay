@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect, it } from "vitest";
 import { DEFAULT_COLUMN_WIDTH, MIN_COLUMN_WIDTH } from "./use-column-resize";
 
 describe("column resize constants", () => {

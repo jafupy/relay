@@ -1,4 +1,4 @@
-import { fetch as tauriFetch } from "@tauri-apps/plugin-http";
+import { fetch as relayFetch } from "@/lib/platform/http";
 import type { ProviderModel } from "./ai-provider-interface";
 import { AIProvider, type ProviderHeaders, type StreamRequest } from "./ai-provider-interface";
 
@@ -31,7 +31,7 @@ export function normalizeOllamaBaseUrl(url: string): string {
 
 async function fetchOllamaTags(baseUrl: string) {
   return withTimeout(
-    tauriFetch(`${normalizeOllamaBaseUrl(baseUrl)}/api/tags`, {
+    relayFetch(`${normalizeOllamaBaseUrl(baseUrl)}/api/tags`, {
       method: "GET",
     }),
   );

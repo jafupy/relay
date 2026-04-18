@@ -6,23 +6,23 @@ import {
   PanelLeftClose,
   SplitSquareHorizontal,
 } from "lucide-react";
-import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useBufferStore } from "@/features/editor/stores/buffer-store";
+import { useEditorAppStore } from "@/features/editor/stores/editor-app-store";
 import { useJumpListStore } from "@/features/editor/stores/jump-list-store";
 import { useEditorStateStore } from "@/features/editor/stores/state-store";
 import { navigateToJumpEntry } from "@/features/editor/utils/jump-navigation";
 import { useFileSystemStore } from "@/features/file-system/controllers/store";
 import { formatDiffBufferLabel } from "@/features/git/utils/diff-buffer-label";
-import { findPaneGroup } from "@/features/panes/utils/pane-tree";
-import { usePaneStore } from "@/features/panes/stores/pane-store";
-import { useSettingsStore } from "@/features/settings/store";
-import type { PaneContent } from "@/features/panes/types/pane-content";
-import { useEditorAppStore } from "@/features/editor/stores/editor-app-store";
 import { useSidebarStore } from "@/features/layout/stores/sidebar-store";
+import { usePaneStore } from "@/features/panes/stores/pane-store";
+import type { PaneContent } from "@/features/panes/types/pane-content";
+import { findPaneGroup } from "@/features/panes/utils/pane-tree";
+import { useSettingsStore } from "@/features/settings/store";
 import { useTerminalStore } from "@/features/terminal/stores/terminal-store";
 import UnsavedChangesDialog from "@/features/window/components/unsaved-changes-dialog";
+import { writeText } from "@/lib/platform/clipboard";
 import { Button } from "@/ui/button";
 import { calculateDisplayNames } from "../utils/path-shortener";
 import { NewTabMenu } from "./new-tab-menu";
@@ -812,7 +812,7 @@ const TabBar = ({ paneId, onTabClick: externalTabClick }: TabBarProps) => {
     <>
       <div
         ref={tabBarRef}
-        className={`relative flex shrink-0 items-center gap-1 overflow-hidden bg-primary-bg px-1.5 py-1 ${isDropTarget ? "ring-2 ring-accent ring-inset" : ""}`}
+        className={`relative flex shrink-0 items-center gap-1 overflow-hidden border-b border-border/40 bg-secondary-bg px-1.5 py-1 ${isDropTarget ? "ring-2 ring-accent ring-inset" : ""}`}
         role="tablist"
         aria-label="Open files"
         onWheel={handleWheel}

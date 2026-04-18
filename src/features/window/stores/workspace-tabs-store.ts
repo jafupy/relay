@@ -1,7 +1,7 @@
-import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
+import { getCurrentWebviewWindow } from "@/lib/platform/webview-window";
 import { createSelectors } from "@/utils/zustand-selectors";
 
 export interface ProjectTab {

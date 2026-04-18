@@ -1,10 +1,10 @@
 {
-  "id": "athas.dracula",
+  "id": "relay.dracula",
   "name": "Dracula",
   "displayName": "Dracula Theme",
   "description": "A dark theme with rich purples and vibrant accents",
   "version": "1.0.0",
-  "publisher": "Athas",
+  "publisher": "Relay",
   "license": "MIT",
   "category": "theme",
   "bundled": true,

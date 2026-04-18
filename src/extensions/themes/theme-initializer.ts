@@ -1,11 +1,10 @@
-import { invoke } from "@tauri-apps/api/core";
 import { extensionManager } from "@/features/editor/extensions/manager";
+import { invoke } from "@/lib/platform/core";
 import { themeLoader } from "./theme-loader";
 import { themeRegistry } from "./theme-registry";
 
 let isThemeSystemInitialized = false;
 
-// Helper function to rebuild native menu with current themes
 const rebuildNativeMenu = async () => {
   try {
     const themes = themeRegistry.getAllThemes();
@@ -23,21 +22,16 @@ const rebuildNativeMenu = async () => {
 
 export const initializeThemeSystem = async () => {
   if (isThemeSystemInitialized) {
-    console.log("initializeThemeSystem: Already initialized, skipping...");
     return;
   }
 
   try {
-    console.log("initializeThemeSystem: Starting...");
     isThemeSystemInitialized = true;
 
-    // Initialize extension manager if not already done
     if (!extensionManager.isInitialized()) {
-      console.log("initializeThemeSystem: Initializing extension manager...");
       extensionManager.initialize();
     }
 
-    // Create a dummy editor API for theme extensions (they don't need editor functionality)
     const dummyEditorAPI = {
       getContent: () => "",
       setContent: () => {},
@@ -72,7 +66,7 @@ export const initializeThemeSystem = async () => {
         tabSize: 2,
         lineNumbers: true,
         wordWrap: false,
-        theme: "athas-dark",
+        theme: "relay-dark",
       }),
       updateSettings: () => {},
       on: () => () => {},
@@ -80,35 +74,23 @@ export const initializeThemeSystem = async () => {
       emitEvent: () => {},
     };
 
-    console.log("initializeThemeSystem: Setting editor API...");
     extensionManager.setEditor(dummyEditorAPI);
 
-    // Load theme loader
     try {
-      console.log("initializeThemeSystem: Loading theme loader...");
       await extensionManager.loadExtension(themeLoader);
-      console.log(`initializeThemeSystem: Themes loaded - ${themeLoader.themes.length} themes`);
     } catch (error) {
       console.error("initializeThemeSystem: Failed to load themes:", error);
     }
 
-    // Check what's in the registry
-    console.log("initializeThemeSystem: Themes in registry:", themeRegistry.getAllThemes());
-
-    // Mark theme registry as ready
     themeRegistry.markAsReady();
 
-    // Rebuild native menu with loaded themes
     await rebuildNativeMenu();
 
-    // Listen for theme registry changes and rebuild menu
     themeRegistry.onRegistryChange(() => {
       rebuildNativeMenu();
     });
-
-    console.log("Theme system initialized successfully");
   } catch (error) {
     console.error("Failed to initialize theme system:", error);
-    isThemeSystemInitialized = false; // Reset flag on error
+    isThemeSystemInitialized = false;
   }
 };

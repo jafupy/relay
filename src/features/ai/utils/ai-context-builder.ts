@@ -8,11 +8,11 @@ export const buildContextPrompt = (context: ContextInfo): string => {
 
   // For ACP agents, include available extension methods
   if (isAcpAgent) {
-    contextPrompt += `Athas ACP Extension Methods (protocol methods, NOT shell commands):
-- Call \`athas.openWebViewer\` with \`{ "url": "https://..." }\` to open websites inside Athas.
-- Call \`athas.openTerminal\` with \`{ "command": "..." }\` to open a terminal tab in Athas.
+    contextPrompt += `Relay ACP Extension Methods (protocol methods, NOT shell commands):
+- Call \`relay.openWebViewer\` with \`{ "url": "https://..." }\` to open websites inside Relay.
+- Call \`relay.openTerminal\` with \`{ "command": "..." }\` to open a terminal tab in Relay.
 - Do NOT run \`ext_method\` in a terminal.
-- Do NOT use shell/browser commands like \`open https://...\` for "open on web" requests; use \`athas.openWebViewer\` instead.
+- Do NOT use shell/browser commands like \`open https://...\` for "open on web" requests; use \`relay.openWebViewer\` instead.
 
 `;
   }
@@ -164,7 +164,7 @@ export const buildSystemPrompt = (
   outputStyle: OutputStyle = "default",
 ): string => {
   let basePrompt = `You are an expert coding assistant integrated into a code editor. You have access to the user's current project context and open files.`;
-  const hasAcpExtensions = contextPrompt.includes("Athas ACP Extension Methods");
+  const hasAcpExtensions = contextPrompt.includes("Relay ACP Extension Methods");
 
   // Mode-specific behavior
   if (mode === "plan") {
@@ -254,12 +254,12 @@ Guidelines:
     basePrompt += `
 
 ACP extension rules:
-- Use Athas extension methods as protocol calls, not shell commands.
+- Use Relay extension methods as protocol calls, not shell commands.
 - Never run \`ext_method\` in a terminal command.
-- For "open URL/web/site" requests, call \`athas.openWebViewer\` directly instead of suggesting \`open https://...\`.
-- For "open X in terminal" requests (for example lazygit), call \`athas.openTerminal\` with \`{ "command": "X" }\`.
-- Never say Athas extension methods are unavailable or require MCP exposure in this ACP session.
-- After calling an Athas extension method, confirm success and stop; do not retry with shell fallbacks unless user asks.`;
+- For "open URL/web/site" requests, call \`relay.openWebViewer\` directly instead of suggesting \`open https://...\`.
+- For "open X in terminal" requests (for example lazygit), call \`relay.openTerminal\` with \`{ "command": "X" }\`.
+- Never say Relay extension methods are unavailable or require MCP exposure in this ACP session.
+- After calling an Relay extension method, confirm success and stop; do not retry with shell fallbacks unless user asks.`;
   }
 
   basePrompt += `

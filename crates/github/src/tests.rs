@@ -69,7 +69,7 @@ fn parses_pull_request_list_items_with_nullish_fields() {
       "updatedAt": "2026-03-27T10:00:00Z",
       "isDraft": null,
       "reviewDecision": null,
-      "url": "https://github.com/athasdev/athas/pull/570",
+      "url": "https://github.com/relay/relay/pull/570",
       "headRefName": null,
       "baseRefName": "master",
       "additions": null,

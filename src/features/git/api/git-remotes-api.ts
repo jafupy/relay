@@ -1,4 +1,4 @@
-import { invoke as tauriInvoke } from "@tauri-apps/api/core";
+import { invoke as relayInvoke } from "@/lib/platform/core";
 import type { GitRemote } from "../types/git-types";
 
 export interface GitRemoteActionResult {
@@ -8,7 +8,7 @@ export interface GitRemoteActionResult {
 
 export const getRemotes = async (repoPath: string): Promise<GitRemote[]> => {
   try {
-    const remotes = await tauriInvoke<GitRemote[]>("git_get_remotes", {
+    const remotes = await relayInvoke<GitRemote[]>("git_get_remotes", {
       repoPath,
     });
     return remotes;
@@ -20,7 +20,7 @@ export const getRemotes = async (repoPath: string): Promise<GitRemote[]> => {
 
 export const addRemote = async (repoPath: string, name: string, url: string): Promise<boolean> => {
   try {
-    await tauriInvoke("git_add_remote", { repoPath, name, url });
+    await relayInvoke("git_add_remote", { repoPath, name, url });
     return true;
   } catch (error) {
     console.error("Failed to add remote:", error);
@@ -30,7 +30,7 @@ export const addRemote = async (repoPath: string, name: string, url: string): Pr
 
 export const removeRemote = async (repoPath: string, name: string): Promise<boolean> => {
   try {
-    await tauriInvoke("git_remove_remote", { repoPath, name });
+    await relayInvoke("git_remove_remote", { repoPath, name });
     return true;
   } catch (error) {
     console.error("Failed to remove remote:", error);
@@ -44,7 +44,7 @@ export const pushChanges = async (
   remote: string = "origin",
 ): Promise<GitRemoteActionResult> => {
   try {
-    await tauriInvoke("git_push", { repoPath, branch, remote });
+    await relayInvoke("git_push", { repoPath, branch, remote });
     return { success: true };
   } catch (error) {
     console.error("Failed to push changes:", error);
@@ -61,7 +61,7 @@ export const pullChanges = async (
   remote: string = "origin",
 ): Promise<GitRemoteActionResult> => {
   try {
-    await tauriInvoke("git_pull", { repoPath, branch, remote });
+    await relayInvoke("git_pull", { repoPath, branch, remote });
     return { success: true };
   } catch (error) {
     console.error("Failed to pull changes:", error);
@@ -77,7 +77,7 @@ export const fetchChanges = async (
   remote?: string,
 ): Promise<GitRemoteActionResult> => {
   try {
-    await tauriInvoke("git_fetch", { repoPath, remote });
+    await relayInvoke("git_fetch", { repoPath, remote });
     return { success: true };
   } catch (error) {
     console.error("Failed to fetch changes:", error);

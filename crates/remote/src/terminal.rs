@@ -1,4 +1,5 @@
 use crate::{
+   RemoteEventSink,
    ssh_helpers::{create_ssh_session, shell_quote},
    state::{REMOTE_TERMINALS, RemoteTerminal},
 };
@@ -8,12 +9,11 @@ use std::{
    thread,
    time::Duration,
 };
-use tauri::Emitter;
 use uuid::Uuid;
 
 #[allow(clippy::too_many_arguments)]
 pub(super) async fn create_remote_terminal(
-   app: tauri::AppHandle,
+   events: Arc<dyn RemoteEventSink>,
    host: String,
    port: u16,
    username: String,
@@ -72,7 +72,7 @@ pub(super) async fn create_remote_terminal(
       );
    }
 
-   spawn_terminal_reader(app, id.clone(), channel);
+   spawn_terminal_reader(events, id.clone(), channel);
    Ok(id)
 }
 
@@ -126,7 +126,11 @@ pub(super) async fn close_remote_terminal(id: String) -> Result<(), String> {
    Ok(())
 }
 
-fn spawn_terminal_reader(app: tauri::AppHandle, id: String, channel: Arc<Mutex<ssh2::Channel>>) {
+fn spawn_terminal_reader(
+   events: Arc<dyn RemoteEventSink>,
+   id: String,
+   channel: Arc<Mutex<ssh2::Channel>>,
+) {
    thread::spawn(move || {
       let mut buffer = vec![0u8; 65536];
 
@@ -145,31 +149,31 @@ fn spawn_terminal_reader(app: tauri::AppHandle, id: String, channel: Arc<Mutex<s
 
          match read_result {
             Ok((0, _)) | Ok((_, true)) => {
-               emit_terminal_exit(&app, &id);
-               let _ = app.emit(&format!("pty-closed-{}", id), ());
+               emit_terminal_exit(events.as_ref(), &id);
+               events.emit_json(&format!("pty-closed-{}", id), serde_json::Value::Null);
                break;
             }
             Ok((n, false)) => {
                let data = String::from_utf8_lossy(&buffer[..n]).to_string();
-               let _ = app.emit(
+               events.emit_json(
                   &format!("pty-output-{}", id),
                   serde_json::json!({ "data": data }),
                );
             }
             Err((std::io::ErrorKind::WouldBlock, eof, _)) => {
                if eof {
-                  emit_terminal_exit(&app, &id);
-                  let _ = app.emit(&format!("pty-closed-{}", id), ());
+                  emit_terminal_exit(events.as_ref(), &id);
+                  events.emit_json(&format!("pty-closed-{}", id), serde_json::Value::Null);
                   break;
                }
                thread::sleep(Duration::from_millis(10));
             }
             Err((_, _, error)) => {
-               let _ = app.emit(
+               events.emit_json(
                   &format!("pty-error-{}", id),
                   serde_json::json!({ "error": error }),
                );
-               let _ = app.emit(&format!("pty-closed-{}", id), ());
+               events.emit_json(&format!("pty-closed-{}", id), serde_json::Value::Null);
                break;
             }
          }
@@ -181,8 +185,8 @@ fn spawn_terminal_reader(app: tauri::AppHandle, id: String, channel: Arc<Mutex<s
    });
 }
 
-fn emit_terminal_exit(app: &tauri::AppHandle, id: &str) {
-   let _ = app.emit(
+fn emit_terminal_exit(events: &dyn RemoteEventSink, id: &str) {
+   events.emit_json(
       &format!("pty-exit-{}", id),
       serde_json::json!({
          "exitCode": Option::<u32>::None,

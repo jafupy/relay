@@ -45,7 +45,7 @@ class ExtensionRegistry {
     let basePath = "";
 
     try {
-      const { invoke } = await import("@tauri-apps/api/core");
+      const { invoke } = await import("@/lib/platform/core");
       basePath = await invoke<string>("get_bundled_extensions_path");
       logger.info("ExtensionRegistry", `Bundled extensions path: ${basePath}`);
     } catch (error) {

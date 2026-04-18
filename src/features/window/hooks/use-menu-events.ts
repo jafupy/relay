@@ -1,6 +1,6 @@
-import type { UnlistenFn } from "@tauri-apps/api/event";
-import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { useEffect, useRef } from "react";
+import type { UnlistenFn } from "@/lib/platform/events";
+import { getCurrentWebviewWindow } from "@/lib/platform/webview-window";
 
 function cleanupMenuListeners() {
   if (!listenersAreSetup) return;
@@ -54,7 +54,7 @@ async function setupMenuListeners(handlers: any) {
     currentWindow.listen("menu_about", () => currentHandlers.current.onAbout()),
     currentWindow.listen("menu_help", () => currentHandlers.current.onHelp()),
     currentWindow.listen("menu_report_bug", () => currentHandlers.current.onReportBug()),
-    currentWindow.listen("menu_about_athas", () => currentHandlers.current.onAboutAthas()),
+    currentWindow.listen("menu_about_relay", () => currentHandlers.current.onAboutRelay()),
     currentWindow.listen("menu_toggle_menu_bar", () => currentHandlers.current.onToggleMenuBar()),
   ]);
 
@@ -89,7 +89,7 @@ interface UseMenuEventsProps {
   onAbout: () => void | Promise<void>;
   onHelp: () => void;
   onReportBug: () => void | Promise<void>;
-  onAboutAthas: () => void | Promise<void>;
+  onAboutRelay: () => void | Promise<void>;
   onToggleMenuBar: () => void;
 }
 

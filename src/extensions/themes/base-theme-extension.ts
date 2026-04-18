@@ -12,29 +12,20 @@ export abstract class BaseThemeExtension implements ThemeExtension {
   private registeredThemes = new Set<string>();
 
   async initialize(editor: EditorAPI): Promise<void> {
-    console.log(`BaseThemeExtension: Initializing ${this.name} with ${this.themes.length} themes`);
-
-    // Register all themes in this extension
     this.themes.forEach((theme) => {
-      console.log(`BaseThemeExtension: Registering theme ${theme.id} from ${this.name}`);
       themeRegistry.registerTheme(theme);
       this.registeredThemes.add(theme.id);
     });
 
-    console.log(`BaseThemeExtension: Finished initializing ${this.name}`);
-
-    // Extension-specific initialization
     await this.onInitialize?.(editor);
   }
 
   dispose(): void {
-    // Unregister all themes
     this.registeredThemes.forEach((themeId) => {
       themeRegistry.unregisterTheme(themeId);
     });
     this.registeredThemes.clear();
 
-    // Extension-specific cleanup
     this.onDispose?.();
   }
 
@@ -51,7 +42,6 @@ export abstract class BaseThemeExtension implements ThemeExtension {
     this.registeredThemes.delete(id);
   }
 
-  // Override these in your theme extension
   protected onInitialize?(editor: EditorAPI): Promise<void> | void;
   protected onDispose?(): void;
 }

@@ -1,14 +1,14 @@
-import { onOpenUrl } from "@tauri-apps/plugin-deep-link";
 import { useEffect } from "react";
 import { useExtensionStore } from "@/extensions/registry/extension-store";
+import { onOpenUrl } from "@/lib/platform/deep-link";
 import { toast } from "@/ui/toast";
 import { handleWindowOpenRequest, parseWindowOpenUrl } from "../utils/window-open-request";
 
 /**
  * Hook to handle deep link URLs
  * Supports:
- *   athas://open?path=...&line=...&type=directory
- *   athas://extension/install/{extensionId}
+ *   relay://open?path=...&line=...&type=directory
+ *   relay://extension/install/{extensionId}
  */
 export function useDeepLink() {
   useEffect(() => {
@@ -51,7 +51,7 @@ function handleDeepLink(url: string) {
 }
 
 function isSupportedDeepLinkProtocol(protocol: string) {
-  return protocol === "athas:" || protocol === "athas-alpha:" || protocol === "athas-dev:";
+  return protocol === "relay:" || protocol === "relay-alpha:" || protocol === "relay-dev:";
 }
 
 async function installExtensionFromDeepLink(extensionId: string) {

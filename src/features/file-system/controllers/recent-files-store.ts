@@ -83,7 +83,7 @@ export const useRecentFilesStore = create<RecentFilesStore>()(
         },
       }),
       {
-        name: "athas-recent-files",
+        name: "relay-recent-files",
         version: 1,
       },
     ),

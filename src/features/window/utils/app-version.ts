@@ -1,7 +1,7 @@
-import { getVersion } from "@tauri-apps/api/app";
+import { getVersion } from "@/lib/platform/app";
 
 /**
- * Fetches the raw application version from Tauri API without 'v' prefix
+ * Fetches the raw application version from Relay API without 'v' prefix
  * @returns Promise<string> - Raw application version (e.g., "1.0.0")
  */
 export const fetchRawAppVersion = async (): Promise<string> => {

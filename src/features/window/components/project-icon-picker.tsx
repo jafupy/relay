@@ -1,8 +1,8 @@
-import { convertFileSrc } from "@tauri-apps/api/core";
-import { readDir } from "@tauri-apps/plugin-fs";
 import { Trash2 } from "lucide-react";
 import { memo, useCallback, useEffect, useState } from "react";
 import { useWorkspaceTabsStore } from "@/features/window/stores/workspace-tabs-store";
+import { convertFileSrc } from "@/lib/platform/core";
+import { readDir } from "@/lib/platform/fs";
 import { Button } from "@/ui/button";
 import Dialog from "@/ui/dialog";
 import Tooltip from "@/ui/tooltip";

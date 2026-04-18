@@ -1,5 +1,5 @@
-import { invoke } from "@tauri-apps/api/core";
 import type { WindowOpenRequest } from "@/features/window/utils/window-open-request";
+import { invoke } from "@/lib/platform/core";
 
 interface CreateAppWindowPayload {
   request?: WindowOpenRequest | null;

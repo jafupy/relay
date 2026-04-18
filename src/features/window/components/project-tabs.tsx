@@ -1,5 +1,3 @@
-import { convertFileSrc } from "@tauri-apps/api/core";
-import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import {
   Copy,
   EllipsisVertical,
@@ -11,16 +9,18 @@ import {
   SquareArrowOutUpRight,
   X,
 } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
 import type { KeyboardEvent } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useFileSystemStore } from "@/features/file-system/controllers/store";
 import { useUIState } from "@/features/window/stores/ui-state-store";
 import type { ProjectTab } from "@/features/window/stores/workspace-tabs-store";
 import { useWorkspaceTabsStore } from "@/features/window/stores/workspace-tabs-store";
 import { createAppWindow } from "@/features/window/utils/create-app-window";
+import { writeText } from "@/lib/platform/clipboard";
+import { convertFileSrc } from "@/lib/platform/core";
 import { Button } from "@/ui/button";
-import { ContextMenu, useContextMenu, type ContextMenuItem } from "@/ui/context-menu";
+import { ContextMenu, type ContextMenuItem, useContextMenu } from "@/ui/context-menu";
 import { Tab, TabsList } from "@/ui/tabs";
 import { cn } from "@/utils/cn";
 import ProjectIconPicker from "./project-icon-picker";

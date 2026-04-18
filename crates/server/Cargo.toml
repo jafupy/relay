@@ -1,0 +1,45 @@
+[package]
+name = "relay-server"
+version = "0.4.5"
+description = "Relay web app server"
+authors = ["you"]
+edition = "2024"
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = "1.0"
+argon2 = "0.5"
+axum = { version = "0.8.9", features = ["macros", "ws"] }
+base64 = "0.21"
+bytes = "1"
+futures-util = "0.3"
+http = "1"
+http-body-util = "0.1"
+hyper = { version = "1", features = ["client", "http1"] }
+hyper-util = { version = "0.1", features = ["tokio"] }
+lsp-types = { version = "0.95", features = ["proposed"] }
+mime_guess = "2"
+portable-pty = "0.9"
+rand = "0.8"
+relay-ai = { path = "../ai", package = "relay-ai" }
+relay-database = { path = "../database", package = "relay-database" }
+relay-lsp = { path = "../lsp", package = "relay-lsp" }
+relay-project = { path = "../project", package = "relay-project" }
+relay-remote = { path = "../remote", package = "relay-remote" }
+relay-runtime = { path = "../runtime", package = "relay-runtime" }
+relay-terminal = { path = "../terminal", package = "relay-terminal" }
+relay-tooling = { path = "../tooling", package = "relay-tooling" }
+relay-version-control = { path = "../version-control", package = "relay-version-control" }
+rfd = "0.15"
+rusqlite = { version = "0.29.0", features = ["bundled"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sha2 = "0.10"
+tokio = { version = "1.0", features = ["full"] }
+tokio-tungstenite = "0.29"
+tower-http = { version = "0.6.8", features = ["fs", "trace"] }
+url = "2.5.8"
+uuid = { version = "1.0", features = ["v4", "serde"] }
+webauthn-rs = "0.5.4"

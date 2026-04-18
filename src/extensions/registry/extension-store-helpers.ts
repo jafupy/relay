@@ -1,9 +1,9 @@
 import { useAuthStore } from "@/features/window/stores/auth-store";
-import type { AvailableExtension } from "./extension-store-types";
-import { extensionRegistry } from "./extension-registry";
 import type { ExtensionManifest } from "../types/extension-manifest";
+import { extensionRegistry } from "./extension-registry";
+import type { AvailableExtension } from "./extension-store-types";
 
-const HIDDEN_MARKETPLACE_EXTENSION_IDS = new Set(["athas.tsx"]);
+const HIDDEN_MARKETPLACE_EXTENSION_IDS = new Set(["relay.tsx"]);
 
 const normalizeExtensionId = (value: string) => value.trim().toLowerCase();
 
@@ -27,8 +27,8 @@ export function mergeMarketplaceLanguageExtensions(
     (manifest) => !HIDDEN_MARKETPLACE_EXTENSION_IDS.has(manifest.id),
   );
 
-  const typescript = visibleExtensions.find((manifest) => manifest.id === "athas.typescript");
-  const tsx = extensions.find((manifest) => manifest.id === "athas.tsx");
+  const typescript = visibleExtensions.find((manifest) => manifest.id === "relay.typescript");
+  const tsx = extensions.find((manifest) => manifest.id === "relay.tsx");
 
   if (!typescript || !tsx?.languages?.length) {
     return visibleExtensions;

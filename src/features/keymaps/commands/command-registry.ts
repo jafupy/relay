@@ -51,8 +51,8 @@ const fileCommands: Command[] = [
     category: "File",
     keybinding: "cmd+shift+s",
     execute: async () => {
-      const { save } = await import("@tauri-apps/plugin-dialog");
-      const { invoke } = await import("@tauri-apps/api/core");
+      const { save } = await import("@/lib/platform/dialog");
+      const { invoke } = await import("@/lib/platform/core");
       const bufferStore = useBufferStore.getState();
       const activeBuffer = bufferStore.buffers.find((b) => b.id === bufferStore.activeBufferId);
 
@@ -621,8 +621,9 @@ const navigationCommands: Command[] = [
     keybinding: "F12",
     execute: async () => {
       const { LspClient } = await import("@/features/editor/lsp/lsp-client");
-      const { readFileContent } =
-        await import("@/features/file-system/controllers/file-operations");
+      const { readFileContent } = await import(
+        "@/features/file-system/controllers/file-operations"
+      );
 
       const lspClient = LspClient.getInstance();
       const bufferStore = useBufferStore.getState();
@@ -688,8 +689,9 @@ const navigationCommands: Command[] = [
     execute: async () => {
       const { LspClient } = await import("@/features/editor/lsp/lsp-client");
       const { useReferencesStore } = await import("@/features/references/stores/references-store");
-      const { readFileContent } =
-        await import("@/features/file-system/controllers/file-operations");
+      const { readFileContent } = await import(
+        "@/features/file-system/controllers/file-operations"
+      );
 
       const lspClient = LspClient.getInstance();
       const bufferStore = useBufferStore.getState();
@@ -901,7 +903,7 @@ const windowCommands: Command[] = [
     keybinding: "cmd+q",
     execute: async () => {
       if (isMac()) {
-        const { exit } = await import("@tauri-apps/plugin-process");
+        const { exit } = await import("@/lib/platform/process");
         exit(0);
       }
     },
@@ -915,7 +917,7 @@ const windowCommands: Command[] = [
       if (!isMac()) {
         const { settings } = useSettingsStore.getState();
         if (settings.nativeMenuBar) {
-          const { invoke } = await import("@tauri-apps/api/core");
+          const { invoke } = await import("@/lib/platform/core");
           invoke("toggle_menu_bar").catch(console.error);
         }
       }

@@ -77,7 +77,7 @@
 }
 
 .custom-scrollbar-auto::-webkit-scrollbar-thumb {
-  background: rgba(128, 128, 128, 0.3);
+  background: color-mix(in srgb, var(--border) 60%, transparent);
   border-radius: 4px;
   transition: background-color 0.2s ease;
 }
@@ -96,7 +96,7 @@
 
 .editor-scrollable {
   scrollbar-width: thin;
-  scrollbar-color: rgba(128, 128, 128, 0.3) transparent;
+  scrollbar-color: color-mix(in srgb, var(--border) 60%, transparent) transparent;
   overscroll-behavior: none;
 }
 
@@ -110,7 +110,7 @@
 }
 
 .editor-scrollable::-webkit-scrollbar-thumb {
-  background: rgba(128, 128, 128, 0.3);
+  background: color-mix(in srgb, var(--border) 60%, transparent);
   border-radius: 2px;
   transition: background-color 0.2s ease;
 }
@@ -174,7 +174,7 @@
 }
 
 .tab-scroll-container:hover::-webkit-scrollbar-thumb {
-  background: rgba(224, 224, 224, 0.8);
+  background: var(--color-text-lighter);
 }
 
 .tab-scroll-container > * {
@@ -191,12 +191,12 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: rgba(100, 100, 100, 0.5);
+  background-color: color-mix(in srgb, var(--border) 70%, transparent);
   border-radius: 10px;
   border: 2px solid transparent;
   background-clip: content-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(100, 100, 100, 0.7);
+  background-color: var(--color-text-lighter);
 }

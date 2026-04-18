@@ -1,6 +1,4 @@
-import { invoke } from "@tauri-apps/api/core";
 import { AlertCircle, MessageSquare } from "lucide-react";
-import { GitHubCliStatusMessage } from "./github-cli-status";
 import {
   memo,
   startTransition,
@@ -13,7 +11,9 @@ import {
 import { useBufferStore } from "@/features/editor/stores/buffer-store";
 import { useFileSystemStore } from "@/features/file-system/controllers/store";
 import { useRepositoryStore } from "@/features/git/stores/git-repository-store";
-import GitHubSidebarLoadingBar from "./github-sidebar-loading-bar";
+import { invoke } from "@/lib/platform/core";
+import { Button } from "@/ui/button";
+import { cn } from "@/utils/cn";
 import { useGitHubStore } from "../stores/github-store";
 import type { IssueListItem } from "../types/github";
 import {
@@ -22,8 +22,8 @@ import {
   githubIssueDetailsCache,
   githubIssueListCache,
 } from "../utils/github-data-cache";
-import { Button } from "@/ui/button";
-import { cn } from "@/utils/cn";
+import { GitHubCliStatusMessage } from "./github-cli-status";
+import GitHubSidebarLoadingBar from "./github-sidebar-loading-bar";
 
 interface IssueListItemProps {
   issue: IssueListItem;

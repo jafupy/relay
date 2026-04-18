@@ -1,6 +1,6 @@
 use crate::{ToolConfig, ToolError, ToolRuntime};
-use athas_runtime::{RuntimeManager, RuntimeType};
 use flate2::read::GzDecoder;
+use relay_runtime::{RuntimeManager, RuntimeType};
 use serde_json::Value;
 use std::{
    fs,
@@ -8,7 +8,6 @@ use std::{
    path::{Path, PathBuf},
    process::Command,
 };
-use tauri::Manager;
 use walkdir::WalkDir;
 use zip::ZipArchive;
 
@@ -16,12 +15,8 @@ use zip::ZipArchive;
 pub struct ToolInstaller;
 
 impl ToolInstaller {
-   fn get_runtime_root(app_handle: &tauri::AppHandle) -> Result<PathBuf, ToolError> {
-      app_handle
-         .path()
-         .app_data_dir()
-         .map(|dir| dir.join("runtimes"))
-         .map_err(|e| ToolError::ConfigError(e.to_string()))
+   fn get_runtime_root(data_dir: &Path) -> Result<PathBuf, ToolError> {
+      Ok(data_dir.join("runtimes"))
    }
 
    fn configured_command_name(config: &ToolConfig) -> &str {
@@ -200,50 +195,46 @@ impl ToolInstaller {
    }
 
    /// Install a tool based on its configuration
-   pub async fn install(
-      app_handle: &tauri::AppHandle,
-      config: &ToolConfig,
-   ) -> Result<PathBuf, ToolError> {
+   pub async fn install(data_dir: &Path, config: &ToolConfig) -> Result<PathBuf, ToolError> {
       match config.runtime {
          ToolRuntime::Bun => {
             let package = config
                .package
                .as_ref()
                .ok_or_else(|| ToolError::ConfigError("No package specified".to_string()))?;
-            Self::install_via_bun(app_handle, package, Self::configured_command_name(config)).await
+            Self::install_via_bun(data_dir, package, Self::configured_command_name(config)).await
          }
          ToolRuntime::Node => {
             let package = config
                .package
                .as_ref()
                .ok_or_else(|| ToolError::ConfigError("No package specified".to_string()))?;
-            Self::install_via_npm(app_handle, package, Self::configured_command_name(config)).await
+            Self::install_via_npm(data_dir, package, Self::configured_command_name(config)).await
          }
          ToolRuntime::Python => {
             let package = config
                .package
                .as_ref()
                .ok_or_else(|| ToolError::ConfigError("No package specified".to_string()))?;
-            Self::install_via_pip(app_handle, package, Self::configured_command_name(config)).await
+            Self::install_via_pip(data_dir, package, Self::configured_command_name(config)).await
          }
          ToolRuntime::Go => {
             let package = config
                .package
                .as_ref()
                .ok_or_else(|| ToolError::ConfigError("No package specified".to_string()))?;
-            Self::install_via_go(app_handle, package, Self::configured_command_name(config)).await
+            Self::install_via_go(data_dir, package, Self::configured_command_name(config)).await
          }
          ToolRuntime::Rust => {
             let package = config
                .package
                .as_ref()
                .ok_or_else(|| ToolError::ConfigError("No package specified".to_string()))?;
-            Self::install_via_cargo(app_handle, package, Self::configured_command_name(config))
-               .await
+            Self::install_via_cargo(data_dir, package, Self::configured_command_name(config)).await
          }
          ToolRuntime::Binary => {
             if let Some(url) = config.download_url.as_ref() {
-               Self::download_binary(app_handle, &config.name, url).await
+               Self::download_binary(data_dir, &config.name, url).await
             } else {
                which::which(&config.name).map_err(|_| {
                   ToolError::NotFound(format!(
@@ -257,26 +248,22 @@ impl ToolInstaller {
    }
 
    /// Get the installation directory for tools
-   pub fn get_tools_dir(app_handle: &tauri::AppHandle) -> Result<PathBuf, ToolError> {
-      let data_dir = app_handle
-         .path()
-         .app_data_dir()
-         .map_err(|e| ToolError::ConfigError(e.to_string()))?;
+   pub fn get_tools_dir(data_dir: &Path) -> Result<PathBuf, ToolError> {
       Ok(data_dir.join("tools"))
    }
 
    /// Install a package via Bun (global)
    async fn install_via_bun(
-      app_handle: &tauri::AppHandle,
+      data_dir: &Path,
       package: &str,
       command_name: &str,
    ) -> Result<PathBuf, ToolError> {
-      let runtime_root = Self::get_runtime_root(app_handle)?;
+      let runtime_root = Self::get_runtime_root(data_dir)?;
       let bun_path = RuntimeManager::get_runtime(Some(&runtime_root), RuntimeType::Bun)
          .await
          .map_err(|e| ToolError::RuntimeNotAvailable(e.to_string()))?;
 
-      let tools_dir = Self::get_tools_dir(app_handle)?;
+      let tools_dir = Self::get_tools_dir(data_dir)?;
       let package_dir = tools_dir.join("bun").join(package);
       std::fs::create_dir_all(&package_dir)?;
 
@@ -321,16 +308,16 @@ impl ToolInstaller {
 
    /// Install a package via npm (global)
    async fn install_via_npm(
-      app_handle: &tauri::AppHandle,
+      data_dir: &Path,
       package: &str,
       command_name: &str,
    ) -> Result<PathBuf, ToolError> {
-      let runtime_root = Self::get_runtime_root(app_handle)?;
+      let runtime_root = Self::get_runtime_root(data_dir)?;
       let node_path = RuntimeManager::get_runtime(Some(&runtime_root), RuntimeType::Node)
          .await
          .map_err(|e| ToolError::RuntimeNotAvailable(e.to_string()))?;
 
-      let tools_dir = Self::get_tools_dir(app_handle)?;
+      let tools_dir = Self::get_tools_dir(data_dir)?;
       let package_dir = tools_dir.join("npm").join(package);
       std::fs::create_dir_all(&package_dir)?;
 
@@ -380,16 +367,16 @@ impl ToolInstaller {
 
    /// Install a package via pip (user)
    async fn install_via_pip(
-      app_handle: &tauri::AppHandle,
+      data_dir: &Path,
       package: &str,
       command_name: &str,
    ) -> Result<PathBuf, ToolError> {
-      let runtime_root = Self::get_runtime_root(app_handle)?;
+      let runtime_root = Self::get_runtime_root(data_dir)?;
       let python_path = RuntimeManager::get_runtime(Some(&runtime_root), RuntimeType::Python)
          .await
          .map_err(|e| ToolError::RuntimeNotAvailable(e.to_string()))?;
 
-      let tools_dir = Self::get_tools_dir(app_handle)?;
+      let tools_dir = Self::get_tools_dir(data_dir)?;
       let venv_dir = tools_dir.join("python").join(package);
       std::fs::create_dir_all(&venv_dir)?;
 
@@ -447,16 +434,16 @@ impl ToolInstaller {
 
    /// Install a package via go install
    async fn install_via_go(
-      app_handle: &tauri::AppHandle,
+      data_dir: &Path,
       package: &str,
       command_name: &str,
    ) -> Result<PathBuf, ToolError> {
-      let runtime_root = Self::get_runtime_root(app_handle)?;
+      let runtime_root = Self::get_runtime_root(data_dir)?;
       let go_path = RuntimeManager::get_runtime(Some(&runtime_root), RuntimeType::Go)
          .await
          .map_err(|e| ToolError::RuntimeNotAvailable(e.to_string()))?;
 
-      let tools_dir = Self::get_tools_dir(app_handle)?;
+      let tools_dir = Self::get_tools_dir(data_dir)?;
       let gopath = tools_dir.join("go");
       std::fs::create_dir_all(&gopath)?;
 
@@ -487,16 +474,16 @@ impl ToolInstaller {
 
    /// Install a package via cargo install
    async fn install_via_cargo(
-      app_handle: &tauri::AppHandle,
+      data_dir: &Path,
       package: &str,
       command_name: &str,
    ) -> Result<PathBuf, ToolError> {
-      let runtime_root = Self::get_runtime_root(app_handle)?;
+      let runtime_root = Self::get_runtime_root(data_dir)?;
       let cargo_path = RuntimeManager::get_runtime(Some(&runtime_root), RuntimeType::Rust)
          .await
          .map_err(|e| ToolError::RuntimeNotAvailable(e.to_string()))?;
 
-      let tools_dir = Self::get_tools_dir(app_handle)?;
+      let tools_dir = Self::get_tools_dir(data_dir)?;
       let cargo_home = tools_dir.join("cargo");
       std::fs::create_dir_all(&cargo_home)?;
 
@@ -528,12 +515,8 @@ impl ToolInstaller {
    }
 
    /// Download a binary directly
-   async fn download_binary(
-      app_handle: &tauri::AppHandle,
-      name: &str,
-      url: &str,
-   ) -> Result<PathBuf, ToolError> {
-      let tools_dir = Self::get_tools_dir(app_handle)?;
+   async fn download_binary(data_dir: &Path, name: &str, url: &str) -> Result<PathBuf, ToolError> {
+      let tools_dir = Self::get_tools_dir(data_dir)?;
       let bin_dir = tools_dir.join("bin");
       std::fs::create_dir_all(&bin_dir)?;
 
@@ -576,20 +559,14 @@ impl ToolInstaller {
    }
 
    /// Check if a tool is installed
-   pub fn is_installed(
-      app_handle: &tauri::AppHandle,
-      config: &ToolConfig,
-   ) -> Result<bool, ToolError> {
-      let path = Self::get_tool_path(app_handle, config)?;
+   pub fn is_installed(data_dir: &Path, config: &ToolConfig) -> Result<bool, ToolError> {
+      let path = Self::get_tool_path(data_dir, config)?;
       Ok(path.exists())
    }
 
    /// Get the path where a tool would be/is installed
-   pub fn get_tool_path(
-      app_handle: &tauri::AppHandle,
-      config: &ToolConfig,
-   ) -> Result<PathBuf, ToolError> {
-      let tools_dir = Self::get_tools_dir(app_handle)?;
+   pub fn get_tool_path(data_dir: &Path, config: &ToolConfig) -> Result<PathBuf, ToolError> {
+      let tools_dir = Self::get_tools_dir(data_dir)?;
 
       match config.runtime {
          ToolRuntime::Bun => {
@@ -654,11 +631,8 @@ impl ToolInstaller {
    /// Get the preferred launch path for LSP servers.
    /// For Node/Bun tools, this returns the package bin entrypoint (e.g. .js/.mjs)
    /// so the LSP client can run it with managed Node runtime.
-   pub fn get_lsp_launch_path(
-      app_handle: &tauri::AppHandle,
-      config: &ToolConfig,
-   ) -> Result<PathBuf, ToolError> {
-      let tools_dir = Self::get_tools_dir(app_handle)?;
+   pub fn get_lsp_launch_path(data_dir: &Path, config: &ToolConfig) -> Result<PathBuf, ToolError> {
+      let tools_dir = Self::get_tools_dir(data_dir)?;
 
       match config.runtime {
          ToolRuntime::Bun => {
@@ -699,7 +673,7 @@ impl ToolInstaller {
                .join(".bin")
                .join(Self::node_bin_name(command_name)))
          }
-         _ => Self::get_tool_path(app_handle, config),
+         _ => Self::get_tool_path(data_dir, config),
       }
    }
 }

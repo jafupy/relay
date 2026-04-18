@@ -1,4 +1,4 @@
-import { invoke as tauriInvoke } from "@tauri-apps/api/core";
+import { invoke as relayInvoke } from "@/lib/platform/core";
 import type { GitBlame } from "../types/git-types";
 import { isNotGitRepositoryError, resolveRepositoryForFile } from "./git-repo-api";
 
@@ -9,7 +9,7 @@ export const getGitBlame = async (rootPath: string, filePath: string): Promise<G
       return null;
     }
 
-    const blame = await tauriInvoke<GitBlame>("git_blame_file", {
+    const blame = await relayInvoke<GitBlame>("git_blame_file", {
       rootPath: resolved.repoPath,
       filePath: resolved.filePath,
     });

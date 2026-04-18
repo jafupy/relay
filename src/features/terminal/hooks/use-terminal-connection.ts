@@ -1,8 +1,8 @@
-import { invoke } from "@tauri-apps/api/core";
-import { listen } from "@tauri-apps/api/event";
 import type { IDisposable, Terminal as XtermTerminal } from "@xterm/xterm";
 import { useEffect, useRef } from "react";
 import { themeRegistry } from "@/extensions/themes/theme-registry";
+import { invoke } from "@/lib/platform/core";
+import { listen } from "@/lib/platform/events";
 import { parseOSC7 } from "../utils/osc-parser";
 import { useTerminalWriteBuffer } from "./use-terminal-write-buffer";
 

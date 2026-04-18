@@ -1,9 +1,10 @@
 @theme {
   --font-sans:
-    "Geist Variable", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    Roboto, "Helvetica Neue", Arial, sans-serif;
+    "Bricolage Grotesque Variable", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  --font-serif: "Brygada 1918 Variable", ui-serif, Georgia, "Times New Roman", serif;
   --editor-font:
-    "Geist Mono Variable", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "JetBrains Mono Variable", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
     "Liberation Mono", monospace;
 }
 
@@ -89,17 +90,18 @@
     --app-ui-icon-size-sm: calc(12px * var(--app-ui-scale));
     --app-ui-icon-size-md: calc(14px * var(--app-ui-scale));
 
-    --primary-bg: #ffffff;
-    --secondary-bg: #f8f8f8;
-    --text: #333333;
-    --text-light: #666666;
-    --text-lighter: #999999;
-    --border: #e0e0e0;
-    --hover: #f0f0f0;
-    --selected: #e8e8e8;
-    --selection-bg: rgba(173, 214, 255, 0.4);
+    /* Mauve light palette */
+    --primary-bg: #faf9fb;
+    --secondary-bg: #f2eff3;
+    --text: #1d1b20;
+    --text-light: #5c596b;
+    --text-lighter: #807d88;
+    --border: #dcdadc;
+    --hover: #ebe8ec;
+    --selected: #e4e2e4;
+    --selection-bg: rgba(158, 140, 252, 0.15);
 
-    --accent: #3b82f6;
+    --accent: #6e56cf;
 
     --color-primary-bg: var(--primary-bg);
     --color-secondary-bg: var(--secondary-bg);
@@ -118,63 +120,64 @@
     --color-syntax-variable: var(--syntax-variable);
     --color-syntax-operator: var(--syntax-operator);
 
-    --cursor: #1a1a1a;
-    --cursor-vim-normal: #3b82f6a6;
-    --cursor-vim-insert: #22c55e;
+    --cursor: #1d1b20;
+    --cursor-vim-normal: rgba(110, 86, 207, 0.5);
+    --cursor-vim-insert: #3e7b27;
 
-    --error: #c53030;
-    --success: #10b981;
-    --warning: #d69e2e;
-    --info: #3182ce;
+    --error: #c2180c;
+    --success: #3e7b27;
+    --warning: #9e6c00;
+    --info: #0070c9;
 
-    --git-modified: #d69e2e;
-    --git-modified-staged: #e67e22;
-    --git-added: #28a745;
-    --git-deleted: #dc3545;
-    --git-untracked: #17a2b8;
-    --git-renamed: #6f42c1;
+    --git-modified: #9e6c00;
+    --git-modified-staged: #b07800;
+    --git-added: #3e7b27;
+    --git-deleted: #c2180c;
+    --git-untracked: #0070c9;
+    --git-renamed: #6e56cf;
 
-    --syntax-comment: #6a737d;
-    --syntax-keyword: #d73a49;
-    --syntax-string: #032f62;
-    --syntax-number: #005cc5;
-    --syntax-function: #6f42c1;
-    --syntax-variable: #e36209;
-    --syntax-tag: #22863a;
-    --syntax-attribute: #6f42c1;
-    --syntax-punctuation: #24292e;
+    --syntax-comment: #8b8893;
+    --syntax-keyword: #c2180c;
+    --syntax-string: #0070c9;
+    --syntax-number: #9e6c00;
+    --syntax-function: #6e56cf;
+    --syntax-variable: #1d1b20;
+    --syntax-tag: #3e7b27;
+    --syntax-attribute: #6e56cf;
+    --syntax-punctuation: #5c596b;
 
-    --terminal-black: #24292e;
-    --terminal-red: #d73a49;
-    --terminal-green: #22863a;
-    --terminal-yellow: #e36209;
-    --terminal-blue: #005cc5;
-    --terminal-magenta: #6f42c1;
-    --terminal-cyan: #032f62;
-    --terminal-white: #666666;
-    --terminal-bright-black: #6a737d;
-    --terminal-bright-red: #c53030;
-    --terminal-bright-green: #28a745;
-    --terminal-bright-yellow: #d69e2e;
-    --terminal-bright-blue: #3182ce;
-    --terminal-bright-magenta: #8b5cf6;
+    --terminal-black: #1d1b20;
+    --terminal-red: #c2180c;
+    --terminal-green: #3e7b27;
+    --terminal-yellow: #9e6c00;
+    --terminal-blue: #0070c9;
+    --terminal-magenta: #6e56cf;
+    --terminal-cyan: #007070;
+    --terminal-white: #807d88;
+    --terminal-bright-black: #5c596b;
+    --terminal-bright-red: #d93526;
+    --terminal-bright-green: #4e9632;
+    --terminal-bright-yellow: #b88200;
+    --terminal-bright-blue: #2490e0;
+    --terminal-bright-magenta: #9e8cfc;
     --terminal-bright-cyan: #0891b2;
-    --terminal-bright-white: #333333;
+    --terminal-bright-white: #1d1b20;
   }
 
   @media (prefers-color-scheme: dark) {
     :root {
-      --primary-bg: #1a1a1a;
-      --secondary-bg: #2a2a2a;
-      --text: #e5e5e5;
-      --text-light: #b3b3b3;
-      --text-lighter: #808080;
-      --border: #404040;
-      --hover: #333333;
-      --selected: #404040;
-      --selection-bg: rgba(38, 79, 120, 0.6);
+      /* Mauve dark palette */
+      --primary-bg: #1a191b;
+      --secondary-bg: #121113;
+      --text: #eeeef0;
+      --text-light: #b5b2bc;
+      --text-lighter: #6f6d78;
+      --border: #3c393f;
+      --hover: #2b292d;
+      --selected: #323035;
+      --selection-bg: rgba(158, 140, 252, 0.2);
 
-      --accent: #60a5fa;
+      --accent: #9e8cfc;
 
       --color-primary-bg: var(--primary-bg);
       --color-secondary-bg: var(--secondary-bg);
@@ -193,48 +196,48 @@
       --color-syntax-variable: var(--syntax-variable);
       --color-syntax-operator: var(--syntax-operator);
 
-      --cursor: #e5e5e5;
-      --cursor-vim-normal: #3b82f6a6;
-      --cursor-vim-insert: #22c55e;
+      --cursor: #eeeef0;
+      --cursor-vim-normal: rgba(158, 140, 252, 0.5);
+      --cursor-vim-insert: #8ea274;
 
       --error: #f87171;
-      --success: #10b981;
-      --warning: #fbbf24;
-      --info: #60a5fa;
+      --success: #8ea274;
+      --warning: #d8ae66;
+      --info: #86b1e0;
 
-      --git-modified: #fbbf24;
-      --git-modified-staged: #f59e0b;
-      --git-added: #10b981;
-      --git-deleted: #ef4444;
-      --git-untracked: #06b6d4;
-      --git-renamed: #8b5cf6;
+      --git-modified: #d8ae66;
+      --git-modified-staged: #e0bc7a;
+      --git-added: #8ea274;
+      --git-deleted: #f87171;
+      --git-untracked: #86b1e0;
+      --git-renamed: #9e8cfc;
 
-      --syntax-comment: #8b949e;
-      --syntax-keyword: #ff7b72;
-      --syntax-string: #a5d6ff;
-      --syntax-number: #79c0ff;
-      --syntax-function: #d2a8ff;
-      --syntax-variable: #ffa657;
-      --syntax-tag: #7ee787;
-      --syntax-attribute: #d2a8ff;
-      --syntax-punctuation: #b3b3b3;
+      --syntax-comment: #6f6d78;
+      --syntax-keyword: #e38b6e;
+      --syntax-string: #86b1e0;
+      --syntax-number: #d8ae66;
+      --syntax-function: #9e8cfc;
+      --syntax-variable: #eeeef0;
+      --syntax-tag: #8ea274;
+      --syntax-attribute: #e38b6e;
+      --syntax-punctuation: #b5b2bc;
 
-      --terminal-black: #1a1a1a;
-      --terminal-red: #ff7b72;
-      --terminal-green: #7ee787;
-      --terminal-yellow: #ffa657;
-      --terminal-blue: #79c0ff;
-      --terminal-magenta: #d2a8ff;
-      --terminal-cyan: #a5d6ff;
-      --terminal-white: #b3b3b3;
-      --terminal-bright-black: #8b949e;
-      --terminal-bright-red: #f87171;
-      --terminal-bright-green: #86efac;
-      --terminal-bright-yellow: #fbbf24;
-      --terminal-bright-blue: #60a5fa;
-      --terminal-bright-magenta: #c084fc;
-      --terminal-bright-cyan: #67e8f9;
-      --terminal-bright-white: #e5e5e5;
+      --terminal-black: #1a191b;
+      --terminal-red: #e38b6e;
+      --terminal-green: #8ea274;
+      --terminal-yellow: #d8ae66;
+      --terminal-blue: #86b1e0;
+      --terminal-magenta: #c09ad1;
+      --terminal-cyan: #9bc2d2;
+      --terminal-white: #b5b2bc;
+      --terminal-bright-black: #6f6d78;
+      --terminal-bright-red: #f0a090;
+      --terminal-bright-green: #a6bc8a;
+      --terminal-bright-yellow: #e8c27e;
+      --terminal-bright-blue: #9ec4e8;
+      --terminal-bright-magenta: #9e8cfc;
+      --terminal-bright-cyan: #b2d4df;
+      --terminal-bright-white: #eeeef0;
     }
   }
 

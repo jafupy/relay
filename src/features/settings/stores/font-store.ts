@@ -1,7 +1,7 @@
-import { invoke } from "@tauri-apps/api/core";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import type { FontInfo } from "@/features/settings/stores/types/font";
+import { invoke } from "@/lib/platform/core";
 import { createSelectors } from "@/utils/zustand-selectors";
 
 interface FontState {
@@ -21,7 +21,7 @@ interface FontActions {
   clearError: () => void;
 }
 
-const FONT_CACHE_KEY = "athas_font_cache";
+const FONT_CACHE_KEY = "relay_font_cache";
 const FONT_CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
 interface FontCache {

@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
+import { updateEnterprisePolicy } from "@/features/window/services/auth-api";
 import { useAuthStore } from "@/features/window/stores/auth-store";
-import { toast } from "@/ui/toast";
 import { Button } from "@/ui/button";
-import Section, { SettingRow } from "../settings-section";
 import Switch from "@/ui/switch";
 import Textarea from "@/ui/textarea";
-import { updateEnterprisePolicy } from "@/features/window/services/auth-api";
+import { toast } from "@/ui/toast";
+import Section, { SettingRow } from "../settings-section";
 
 const parseAllowlistInput = (value: string): string[] =>
   Array.from(
@@ -173,7 +173,7 @@ export const EnterpriseSettings = () => {
             rows={8}
             size="sm"
             className="editor-font ui-text-sm"
-            placeholder="athas.typescript&#10;athas.python&#10;athas.go"
+            placeholder="relay.typescript&#10;relay.python&#10;relay.go"
             disabled={!isAdmin || isSaving || !policy.managedMode}
           />
           <div className="flex items-center justify-between gap-2">

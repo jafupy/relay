@@ -1,6 +1,7 @@
 import type { DatabaseType } from "@/features/database/models/provider.types";
 import type { MultiFileDiff } from "@/features/git/types/git-diff-types";
 import type { GitDiff } from "@/features/git/types/git-types";
+import type { SettingsTab } from "@/features/window/stores/ui-state-store";
 
 // ── Token entry for syntax highlighting cache ───────────────────────
 
@@ -30,7 +31,8 @@ export type PaneContentType =
   | "markdownPreview"
   | "htmlPreview"
   | "csvPreview"
-  | "externalEditor";
+  | "externalEditor"
+  | "settings";
 
 // ── Base fields shared by every content type ────────────────────────
 
@@ -151,6 +153,11 @@ export interface ExternalEditorContent extends PaneContentBase {
   terminalConnectionId: string;
 }
 
+export interface SettingsContent extends PaneContentBase {
+  type: "settings";
+  initialTab?: SettingsTab;
+}
+
 // ── Discriminated union ─────────────────────────────────────────────
 
 export type PaneContent =
@@ -170,7 +177,8 @@ export type PaneContent =
   | MarkdownPreviewContent
   | HtmlPreviewContent
   | CsvPreviewContent
-  | ExternalEditorContent;
+  | ExternalEditorContent
+  | SettingsContent;
 
 // ── Type guards ─────────────────────────────────────────────────────
 
@@ -234,6 +242,7 @@ const VIRTUAL_TYPES: ReadonlySet<PaneContentType> = new Set([
   "pullRequest",
   "githubIssue",
   "githubAction",
+  "settings",
 ]);
 
 export function isVirtualContent(c: PaneContent): boolean {
@@ -359,4 +368,8 @@ export type OpenContentSpec =
       path: string;
       name: string;
       terminalConnectionId: string;
+    }
+  | {
+      type: "settings";
+      initialTab?: SettingsTab;
     };

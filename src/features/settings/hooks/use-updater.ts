@@ -1,6 +1,6 @@
-import { relaunch } from "@tauri-apps/plugin-process";
-import { check, type Update } from "@tauri-apps/plugin-updater";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { relaunch } from "@/lib/platform/process";
+import { check, type Update } from "@/lib/platform/updater";
 import { useWhatsNewStore } from "../stores/whats-new-store";
 
 export interface UpdateInfo {

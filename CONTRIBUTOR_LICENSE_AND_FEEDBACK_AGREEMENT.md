@@ -3,14 +3,14 @@
 Effective date: 2026-02-18
 
 This Contributor License and Feedback Agreement ("Agreement") applies to
-contributions you submit to the Athas project repository.
+contributions you submit to the Relay project repository.
 
 By submitting a contribution (including code, documentation, tests, design
 assets, issue content, or any other material), you agree to the terms below.
 
 ## 1. Definitions
 
-- "Project" means the Athas repository and related project resources.
+- "Project" means the Relay repository and related project resources.
 - "Contribution" means any work you submit to the Project.
 - "Feedback" means suggestions, ideas, bug reports, or improvement proposals.
 
@@ -30,7 +30,7 @@ as the Project at the time of submission (currently AGPL-3.0, or any later
 version if the Project uses "or later" terms).
 
 To the extent needed for maintainers and users to use your Contribution in the
-Project, you grant Athas maintainers and all recipients of the Project a
+Project, you grant Relay maintainers and all recipients of the Project a
 worldwide, perpetual, non-exclusive, royalty-free, irrevocable copyright
 license to use, reproduce, modify, distribute, publicly perform, and publicly
 display your Contribution under the Project's license terms.
@@ -44,7 +44,7 @@ Contribution as part of the Project under the Project's license terms.
 
 ## 5. Feedback License
 
-You grant Athas maintainers a worldwide, perpetual, non-exclusive, royalty-free,
+You grant Relay maintainers a worldwide, perpetual, non-exclusive, royalty-free,
 irrevocable license to use, copy, modify, publish, and otherwise exploit any
 Feedback you provide, without restriction and without compensation to you.
 

@@ -1,6 +1,6 @@
-import { invoke } from "@tauri-apps/api/core";
-import { listen } from "@tauri-apps/api/event";
 import { wasmParserLoader } from "@/features/editor/lib/wasm-parser/loader";
+import { invoke } from "@/lib/platform/core";
+import { listen } from "@/lib/platform/events";
 import { extensionInstaller } from "../installer/extension-installer";
 import { initializeLanguagePackager } from "../languages/language-packager";
 import { extensionRegistry } from "./extension-registry";

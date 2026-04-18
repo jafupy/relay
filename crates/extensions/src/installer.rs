@@ -4,7 +4,7 @@ use std::{
    fs,
    path::{Path, PathBuf},
 };
-use tauri::{AppHandle, Emitter, Manager};
+use relay::{AppHandle, Emitter, Manager};
 
 pub struct ExtensionInstaller {
    app_handle: AppHandle,

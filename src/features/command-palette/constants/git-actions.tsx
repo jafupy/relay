@@ -34,7 +34,7 @@ export const createGitActions = (params: GitActionsParams): Action[] => {
       category: "Git",
       action: () => {
         onClose();
-        window.dispatchEvent(new Event("athas:open-branch-manager"));
+        window.dispatchEvent(new Event("relay:open-branch-manager"));
       },
     },
     {

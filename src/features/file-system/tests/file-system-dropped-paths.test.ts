@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect, it } from "vitest";
 import { parseDroppedPathCandidate, parseDroppedPaths } from "../utils/file-system-dropped-paths";
 
 describe("dropped-file-paths", () => {
@@ -24,7 +24,7 @@ describe("dropped-file-paths", () => {
   it("ignores unsupported tokens and comments", () => {
     expect(parseDroppedPathCandidate("relative/path.ts")).toBeNull();
     expect(parseDroppedPathCandidate("# comment")).toBeNull();
-    expect(parseDroppedPathCandidate("https://athas.dev")).toBeNull();
+    expect(parseDroppedPathCandidate("https://example.test")).toBeNull();
   });
 
   it("parses mixed payload entries and deduplicates paths", () => {

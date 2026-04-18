@@ -1,5 +1,5 @@
-import { invoke } from "@tauri-apps/api/core";
-import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
+import { type RefObject, useCallback, useEffect, useRef, useState } from "react";
+import { invoke } from "@/lib/platform/core";
 import { hasOverlayCoveringWebview } from "../utils/web-viewer-overlay";
 
 interface UseEmbeddedWebviewOptions {

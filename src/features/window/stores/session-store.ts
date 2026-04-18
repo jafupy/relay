@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { SidebarView } from "@/features/layout/utils/sidebar-pane-utils";
 import type { AIWorkspaceSessionSnapshot } from "@/features/ai/store/types";
+import type { SidebarView } from "@/features/layout/utils/sidebar-pane-utils";
 import type { PersistedTerminal } from "@/features/terminal/types/terminal";
 import type { BottomPaneTab } from "@/features/window/stores/ui-state/types";
 import { createSelectors } from "@/utils/zustand-selectors";
@@ -130,7 +130,7 @@ const useSessionStoreBase = create<SessionState>()(
       },
     }),
     {
-      name: "athas-tab-sessions",
+      name: "relay-tab-sessions",
       version: 1,
     },
   ),

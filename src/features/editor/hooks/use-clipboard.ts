@@ -1,8 +1,8 @@
-import { readText } from "@tauri-apps/plugin-clipboard-manager";
 import { type RefObject, useCallback } from "react";
 import { useBufferStore } from "@/features/editor/stores/buffer-store";
 import { useEditorStateStore } from "@/features/editor/stores/state-store";
 import { logger } from "@/features/editor/utils/logger";
+import { readText } from "@/lib/platform/clipboard";
 
 // Manages clipboard operations (copy/cut/paste)
 export function useClipboard(

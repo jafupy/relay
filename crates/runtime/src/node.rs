@@ -20,7 +20,7 @@ impl NodeRuntime {
    ///
    /// Priority:
    /// 1. Check system PATH for Node.js >= 22.0.0
-   /// 2. Check if Athas-managed Node.js exists
+   /// 2. Check if Relay-managed Node.js exists
    /// 3. Download Node.js from nodejs.org
    pub async fn get_or_install(managed_root: Option<&Path>) -> Result<Self, RuntimeError> {
       // 1. Check system PATH
@@ -32,7 +32,7 @@ impl NodeRuntime {
       // 2. Check if already downloaded
       let managed_dir = Self::get_managed_dir(managed_root)?;
       if let Ok(runtime) = Self::from_managed_path(&managed_dir) {
-         log::info!("Using Athas-managed Node.js at {:?}", runtime.binary_path);
+         log::info!("Using Relay-managed Node.js at {:?}", runtime.binary_path);
          return Ok(runtime);
       }
 

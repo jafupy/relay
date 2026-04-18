@@ -1,6 +1,6 @@
-import { fetch as tauriFetch } from "@tauri-apps/plugin-http";
 import { getProviderApiToken } from "@/features/ai/services/ai-token-service";
 import { getAuthToken } from "@/features/window/services/auth-api";
+import { fetch as relayFetch } from "@/lib/platform/http";
 import { getApiBase } from "@/utils/api-base";
 
 const API_BASE = getApiBase();
@@ -83,7 +83,7 @@ export async function requestAutocomplete(
     }
   }
 
-  const response = await tauriFetch(`${API_BASE}/api/ai/autocomplete`, {
+  const response = await relayFetch(`${API_BASE}/api/ai/autocomplete`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -111,7 +111,7 @@ export async function requestAutocomplete(
 }
 
 export async function fetchAutocompleteModels(): Promise<AutocompleteModel[]> {
-  const response = await tauriFetch(`${API_BASE}/api/ai/autocomplete/models`, {
+  const response = await relayFetch(`${API_BASE}/api/ai/autocomplete/models`, {
     method: "GET",
   });
 
@@ -122,7 +122,7 @@ export async function fetchAutocompleteModels(): Promise<AutocompleteModel[]> {
 
   // Fallback: if backend endpoint fails,
   // load public OpenRouter model metadata directly.
-  const openRouterResponse = await tauriFetch("https://openrouter.ai/api/v1/models", {
+  const openRouterResponse = await relayFetch("https://openrouter.ai/api/v1/models", {
     method: "GET",
   });
 

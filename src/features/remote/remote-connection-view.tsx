@@ -1,6 +1,4 @@
-import { listen } from "@tauri-apps/api/event";
 import { memo, useEffect, useState } from "react";
-import { toast } from "@/ui/toast";
 import {
   connectRemoteConnection,
   disconnectRemoteConnection,
@@ -8,6 +6,8 @@ import {
 } from "@/features/remote/services/remote-connection-actions";
 import { connectionStore } from "@/features/remote/services/remote-connection-store";
 import { getFriendlyRemoteError, isRemoteAuthFailure } from "@/features/remote/utils/remote-errors";
+import { listen } from "@/lib/platform/events";
+import { toast } from "@/ui/toast";
 import ConnectionDialog from "./connection-dialog";
 import ConnectionList from "./connection-list";
 import PasswordPromptDialog from "./password-prompt-dialog";
@@ -26,14 +26,14 @@ const RemoteConnectionView = ({ onFileSelect }: RemoteConnectionViewProps) => {
   );
   const [connectingMap, setConnectingMap] = useState<Record<string, boolean>>({});
 
-  // Load connections from Tauri Store
+  // Load connections from Relay Store
   useEffect(() => {
     const loadConnections = async () => {
       try {
         // First migrate any existing localStorage connections
         await connectionStore.migrateFromLocalStorage();
 
-        // Then load all connections from Tauri Store
+        // Then load all connections from Relay Store
         setConnections(await loadRemoteConnections());
       } catch (error) {
         console.error("Error loading remote connections:", error);

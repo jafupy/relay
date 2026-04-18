@@ -1,10 +1,10 @@
 {
-  "id": "athas.one",
+  "id": "relay.one",
   "name": "One",
   "displayName": "One Theme",
   "description": "Atom's iconic One theme with light and dark variants",
   "version": "1.0.0",
-  "publisher": "Athas",
+  "publisher": "Relay",
   "license": "MIT",
   "category": "theme",
   "bundled": true,

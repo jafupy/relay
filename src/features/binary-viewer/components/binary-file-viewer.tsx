@@ -1,7 +1,7 @@
-import { readFile } from "@tauri-apps/plugin-fs";
 import { FileIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { formatFileSize } from "@/features/image-editor/utils/image-file-utils";
+import { readFile } from "@/lib/platform/fs";
 import { cn } from "@/utils/cn";
 import { getRelativePath } from "@/utils/path-helpers";
 

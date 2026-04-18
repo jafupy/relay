@@ -1,6 +1,6 @@
-import { getCurrentWebview } from "@tauri-apps/api/webview";
-import { getCurrentWindow } from "@tauri-apps/api/window";
 import { useEffect, useState } from "react";
+import { getCurrentWebview } from "@/lib/platform/webview";
+import { getCurrentWindow } from "@/lib/platform/window";
 
 /**
  * Hook to handle drag-and-drop from OS into the application

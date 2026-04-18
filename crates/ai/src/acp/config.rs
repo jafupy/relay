@@ -7,7 +7,6 @@ use std::{
    sync::OnceLock,
    time::Instant,
 };
-use tauri::{AppHandle, Manager};
 
 /// Cache duration for binary detection (60 seconds)
 const DETECTION_CACHE_SECONDS: u64 = 60;
@@ -41,7 +40,7 @@ pub struct AgentRegistry {
 }
 
 impl AgentRegistry {
-   pub fn new(app_handle: &AppHandle) -> Self {
+   pub fn new(data_dir: Option<PathBuf>) -> Self {
       let mut agents = HashMap::new();
 
       // Claude Code - ACP adapter (Zed)
@@ -103,7 +102,7 @@ impl AgentRegistry {
       Self {
          agents,
          last_detection: None,
-         managed_bin_dir: managed_acp_bin_dir(app_handle),
+         managed_bin_dir: managed_acp_bin_dir(data_dir),
       }
    }
 
@@ -118,8 +117,16 @@ impl AgentRegistry {
    }
 
    pub fn detect_installed(&mut self) {
+      self.detect_installed_with_cache(false);
+   }
+
+   pub fn refresh_installed(&mut self) {
+      self.detect_installed_with_cache(true);
+   }
+
+   fn detect_installed_with_cache(&mut self, force: bool) {
       // Check if we should skip detection due to caching
-      if let Some(last) = self.last_detection {
+      if !force && let Some(last) = self.last_detection {
          let elapsed = last.elapsed().as_secs();
          if elapsed < DETECTION_CACHE_SECONDS {
             log::debug!(
@@ -158,7 +165,7 @@ impl AgentRegistry {
 
 impl Default for AgentRegistry {
    fn default() -> Self {
-      panic!("AgentRegistry::default requires an AppHandle")
+      panic!("AgentRegistry::default requires a data directory")
    }
 }
 
@@ -168,9 +175,8 @@ pub fn managed_wrapper_path(managed_bin_dir: Option<&Path>, agent_id: &str) -> O
    path.is_file().then_some(path)
 }
 
-fn managed_acp_bin_dir(app_handle: &AppHandle) -> Option<PathBuf> {
-   let data_dir = app_handle.path().app_data_dir().ok()?;
-   Some(data_dir.join("tools").join("acp"))
+fn managed_acp_bin_dir(data_dir: Option<PathBuf>) -> Option<PathBuf> {
+   Some(data_dir?.join("tools").join("acp"))
 }
 
 fn wrapper_file_name(agent_id: &str) -> String {
@@ -382,7 +388,7 @@ mod tests {
 
    #[test]
    fn check_dir_for_binary_returns_none_for_missing_binary() {
-      let missing = check_dir_for_binary(PathBuf::from("/tmp/athas-missing").as_path(), "nope");
+      let missing = check_dir_for_binary(PathBuf::from("/tmp/relay-missing").as_path(), "nope");
       assert!(missing.is_none());
    }
 }

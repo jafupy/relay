@@ -1,6 +1,19 @@
 import type { StateCreator } from "zustand";
 import type { SettingsTab } from "./types";
 
+function openSettingsTab(tab?: SettingsTab) {
+  // Lazy import to avoid circular dependency at module load time
+  import("@/features/editor/stores/buffer-store").then(({ useBufferStore }) => {
+    const existing = useBufferStore.getState().buffers.find((b) => b.type === "settings");
+    if (existing && tab) {
+      // Settings is already open — just switch to it (tab content handles initialTab via SettingsPane)
+      useBufferStore.getState().actions.openContent({ type: "settings", initialTab: tab });
+    } else {
+      useBufferStore.getState().actions.openContent({ type: "settings", initialTab: tab });
+    }
+  });
+}
+
 export interface ModalState {
   isQuickOpenVisible: boolean;
   isCommandPaletteVisible: boolean;
@@ -189,21 +202,9 @@ export const createModalSlice: StateCreator<ModalSlice, [], [], ModalSlice> = (s
 
   setIsSettingsDialogVisible: (v: boolean) => {
     if (v) {
-      set({
-        isSettingsDialogVisible: true,
-        isQuickOpenVisible: false,
-        isCommandPaletteVisible: false,
-        isAgentLauncherVisible: false,
-        isGlobalSearchVisible: false,
-        isThemeSelectorVisible: false,
-        isIconThemeSelectorVisible: false,
-        isBranchManagerVisible: false,
-        isProjectPickerVisible: false,
-        isDatabaseConnectionVisible: false,
-      });
-    } else {
-      set({ isSettingsDialogVisible: v });
+      openSettingsTab();
     }
+    // No-op for close; tab is closed normally via tab bar
   },
 
   setIsThemeSelectorVisible: (v: boolean) => {
@@ -301,17 +302,8 @@ export const createModalSlice: StateCreator<ModalSlice, [], [], ModalSlice> = (s
 
   setSettingsInitialTab: (tab: SettingsTab) => set({ settingsInitialTab: tab }),
 
-  openSettingsDialog: (tab?: SettingsTab) =>
-    set((state) => ({
-      isSettingsDialogVisible: true,
-      isQuickOpenVisible: false,
-      isCommandPaletteVisible: false,
-      isGlobalSearchVisible: false,
-      isThemeSelectorVisible: false,
-      isIconThemeSelectorVisible: false,
-      isBranchManagerVisible: false,
-      isProjectPickerVisible: false,
-      isDatabaseConnectionVisible: false,
-      settingsInitialTab: tab || state.settingsInitialTab,
-    })),
+  openSettingsDialog: (tab?: SettingsTab) => {
+    openSettingsTab(tab);
+    if (tab) set({ settingsInitialTab: tab });
+  },
 });

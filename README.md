@@ -1,8 +1,8 @@
 <div align="center">
-  <img src="public/logo-dark.png" alt="Athas" width="120">
-  <h1>Athas</h1>
-  <p>A lightweight, cross-platform code editor, built with <a href="https://tauri.app/" title="Tauri">Tauri</a> (Rust and React) with Git support, AI agents, vim keybindings.</p>
-  <img src="public/screenshot.png" alt="Athas Screenshot" width="800">
+  <img src="public/logo-dark.png" alt="Relay" width="120">
+  <h1>Relay</h1>
+  <p>A lightweight browser-based code editor served by a Rust backend, with Git support, AI agents, and vim keybindings.</p>
+  <img src="public/screenshot.png" alt="Relay Screenshot" width="800">
 </div>
 
 ## Features
@@ -19,11 +19,11 @@
 
 ## Download
 
-Get the latest version from the [releases page](https://github.com/athasdev/athas/releases).
+Get the latest version from the [releases page](https://github.com/relay/relay/releases).
 
 ## Documentation
 
-See the [documentation](https://athas.dev/docs).
+Run `bun dev` to start the local Relay server.
 
 ## Contributing
 
@@ -33,8 +33,8 @@ Please also review our [Code of Conduct](CODE_OF_CONDUCT.md) and
 
 ## Support
 
-- [Issues](https://github.com/athasdev/athas/issues)
-- [Discussions](https://github.com/athasdev/athas/discussions)
+- [Issues](https://github.com/relay/relay/issues)
+- [Discussions](https://github.com/relay/relay/discussions)
 - [Discord](https://discord.gg/DD8F38wFMv)
 
 ## License

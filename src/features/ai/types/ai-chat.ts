@@ -1,7 +1,7 @@
 import type React from "react";
+import type { GenerativeUIComponent } from "@/extensions/ui/types/generative-ui";
 import type { FileEntry } from "@/features/file-system/types/app";
 import type { PaneContent } from "@/features/panes/types/pane-content";
-import type { GenerativeUIComponent } from "@/extensions/ui/types/generative-ui";
 
 export interface ToolCall {
   id?: string;
@@ -93,8 +93,8 @@ export const AGENT_OPTIONS: AgentInfo[] = [
   },
   {
     id: "custom",
-    name: "Athas Agent",
-    description: "Use Athas chat settings and provider configuration",
+    name: "Relay Agent",
+    description: "Use Relay chat settings and provider configuration",
     isAcp: false,
   },
 ];

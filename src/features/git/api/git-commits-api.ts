@@ -1,10 +1,10 @@
-import { invoke as tauriInvoke } from "@tauri-apps/api/core";
+import { invoke as relayInvoke } from "@/lib/platform/core";
 import type { GitCommit } from "../types/git-types";
 import { isNotGitRepositoryError, resolveRepositoryPath } from "./git-repo-api";
 
 export const commitChanges = async (repoPath: string, message: string): Promise<boolean> => {
   try {
-    await tauriInvoke("git_commit", { repoPath, message });
+    await relayInvoke("git_commit", { repoPath, message });
     return true;
   } catch (error) {
     console.error("Failed to commit changes:", error);
@@ -19,7 +19,7 @@ export const getGitLog = async (repoPath: string, limit = 50, skip = 0): Promise
       return [];
     }
 
-    const commits = await tauriInvoke<GitCommit[]>("git_log", {
+    const commits = await relayInvoke<GitCommit[]>("git_log", {
       repoPath: resolvedRepoPath,
       limit,
       skip,

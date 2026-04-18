@@ -1,8 +1,8 @@
-import { appDataDir } from "@tauri-apps/api/path";
 import { History } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLspStore } from "@/features/editor/lsp/lsp-store";
 import { useBufferStore } from "@/features/editor/stores/buffer-store";
+import { useEditorAppStore } from "@/features/editor/stores/editor-app-store";
 import { useFileSystemStore } from "@/features/file-system/controllers/store";
 import { commitChanges } from "@/features/git/api/git-commits-api";
 import { fetchChanges, pullChanges, pushChanges } from "@/features/git/api/git-remotes-api";
@@ -12,16 +12,16 @@ import {
   unstageAllFiles,
 } from "@/features/git/api/git-status-api";
 import { useGitStore } from "@/features/git/stores/git-store";
+import { keymapRegistry } from "@/features/keymaps/utils/registry";
 import { useToast } from "@/features/layout/contexts/toast-context";
 import { useOnboardingStore } from "@/features/onboarding/store";
 import { useSettingsStore } from "@/features/settings/store";
 import { useWhatsNewStore } from "@/features/settings/stores/whats-new-store";
 import { vimCommands } from "@/features/vim/stores/vim-commands";
 import { useVimStore } from "@/features/vim/stores/vim-store";
-import { useEditorAppStore } from "@/features/editor/stores/editor-app-store";
 import { useUIState } from "@/features/window/stores/ui-state-store";
 import { useZoomStore } from "@/features/window/stores/zoom-store";
-import { keymapRegistry } from "@/features/keymaps/utils/registry";
+import { appDataDir } from "@/lib/platform/path";
 import Command, {
   CommandEmpty,
   CommandHeader,

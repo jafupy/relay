@@ -1,9 +1,9 @@
-import { getVersion } from "@tauri-apps/api/app";
-import { invoke } from "@tauri-apps/api/core";
-import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { useEffect, useState } from "react";
 import { useToast } from "@/features/layout/contexts/toast-context";
 import { useUpdater } from "@/features/settings/hooks/use-updater";
+import { getVersion } from "@/lib/platform/app";
+import { writeText } from "@/lib/platform/clipboard";
+import { invoke } from "@/lib/platform/core";
 import { Button } from "@/ui/button";
 import Section, { SettingRow } from "../settings-section";
 
@@ -94,13 +94,13 @@ export const GeneralSettings = () => {
   const handleReportBug = async () => {
     try {
       const version = await getVersion();
-      const os = await import("@tauri-apps/plugin-os");
+      const os = await import("@/lib/platform/os");
       const plat = os.platform();
       const ver = os.version();
-      const report = `Environment\n\n- App: Athas ${version}\n- OS: ${plat} ${ver}\n\nProblem\n\nDescribe the issue here. Steps to reproduce, expected vs actual.\n`;
+      const report = `Environment\n\n- App: Relay ${version}\n- OS: ${plat} ${ver}\n\nProblem\n\nDescribe the issue here. Steps to reproduce, expected vs actual.\n`;
       await writeText(report);
-      const { openUrl } = await import("@tauri-apps/plugin-opener");
-      await openUrl("https://github.com/athasdev/athas/issues/new?template=01-bug.yml");
+      const { openUrl } = await import("@/lib/platform/opener");
+      await openUrl("https://github.com/relay/relay/issues/new?template=01-bug.yml");
       showToast({ message: "Report template copied", type: "success" });
     } catch (err) {
       console.error("Failed to prepare bug report:", err);
@@ -181,8 +181,8 @@ export const GeneralSettings = () => {
             cliChecking
               ? "Checking..."
               : cliInstalled
-                ? "CLI command is installed at $HOME/.local/bin/athas"
-                : "Install 'athas' command to launch app from terminal"
+                ? "CLI command is installed at $HOME/.local/bin/relay"
+                : "Install 'relay' command to launch app from terminal"
           }
         >
           <div className="flex gap-2">

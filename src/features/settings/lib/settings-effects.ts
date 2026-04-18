@@ -5,14 +5,13 @@ import {
 import type { Settings, Theme } from "@/features/settings/types/settings";
 
 const ALL_THEME_CLASSES = [
-  "force-athas-light",
-  "force-athas-dark",
+  "force-relay-light",
+  "force-relay-dark",
   "force-vitesse-light",
   "force-vitesse-dark",
 ];
 
 function applyFallbackTheme(theme: Theme) {
-  console.log(`Settings store: Falling back to class-based theme "${theme}"`);
   ALL_THEME_CLASSES.forEach((cls) => document.documentElement.classList.remove(cls));
   document.documentElement.classList.add(`force-${theme}`);
 }

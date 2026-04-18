@@ -1,6 +1,6 @@
 import { AlertCircle, Download } from "lucide-react";
-import { platform } from "@tauri-apps/plugin-os";
-import { openUrl } from "@tauri-apps/plugin-opener";
+import { openUrl } from "@/lib/platform/opener";
+import { platform } from "@/lib/platform/os";
 import { Button } from "@/ui/button";
 import { useGitHubStore } from "../stores/github-store";
 

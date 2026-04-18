@@ -1,12 +1,12 @@
 use super::{
    bridge::AcpWorker,
    client::PermissionResponse,
+   events::AcpEventSink,
    types::{AcpAgentStatus, AgentConfig},
 };
 use anyhow::Result;
-use athas_terminal::TerminalManager;
+use relay_terminal::TerminalManager;
 use std::sync::Arc;
-use tauri::AppHandle;
 use tokio::sync::{Mutex, mpsc, oneshot};
 
 /// Commands that can be sent to the ACP worker thread
@@ -17,7 +17,7 @@ pub(super) enum AcpCommand {
       workspace_path: Option<String>,
       session_id: Option<String>,
       config: Box<AgentConfig>,
-      app_handle: AppHandle,
+      event_sink: Arc<dyn AcpEventSink>,
       terminal_manager: Arc<TerminalManager>,
       response_tx: oneshot::Sender<Result<(AcpAgentStatus, mpsc::Sender<PermissionResponse>)>>,
    },
@@ -63,7 +63,7 @@ pub(super) async fn run_worker_loop(
                   workspace_path,
                   session_id,
                   config,
-                  app_handle,
+                  event_sink,
                   terminal_manager,
                   response_tx,
                } => {
@@ -73,7 +73,7 @@ pub(super) async fn run_worker_loop(
                         workspace_path,
                         session_id,
                         *config,
-                        app_handle,
+                        event_sink,
                         terminal_manager,
                      )
                      .await;

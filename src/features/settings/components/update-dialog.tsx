@@ -73,7 +73,7 @@ const UpdateDialog = ({
       <div className="space-y-4">
         <div className="ui-font ui-text-sm text-text">
           <p>
-            A new version of Athas is available: <span>{updateInfo.version}</span>
+            A new version of Relay is available: <span>{updateInfo.version}</span>
           </p>
           <p className="mt-1 text-text-lighter">Current version: {updateInfo.currentVersion}</p>
         </div>

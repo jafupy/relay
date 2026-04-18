@@ -1,9 +1,9 @@
-import { invoke as tauriInvoke } from "@tauri-apps/api/core";
+import { invoke as relayInvoke } from "@/lib/platform/core";
 import type { GitTag } from "../types/git-types";
 
 export const getTags = async (repoPath: string): Promise<GitTag[]> => {
   try {
-    const tags = await tauriInvoke<GitTag[]>("git_get_tags", { repoPath });
+    const tags = await relayInvoke<GitTag[]>("git_get_tags", { repoPath });
     return tags;
   } catch (error) {
     console.error("Failed to get tags:", error);
@@ -18,7 +18,7 @@ export const createTag = async (
   commit?: string,
 ): Promise<boolean> => {
   try {
-    await tauriInvoke("git_create_tag", { repoPath, name, message, commit });
+    await relayInvoke("git_create_tag", { repoPath, name, message, commit });
     return true;
   } catch (error) {
     console.error("Failed to create tag:", error);
@@ -28,7 +28,7 @@ export const createTag = async (
 
 export const deleteTag = async (repoPath: string, name: string): Promise<boolean> => {
   try {
-    await tauriInvoke("git_delete_tag", { repoPath, name });
+    await relayInvoke("git_delete_tag", { repoPath, name });
     return true;
   } catch (error) {
     console.error("Failed to delete tag:", error);

@@ -6,7 +6,7 @@ import type { ImageDimensions } from "../models/image-operation.types";
 export async function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    // Set crossOrigin to avoid CORS issues with Tauri file:// protocol
+    // Set crossOrigin to avoid CORS issues with Relay file:// protocol
     img.crossOrigin = "anonymous";
     img.onload = () => resolve(img);
     img.onerror = () => reject(new Error("Failed to load image"));

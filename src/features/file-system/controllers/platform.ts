@@ -1,5 +1,5 @@
-import { invoke } from "@tauri-apps/api/core";
-import { open } from "@tauri-apps/plugin-dialog";
+import { useFolderPickerStore } from "@/features/file-system/lib/folder-picker-store";
+import { invoke } from "@/lib/platform/core";
 import {
   BaseDirectory,
   mkdir,
@@ -7,7 +7,7 @@ import {
   readDir,
   remove,
   writeTextFile,
-} from "@tauri-apps/plugin-fs";
+} from "@/lib/platform/fs";
 
 const utf8Decoder = new TextDecoder("utf-8");
 /**
@@ -56,15 +56,10 @@ export async function deletePath(path: string): Promise<void> {
 }
 
 /**
- * Open a folder selection dialog
+ * Open a folder selection dialog (custom browser-based picker)
  */
 export async function openFolder(): Promise<string | null> {
-  const selected = await open({
-    directory: true,
-    multiple: false,
-  });
-
-  return selected as string | null;
+  return useFolderPickerStore.getState().openPicker();
 }
 
 /**

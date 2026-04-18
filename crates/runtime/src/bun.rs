@@ -22,7 +22,7 @@ impl BunRuntime {
    ///
    /// Priority:
    /// 1. Check system PATH for Bun >= 1.0.0
-   /// 2. Check if Athas-managed Bun exists
+   /// 2. Check if Relay-managed Bun exists
    /// 3. Download Bun from GitHub releases
    pub async fn get_or_install(managed_root: Option<&Path>) -> Result<Self, RuntimeError> {
       // 1. Check system PATH
@@ -34,7 +34,7 @@ impl BunRuntime {
       // 2. Check if already downloaded
       let managed_dir = Self::get_managed_dir(managed_root)?;
       if let Ok(runtime) = Self::from_managed_path(&managed_dir) {
-         log::info!("Using Athas-managed Bun at {:?}", runtime.binary_path);
+         log::info!("Using Relay-managed Bun at {:?}", runtime.binary_path);
          return Ok(runtime);
       }
 

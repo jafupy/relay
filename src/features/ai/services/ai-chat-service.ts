@@ -1,16 +1,16 @@
-import { fetch as tauriFetch } from "@tauri-apps/plugin-http";
+import { getProviderApiToken } from "@/features/ai/services/ai-token-service";
+import { getProvider } from "@/features/ai/services/providers/ai-provider-registry";
 import { useAIChatStore } from "@/features/ai/store/store";
 import type { ChatMode, OutputStyle } from "@/features/ai/store/types";
 import type { AcpEvent } from "@/features/ai/types/acp";
-import type { ContextInfo } from "@/features/ai/types/ai-context";
 import { AGENT_OPTIONS, type AgentType } from "@/features/ai/types/ai-chat";
+import type { ContextInfo } from "@/features/ai/types/ai-context";
 import type { AIMessage } from "@/features/ai/types/messages";
 import { getModelById, getProviderById } from "@/features/ai/types/providers";
-import { getProvider } from "@/features/ai/services/providers/ai-provider-registry";
+import { fetch as relayFetch } from "@/lib/platform/http";
 import { processStreamingResponse } from "@/utils/stream-utils";
-import { getProviderApiToken } from "@/features/ai/services/ai-token-service";
-import { AcpStreamHandler } from "./acp-stream-handler";
 import { buildContextPrompt, buildSystemPrompt } from "../utils/ai-context-builder";
+import { AcpStreamHandler } from "./acp-stream-handler";
 
 // Check if an agent uses ACP (CLI-based) vs HTTP API
 export const isAcpAgent = (agentId: AgentType): boolean => {
@@ -131,10 +131,10 @@ export const getChatCompletionStream = async (
 
     console.log(`Making ${provider.name} streaming chat request with model ${model.name}...`);
 
-    // Use Tauri's fetch for providers that don't support browser CORS
-    const needsTauriFetch =
+    // Use Relay's fetch for providers that don't support browser CORS
+    const needsRelayFetch =
       providerId === "gemini" || providerId === "ollama" || providerId === "anthropic";
-    const fetchFn = needsTauriFetch ? tauriFetch : fetch;
+    const fetchFn = needsRelayFetch ? relayFetch : fetch;
     const response = await fetchFn(url, {
       method: "POST",
       headers,

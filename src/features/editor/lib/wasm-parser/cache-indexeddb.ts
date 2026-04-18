@@ -5,7 +5,7 @@
 
 import { logger } from "@/features/editor/utils/logger";
 
-const DB_NAME = "athas-parser-cache";
+const DB_NAME = "relay-parser-cache";
 const DB_VERSION = 1;
 const STORE_NAME = "parsers";
 

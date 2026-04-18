@@ -2,7 +2,7 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in Athas, please report it through GitHub's private vulnerability reporting feature:
+If you discover a security vulnerability in Relay, please report it through GitHub's private vulnerability reporting feature:
 
 1. Go to the **Security** tab of this repository
 2. Click **Report a vulnerability**

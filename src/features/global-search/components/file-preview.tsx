@@ -1,5 +1,3 @@
-import { convertFileSrc } from "@tauri-apps/api/core";
-import { readFile } from "@tauri-apps/plugin-fs";
 import { FileIcon } from "lucide-react";
 import { memo, useEffect, useMemo, useState } from "react";
 import type { Token } from "@/features/editor/extensions/types";
@@ -9,6 +7,8 @@ import {
   isBinaryFile,
   isImageFile,
 } from "@/features/file-system/controllers/file-utils";
+import { convertFileSrc } from "@/lib/platform/core";
+import { readFile } from "@/lib/platform/fs";
 import { useFilePreview } from "../hooks/use-file-preview";
 
 interface FilePreviewProps {

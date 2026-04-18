@@ -7,7 +7,6 @@ export interface QuickEditState {
 }
 
 // No actions defined yet - can be added when needed
-// biome-ignore lint/complexity/noBannedTypes: Empty type for future actions
 export type QuickEditActions = {};
 
 export type QuickEditSlice = QuickEditState & QuickEditActions;

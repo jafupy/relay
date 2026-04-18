@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import AIChat from "@/features/ai/components/chat/ai-chat";
+import { ExtensionDialogs } from "@/extensions/ui/components/extension-dialog";
 import { AgentLauncher } from "@/features/ai/components/agent-launcher";
+import AIChat from "@/features/ai/components/chat/ai-chat";
 import { useChatInitialization } from "@/features/ai/hooks/use-chat-initialization";
 import CommandPalette from "@/features/command-palette/components/command-palette";
 import IconThemeSelector from "@/features/command-palette/components/icon-theme-selector";
@@ -8,25 +9,25 @@ import ThemeSelector from "@/features/command-palette/components/theme-selector"
 import { ConnectionDialog } from "@/features/database/components/connection/connection-dialog";
 import { useDiagnosticsStore } from "@/features/diagnostics/stores/diagnostics-store";
 import type { Diagnostic } from "@/features/diagnostics/types/diagnostics";
+import { FolderPickerModal } from "@/features/file-system/components/folder-picker-modal";
 import { ProjectNameMenu } from "@/features/file-system/components/project-name-menu";
 import { getSymlinkInfo } from "@/features/file-system/controllers/platform";
 import { useFileSystemStore } from "@/features/file-system/controllers/store";
 import { useFileSystemFolderDrop } from "@/features/file-system/hooks/use-file-system-folder-drop";
+import { parseDroppedPaths } from "@/features/file-system/utils/file-system-dropped-paths";
 import { useGitStore } from "@/features/git/stores/git-store";
 import ContentGlobalSearch from "@/features/global-search/components/content-global-search";
 import { SplitViewRoot } from "@/features/panes/components/split-view-root";
 import { usePaneKeyboard } from "@/features/panes/hooks/use-pane-keyboard";
 import QuickOpen from "@/features/quick-open/components/quick-open";
 import { useSettingsStore } from "@/features/settings/store";
+import { useTerminalStore } from "@/features/terminal/stores/terminal-store";
 import VimCommandBar from "@/features/vim/components/vim-command-bar";
 import { useVimKeyboard } from "@/features/vim/hooks/use-vim-keyboard";
 import { useVimStore } from "@/features/vim/stores/vim-store";
-import { useTerminalStore } from "@/features/terminal/stores/terminal-store";
 import { useMenuEventsWrapper } from "@/features/window/hooks/use-menu-events-wrapper";
-import { useWorkspaceTabsStore } from "@/features/window/stores/workspace-tabs-store";
 import { useUIState } from "@/features/window/stores/ui-state-store";
-import { parseDroppedPaths } from "@/features/file-system/utils/file-system-dropped-paths";
-import { ExtensionDialogs } from "@/extensions/ui/components/extension-dialog";
+import { useWorkspaceTabsStore } from "@/features/window/stores/workspace-tabs-store";
 import { frontendTrace } from "@/utils/frontend-trace";
 import { VimSearchBar } from "../../vim/components/vim-search-bar";
 import CustomTitleBarWithSettings from "../../window/components/custom-title-bar";
@@ -241,7 +242,7 @@ export function MainLayout() {
   }, [rootFolderPath, refreshWorkspaceGitStatus, setWorkspaceGitStatus]);
 
   return (
-    <div className="relative flex h-full w-full flex-col overflow-hidden bg-secondary-bg">
+    <div className="relative flex h-full w-full flex-col overflow-hidden bg-primary-bg">
       {/* Drag-and-drop overlay */}
       {isDraggingOver && (
         <div className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center bg-primary-bg/90 backdrop-blur-sm">
@@ -286,8 +287,8 @@ export function MainLayout() {
           )}
 
           {/* Main content area with split view */}
-          <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-2 px-2">
-            <div className="relative min-h-0 flex-1 overflow-hidden rounded-lg border border-border/70 bg-primary-bg">
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+            <div className="relative min-h-0 flex-1 overflow-hidden bg-primary-bg">
               <SplitViewRoot />
             </div>
             {terminalWidthMode === "editor" && (
@@ -323,9 +324,7 @@ export function MainLayout() {
         </div>
 
         {terminalWidthMode === "full" && (
-          <div className="px-2">
-            <BottomPane diagnostics={diagnostics} onDiagnosticClick={handleDiagnosticClick} />
-          </div>
+          <BottomPane diagnostics={diagnostics} onDiagnosticClick={handleDiagnosticClick} />
         )}
       </div>
 
@@ -358,6 +357,7 @@ export function MainLayout() {
         onClose={() => setIsDatabaseConnectionVisible(false)}
       />
       <ExtensionDialogs />
+      <FolderPickerModal />
     </div>
   );
 }

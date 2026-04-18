@@ -1,6 +1,6 @@
-import { invoke } from "@tauri-apps/api/core";
 import { RefreshCw, Sparkles, Terminal } from "lucide-react";
 import { useUIState } from "@/features/window/stores/ui-state-store";
+import { invoke } from "@/lib/platform/core";
 import type { Action } from "../models/action.types";
 
 interface AdvancedActionsParams {
@@ -105,7 +105,7 @@ export const createAdvancedActions = (params: AdvancedActionsParams): Action[] =
     {
       id: "cli-install",
       label: "CLI: Install Terminal Command",
-      description: "Install 'athas' command for terminal",
+      description: "Install 'relay' command for terminal",
       icon: <Terminal />,
       category: "CLI",
       action: async () => {

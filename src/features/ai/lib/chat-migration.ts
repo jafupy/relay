@@ -1,5 +1,5 @@
-import type { Chat } from "@/features/ai/types/ai-chat";
 import { saveChatToDb } from "@/features/ai/services/ai-chat-history-service";
+import type { Chat } from "@/features/ai/types/ai-chat";
 
 /**
  * Migrate chat history from localStorage to SQLite
@@ -7,7 +7,7 @@ import { saveChatToDb } from "@/features/ai/services/ai-chat-history-service";
  * to the new SQLite-based storage (v5)
  */
 
-const OLD_STORAGE_KEY = "athas-ai-chat-v4";
+const OLD_STORAGE_KEY = "relay-ai-chat-v4";
 
 interface LegacyStorageState {
   state: {
@@ -137,7 +137,7 @@ export function clearLegacyData(): void {
 /**
  * Get migration status from new localStorage key
  */
-const MIGRATION_STATUS_KEY = "athas-chat-migration-status";
+const MIGRATION_STATUS_KEY = "relay-chat-migration-status";
 
 interface MigrationStatus {
   completed: boolean;

@@ -1,5 +1,3 @@
-import { ask } from "@tauri-apps/plugin-dialog";
-import { open } from "@tauri-apps/plugin-shell";
 import { ClipboardAddon } from "@xterm/addon-clipboard";
 import { FitAddon } from "@xterm/addon-fit";
 import { SearchAddon } from "@xterm/addon-search";
@@ -8,6 +6,8 @@ import { Unicode11Addon } from "@xterm/addon-unicode11";
 import { WebLinksAddon } from "@xterm/addon-web-links";
 import { WebglAddon } from "@xterm/addon-webgl";
 import type { Terminal } from "@xterm/xterm";
+import { ask } from "@/lib/platform/dialog";
+import { open } from "@/lib/platform/shell";
 
 export interface TerminalAddons {
   fitAddon: FitAddon;

@@ -1,17 +1,17 @@
-import { invoke } from "@tauri-apps/api/core";
 import { ChevronDown, ChevronRight, Terminal } from "lucide-react";
 import type React from "react";
 import { useEffect, useMemo, useState } from "react";
-import type { MarkdownRendererProps } from "@/features/ai/types/ai-chat";
 import { useAIChatStore } from "@/features/ai/store/store";
-import { useBufferStore } from "@/features/editor/stores/buffer-store";
-import { Button } from "@/ui/button";
+import type { MarkdownRendererProps } from "@/features/ai/types/ai-chat";
 import {
   fetchHighlightQuery,
   getDefaultParserWasmUrl,
 } from "@/features/editor/lib/wasm-parser/extension-assets";
 import { tokenizeCodeWithTree } from "@/features/editor/lib/wasm-parser/tokenizer";
 import { normalizeLanguage } from "@/features/editor/markdown/language-map";
+import { useBufferStore } from "@/features/editor/stores/buffer-store";
+import { invoke } from "@/lib/platform/core";
+import { Button } from "@/ui/button";
 
 const LANGUAGE_HINTS = new Set([
   "bash",
@@ -625,7 +625,7 @@ function renderInlineFormatting(text: string): React.ReactNode {
           href={url}
           onClick={(e) => {
             e.preventDefault();
-            import("@tauri-apps/plugin-opener").then(({ openUrl }) => openUrl(url));
+            import("@/lib/platform/opener").then(({ openUrl }) => openUrl(url));
           }}
           className="cursor-pointer text-accent hover:underline"
         >
@@ -646,7 +646,7 @@ function renderInlineFormatting(text: string): React.ReactNode {
           href={url}
           onClick={(e) => {
             e.preventDefault();
-            import("@tauri-apps/plugin-opener").then(({ openUrl }) => openUrl(url));
+            import("@/lib/platform/opener").then(({ openUrl }) => openUrl(url));
           }}
           className="cursor-pointer text-accent hover:underline"
         >

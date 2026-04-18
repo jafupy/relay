@@ -1,4 +1,3 @@
-import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { Check, Clock, Copy, GitBranch, GitCommit } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -10,6 +9,7 @@ import { useSelectionScope } from "@/features/editor/hooks/use-selection-scope";
 import { useBufferStore } from "@/features/editor/stores/buffer-store";
 import { useEditorStateStore } from "@/features/editor/stores/state-store";
 import { useSettingsStore } from "@/features/settings/store";
+import { writeText } from "@/lib/platform/clipboard";
 import { Button } from "@/ui/button";
 import { cn } from "@/utils/cn";
 import { formatRelativeTime } from "@/utils/date";
@@ -26,12 +26,7 @@ interface InlineGitBlameProps {
   lineHeight?: number;
 }
 
-export const InlineGitBlame = ({
-  blameLine,
-  className,
-  fontSize,
-  lineHeight,
-}: InlineGitBlameProps) => {
+export const InlineGitBlame = ({ blameLine, className, fontSize }: InlineGitBlameProps) => {
   const [showCard, setShowCard] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const triggerRef = useRef<HTMLDivElement>(null);
@@ -41,8 +36,6 @@ export const InlineGitBlame = ({
   const documentRef = useRef(document);
   const { settings } = useSettingsStore();
   const effectiveFontSize = fontSize ?? settings.fontSize;
-  const effectiveLineHeight =
-    lineHeight ?? settings.fontSize * EDITOR_CONSTANTS.LINE_HEIGHT_MULTIPLIER;
   const [isCopied, setIsCopied] = useState(false);
   const { showOverlay, hideOverlay, shouldShowOverlay } = useOverlayManager();
 

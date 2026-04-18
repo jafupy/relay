@@ -1,5 +1,5 @@
-import type { SettingSearchRecord } from "../types/search";
 import { IS_MAC } from "@/utils/platform";
+import type { SettingSearchRecord } from "../types/search";
 
 export const settingsSearchIndex: SettingSearchRecord[] = [
   // Enterprise Settings
@@ -433,9 +433,9 @@ export const settingsSearchIndex: SettingSearchRecord[] = [
   {
     id: "ai-provider-model",
     tab: "ai",
-    section: "Athas Agent",
+    section: "Relay Agent",
     label: "Provider & Model",
-    description: "Choose the provider and model used by Athas Agent",
+    description: "Choose the provider and model used by Relay Agent",
     keywords: ["ai", "provider", "model", "llm", "service", "agent"],
   },
   {
@@ -850,13 +850,5 @@ export const settingsSearchIndex: SettingSearchRecord[] = [
     label: "Reset Settings",
     description: "Reset all settings to defaults",
     keywords: ["reset", "settings", "defaults", "restore"],
-  },
-  {
-    id: "advanced-telemetry",
-    tab: "advanced",
-    section: "Telemetry",
-    label: "Usage Analytics",
-    description: "Send anonymous usage data to help improve Athas",
-    keywords: ["telemetry", "analytics", "tracking", "privacy", "usage", "data"],
   },
 ];

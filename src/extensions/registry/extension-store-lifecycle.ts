@@ -1,5 +1,5 @@
-import { invoke } from "@tauri-apps/api/core";
 import { wasmParserLoader } from "@/features/editor/lib/wasm-parser/loader";
+import { invoke } from "@/lib/platform/core";
 import { extensionInstaller } from "../installer/extension-installer";
 import { extensionRegistry } from "./extension-registry";
 import {
@@ -32,8 +32,9 @@ async function refreshSyntaxHighlightingForActiveBuffer(extension: AvailableExte
     return;
   }
 
-  const { setSyntaxHighlightingFilePath } =
-    await import("@/features/editor/extensions/builtin/syntax-highlighting");
+  const { setSyntaxHighlightingFilePath } = await import(
+    "@/features/editor/extensions/builtin/syntax-highlighting"
+  );
   setSyntaxHighlightingFilePath(activeBuffer.path);
 }
 

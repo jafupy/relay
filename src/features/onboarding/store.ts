@@ -1,11 +1,11 @@
-import { getVersion } from "@tauri-apps/api/app";
 import { create } from "zustand";
 import {
   markOnboardingCompleted,
   markOnboardingSeen,
-  resolveOnboardingContext,
   type OnboardingContext,
+  resolveOnboardingContext,
 } from "@/features/onboarding/lib/onboarding-state";
+import { getVersion } from "@/lib/platform/app";
 
 interface OnboardingStoreState {
   initialized: boolean;

@@ -1,5 +1,8 @@
+@import "@fontsource-variable/bricolage-grotesque";
+@import "@fontsource-variable/brygada-1918";
 @import "@fontsource-variable/geist";
 @import "@fontsource-variable/geist-mono";
+@import "@fontsource-variable/jetbrains-mono";
 
 @import "tailwindcss";
 
@@ -20,8 +23,9 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-heading: var(--font-sans);
-  --font-sans: "Geist Variable", sans-serif;
+  --font-heading: var(--font-serif);
+  --font-sans: "Bricolage Grotesque Variable", sans-serif;
+  --font-serif: "Brygada 1918 Variable", serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -63,72 +67,74 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  /* Mauve light scale */
+  --background: oklch(0.99 0.003 285); /* mauve-1  #fdfcfd */
+  --foreground: oklch(0.149 0.012 285); /* mauve-12 #1d1b20 */
+  --card: oklch(0.973 0.004 285); /* mauve-2  #faf9fb */
+  --card-foreground: oklch(0.149 0.012 285);
+  --popover: oklch(0.973 0.004 285);
+  --popover-foreground: oklch(0.149 0.012 285);
+  --primary: oklch(0.149 0.012 285); /* mauve-12 */
+  --primary-foreground: oklch(0.99 0.003 285);
+  --secondary: oklch(0.945 0.007 285); /* mauve-3  #f2eff3 */
+  --secondary-foreground: oklch(0.149 0.012 285);
+  --muted: oklch(0.945 0.007 285); /* mauve-3 */
+  --muted-foreground: oklch(0.4 0.017 285); /* mauve-11 #5c596b */
+  --accent: oklch(0.918 0.008 285); /* mauve-4  #ebe8ec */
+  --accent-foreground: oklch(0.149 0.012 285);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --border: oklch(0.87 0.004 285); /* mauve-6  #dcdadc */
+  --input: oklch(0.87 0.004 285);
+  --ring: oklch(0.583 0.012 285); /* mauve-9 */
+  --chart-1: oklch(0.583 0.012 285);
+  --chart-2: oklch(0.4 0.017 285);
+  --chart-3: oklch(0.536 0.013 285);
+  --chart-4: oklch(0.746 0.005 285);
+  --chart-5: oklch(0.825 0.003 285);
+  --radius: 0.5rem;
+  --sidebar: oklch(0.973 0.004 285); /* mauve-2 */
+  --sidebar-foreground: oklch(0.149 0.012 285);
+  --sidebar-primary: oklch(0.149 0.012 285);
+  --sidebar-primary-foreground: oklch(0.99 0.003 285);
+  --sidebar-accent: oklch(0.945 0.007 285);
+  --sidebar-accent-foreground: oklch(0.149 0.012 285);
+  --sidebar-border: oklch(0.87 0.004 285);
+  --sidebar-ring: oklch(0.583 0.012 285);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  /* Mauve dark scale */
+  --background: oklch(0.163 0.01 285); /* mauve-2  #1a191b */
+  --foreground: oklch(0.945 0.003 285); /* mauve-12 #eeeef0 */
+  --card: oklch(0.2 0.012 285); /* mauve-3  #232225 */
+  --card-foreground: oklch(0.945 0.003 285);
+  --popover: oklch(0.2 0.012 285); /* mauve-3  #232225 */
+  --popover-foreground: oklch(0.945 0.003 285);
+  --primary: oklch(0.945 0.003 285); /* mauve-12 */
+  --primary-foreground: oklch(0.133 0.009 285); /* mauve-1 */
+  --secondary: oklch(0.232 0.013 285); /* mauve-4  #2b292d */
+  --secondary-foreground: oklch(0.945 0.003 285);
+  --muted: oklch(0.232 0.013 285); /* mauve-4 */
+  --muted-foreground: oklch(0.744 0.012 285); /* mauve-11 #b5b2bc */
+  --accent: oklch(0.263 0.014 285); /* mauve-5  #323035 */
+  --accent-foreground: oklch(0.945 0.003 285);
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --border: oklch(0.296 0.015 285); /* mauve-6  #3c393f */
+  --input: oklch(0.296 0.015 285); /* mauve-6 */
+  --ring: oklch(0.65 0.18 285); /* violet accent */
+  --chart-1: oklch(0.65 0.18 285);
+  --chart-2: oklch(0.744 0.012 285);
+  --chart-3: oklch(0.503 0.018 285);
+  --chart-4: oklch(0.362 0.017 285);
+  --chart-5: oklch(0.232 0.013 285);
+  --sidebar: oklch(0.133 0.009 285); /* mauve-1  #121113 */
+  --sidebar-foreground: oklch(0.945 0.003 285);
+  --sidebar-primary: oklch(0.65 0.18 285); /* violet accent */
+  --sidebar-primary-foreground: oklch(0.945 0.003 285);
+  --sidebar-accent: oklch(0.232 0.013 285); /* mauve-4 */
+  --sidebar-accent-foreground: oklch(0.945 0.003 285);
+  --sidebar-border: oklch(0.296 0.015 285); /* mauve-6 */
+  --sidebar-ring: oklch(0.65 0.18 285);
 }
 
 @layer base {

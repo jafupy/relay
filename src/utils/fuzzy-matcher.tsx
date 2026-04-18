@@ -1,6 +1,6 @@
-import { invoke } from "@tauri-apps/api/core";
 import type React from "react";
 import type { CompletionItem } from "vscode-languageserver-protocol";
+import { invoke } from "@/lib/platform/core";
 
 export interface FuzzyMatchItem {
   text: string;

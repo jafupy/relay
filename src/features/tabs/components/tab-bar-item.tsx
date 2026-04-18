@@ -13,12 +13,12 @@ import {
 } from "lucide-react";
 import { memo, useCallback, useEffect, useState } from "react";
 import { FileExplorerIcon } from "@/features/file-explorer/components/file-explorer-icon";
+import type { MultiFileDiff } from "@/features/git/types/git-diff-types";
+import type { GitDiff } from "@/features/git/types/git-types";
 import type { PaneContent } from "@/features/panes/types/pane-content";
 import { Button } from "@/ui/button";
 import { Tab } from "@/ui/tabs";
 import { cn } from "@/utils/cn";
-import type { MultiFileDiff } from "@/features/git/types/git-diff-types";
-import type { GitDiff } from "@/features/git/types/git-types";
 
 interface TabBarItemProps {
   buffer: PaneContent;
@@ -98,7 +98,7 @@ const TabBarItem = memo(function TabBarItem({
         tabIndex={isActive ? 0 : -1}
         isActive={isActive}
         isDragged={isDraggedTab}
-        className={isActive ? "bg-hover/80" : undefined}
+        className={isActive ? "bg-primary-bg text-text" : "hover:bg-hover/50"}
         onMouseDown={onMouseDown}
         onDoubleClick={onDoubleClick}
         onContextMenu={onContextMenu}

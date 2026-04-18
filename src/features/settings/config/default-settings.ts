@@ -32,13 +32,13 @@ export const defaultSettings: Settings = {
   uiFontFamily: "Geist Variable",
   uiFontSize: UI_FONT_SIZE_DEFAULT,
   // Theme
-  theme: "athas-dark",
+  theme: "relay-dark",
   iconTheme: "material",
   syncSystemTheme: false,
-  autoThemeLight: "athas-light",
-  autoThemeDark: "athas-dark",
+  autoThemeLight: "relay-light",
+  autoThemeDark: "relay-dark",
   nativeMenuBar: false,
-  compactMenuBar: true,
+  compactMenuBar: false,
   titleBarProjectMode: "tabs",
   openFoldersInNewWindow: false,
   // AI
@@ -106,8 +106,6 @@ export const defaultSettings: Settings = {
   gitLastPanelMode: "changes",
   enableInlineGitBlame: true,
   enableGitGutter: true,
-  // Telemetry
-  telemetry: false,
 };
 
 export const getDefaultSetting = <K extends keyof Settings>(key: K): Settings[K] =>

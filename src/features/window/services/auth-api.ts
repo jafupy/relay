@@ -1,16 +1,16 @@
-import { invoke } from "@tauri-apps/api/core";
-import { fetch as tauriFetch } from "@tauri-apps/plugin-http";
+import { fetch as relayFetch } from "@/lib/platform/http";
 import { getApiBase } from "@/utils/api-base";
 
 const API_BASE = getApiBase();
-const DESKTOP_AUTH_POLL_INTERVAL_MS = 1500;
-const DESKTOP_AUTH_TIMEOUT_MS = 5 * 60 * 1000;
-const DESKTOP_SESSION_SECRET_HEADER = "X-Desktop-Session-Secret";
-let authTokenCache: string | null | undefined;
 
 export interface AuthUser {
-  id: number;
-  email: string;
+  id: string;
+  username: string;
+  displayName: string | null;
+  role: "admin" | "user";
+  forcePasswordChange: boolean;
+  // compat fields for cloud auth consumers (normalized to sensible defaults)
+  email?: string;
   name: string | null;
   avatar_url: string | null;
   provider: string | null;
@@ -54,291 +54,247 @@ export interface EnterprisePolicy {
   updatedAt: string | null;
 }
 
-type DesktopAuthPollResponse =
-  | { status: "pending" }
-  | { status: "ready"; token: string }
-  | { status: "expired" }
-  | { status: "missing" };
-
-type DesktopAuthInitResponse = {
-  sessionId?: unknown;
-  pollSecret?: unknown;
-  loginUrl?: unknown;
-};
-
-export class DesktopAuthError extends Error {
-  code: "endpoint_unavailable" | "expired" | "timeout" | "failed";
-
-  constructor(code: DesktopAuthError["code"], message: string) {
-    super(message);
-    this.name = "DesktopAuthError";
-    this.code = code;
-  }
+function normalizeUser(user: AuthUser): AuthUser {
+  return {
+    ...user,
+    email: user.email ?? user.username,
+    name: user.name ?? user.displayName ?? user.username,
+    avatar_url: user.avatar_url ?? null,
+    provider: user.provider ?? "local",
+    github_username: user.github_username ?? null,
+    subscription_status: user.subscription_status ?? "free",
+    created_at: user.created_at ?? "",
+    forcePasswordChange: user.forcePasswordChange ?? false,
+  };
 }
 
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-function getApiBaseUnavailableMessage(): string {
-  if (API_BASE.includes("localhost") || API_BASE.includes("127.0.0.1")) {
-    return `Could not reach local auth server at ${API_BASE}. Start the local web app/server first, then try sign-in again.`;
-  }
-
-  return `Could not reach auth server at ${API_BASE}.`;
-}
-
-// Secure token storage via Rust backend
-export const getAuthToken = async (): Promise<string | null> => {
-  if (authTokenCache !== undefined) {
-    return authTokenCache;
-  }
-
-  try {
-    authTokenCache = await invoke<string | null>("get_auth_token");
-    return authTokenCache;
-  } catch {
-    authTokenCache = null;
-    return null;
-  }
-};
-
-export const storeAuthToken = async (token: string): Promise<void> => {
-  authTokenCache = token;
-  await invoke("store_auth_token", { token });
-};
-
-export const removeAuthToken = async (): Promise<void> => {
-  authTokenCache = null;
-  await invoke("remove_auth_token");
-};
-
-// Authenticated API fetch helper
-async function authenticatedFetch(
-  path: string,
-  options: RequestInit = {},
-  tokenOverride?: string,
-): Promise<Response> {
-  const token = tokenOverride ?? (await getAuthToken());
-  if (!token) {
-    throw new Error("Not authenticated");
-  }
-
-  return tauriFetch(`${API_BASE}${path}`, {
+async function sessionFetch(path: string, options: RequestInit = {}): Promise<Response> {
+  return relayFetch(`${API_BASE}${path}`, {
     ...options,
+    credentials: "same-origin",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
       ...options.headers,
     },
   });
 }
 
-export async function fetchCurrentUser(tokenOverride?: string): Promise<AuthUser> {
-  const response = await authenticatedFetch("/api/auth/me", {}, tokenOverride);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch user: ${response.status}`);
-  }
-  const data = await response.json();
-  return data.user;
+export const getAuthToken = async (): Promise<string | null> => null;
+
+export const storeAuthToken = async (_token: string): Promise<void> => {};
+
+export const removeAuthToken = async (): Promise<void> => {};
+
+export interface LoginResult {
+  user: AuthUser;
+  forcePasswordChange: boolean;
 }
 
-export async function fetchSubscriptionStatus(tokenOverride?: string): Promise<SubscriptionInfo> {
-  const response = await authenticatedFetch("/api/auth/subscription", {}, tokenOverride);
+export async function loginWithPassword(username: string, password: string): Promise<LoginResult> {
+  const response = await sessionFetch("/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ username, password }),
+  });
+
   if (!response.ok) {
-    throw new Error(`Failed to fetch subscription: ${response.status}`);
+    const data = await response.json().catch(() => ({}));
+    throw new Error((data as { error?: string }).error ?? "Invalid username or password");
   }
-  return await response.json();
+
+  const data = await response.json();
+  return {
+    user: normalizeUser(data.user as AuthUser),
+    forcePasswordChange: data.forcePasswordChange as boolean,
+  };
+}
+
+export async function changePasswordOnServer(newPassword: string): Promise<void> {
+  const response = await sessionFetch("/api/auth/password", {
+    method: "POST",
+    body: JSON.stringify({ newPassword }),
+  });
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error((data as { error?: string }).error ?? "Failed to change password");
+  }
+}
+
+export async function fetchCurrentUser(): Promise<AuthUser> {
+  const response = await sessionFetch("/api/auth/me");
+  if (!response.ok) {
+    throw new Error(`Unauthenticated: ${response.status}`);
+  }
+  const data = await response.json();
+  return normalizeUser(data.user as AuthUser);
+}
+
+export async function fetchSubscriptionStatus(): Promise<SubscriptionInfo> {
+  return {
+    status: "free",
+    subscription: null,
+    enterprise: {
+      has_access: false,
+      is_admin: false,
+      policy: null,
+    },
+    autocomplete: null,
+  };
 }
 
 export async function updateEnterprisePolicy(
-  patch: Partial<Omit<EnterprisePolicy, "updatedAt">>,
+  _patch: Partial<Omit<EnterprisePolicy, "updatedAt">>,
 ): Promise<EnterprisePolicy> {
-  const response = await authenticatedFetch("/api/enterprise/policy", {
-    method: "PATCH",
-    body: JSON.stringify(patch),
-  });
-
-  const payload = (await response.json().catch(() => null)) as {
-    policy?: EnterprisePolicy;
-    error?: string;
-  } | null;
-
-  if (!response.ok || !payload?.policy) {
-    throw new Error(payload?.error || `Failed to update enterprise policy: ${response.status}`);
-  }
-
-  return payload.policy;
+  throw new Error("Enterprise policy is not available on local Relay accounts.");
 }
 
 export async function logoutFromServer(): Promise<void> {
-  try {
-    await authenticatedFetch("/api/auth/logout", { method: "DELETE" });
-  } catch {
-    // Even if server logout fails, we still clear the local token
-  }
+  await sessionFetch("/api/auth/logout", { method: "POST" }).catch(() => {});
 }
 
-export async function beginDesktopAuthSession(): Promise<{
-  sessionId: string;
-  pollSecret: string;
-  loginUrl: string;
-}> {
-  let response: Response;
-  try {
-    response = await tauriFetch(`${API_BASE}/api/auth/desktop/session/init`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-  } catch (error) {
-    throw new DesktopAuthError(
-      "failed",
-      error instanceof Error
-        ? `${getApiBaseUnavailableMessage()} ${error.message}`
-        : getApiBaseUnavailableMessage(),
-    );
-  }
+// ── WebAuthn / Passkey helpers ──────────────────────────────────────────────
 
-  if (response.status === 404) {
-    throw new DesktopAuthError(
-      "endpoint_unavailable",
-      "Desktop auth session endpoint is unavailable on this server.",
-    );
-  }
-
-  if (!response.ok) {
-    throw new DesktopAuthError(
-      "failed",
-      `Failed to initialize desktop sign-in (${response.status}).`,
-    );
-  }
-
-  const payload = (await response.json()) as DesktopAuthInitResponse;
-  const parsed = parseDesktopAuthInitResponse(payload);
-  if (!parsed) {
-    throw new DesktopAuthError("failed", "Invalid desktop sign-in initialization response.");
-  }
-
-  return parsed;
+function b64ToBuf(value: string): ArrayBuffer {
+  const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
+  const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=");
+  const binary = atob(padded);
+  return Uint8Array.from(binary, (c) => c.charCodeAt(0)).buffer;
 }
 
-function parseDesktopAuthInitResponse(payload: unknown): {
-  sessionId: string;
-  pollSecret: string;
-  loginUrl: string;
-} | null {
-  if (!payload || typeof payload !== "object") return null;
-  const candidate = payload as {
-    sessionId?: unknown;
-    pollSecret?: unknown;
-    loginUrl?: unknown;
+function bufToB64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+interface RawCreationOptions {
+  challengeId: string;
+  publicKey: {
+    challenge: string;
+    user: { id: string };
+    excludeCredentials?: Array<{ id: string; [k: string]: unknown }>;
+    [k: string]: unknown;
   };
+}
 
-  if (
-    typeof candidate.sessionId !== "string" ||
-    typeof candidate.pollSecret !== "string" ||
-    typeof candidate.loginUrl !== "string"
-  ) {
-    return null;
-  }
+interface RawRequestOptions {
+  challengeId: string;
+  mediation?: CredentialMediationRequirement;
+  publicKey: {
+    challenge: string;
+    allowCredentials?: Array<{ id: string; [k: string]: unknown }>;
+    [k: string]: unknown;
+  };
+}
 
-  if (!candidate.sessionId || !candidate.pollSecret || !candidate.loginUrl) {
-    return null;
-  }
+export function buildCreationOptions(raw: RawCreationOptions): CredentialCreationOptions {
+  const options = { ...raw.publicKey } as unknown as Record<string, unknown>;
+  options.challenge = b64ToBuf(raw.publicKey.challenge);
+  options.user = { ...raw.publicKey.user, id: b64ToBuf(raw.publicKey.user.id) };
+  options.excludeCredentials = (raw.publicKey.excludeCredentials ?? []).map((item) => ({
+    ...item,
+    id: b64ToBuf(item.id),
+  }));
+  return { publicKey: options as unknown as PublicKeyCredentialCreationOptions };
+}
 
+export function buildRequestOptions(raw: RawRequestOptions): CredentialRequestOptions {
+  const options = { ...raw.publicKey } as unknown as Record<string, unknown>;
+  options.challenge = b64ToBuf(raw.publicKey.challenge);
+  options.allowCredentials = (raw.publicKey.allowCredentials ?? []).map((item) => ({
+    ...item,
+    id: b64ToBuf(item.id),
+  }));
+  const result: CredentialRequestOptions = {
+    publicKey: options as unknown as PublicKeyCredentialRequestOptions,
+  };
+  if (raw.mediation) result.mediation = raw.mediation;
+  return result;
+}
+
+export function serializeRegistrationCredential(credential: PublicKeyCredential) {
+  const response = credential.response as AuthenticatorAttestationResponse;
   return {
-    sessionId: candidate.sessionId,
-    pollSecret: candidate.pollSecret,
-    loginUrl: candidate.loginUrl,
+    id: credential.id,
+    rawId: bufToB64(credential.rawId),
+    type: credential.type,
+    response: {
+      attestationObject: bufToB64(response.attestationObject),
+      clientDataJSON: bufToB64(response.clientDataJSON),
+      transports: response.getTransports ? response.getTransports() : undefined,
+    },
+    extensions: credential.getClientExtensionResults(),
   };
 }
 
-function parseDesktopAuthPollResponse(payload: unknown): DesktopAuthPollResponse | null {
-  if (!payload || typeof payload !== "object") return null;
-  const status = (payload as { status?: unknown }).status;
-  if (status === "pending" || status === "expired" || status === "missing") {
-    return { status };
-  }
-  if (status === "ready") {
-    const token = (payload as { token?: unknown }).token;
-    if (typeof token === "string" && token.length > 0) {
-      return { status: "ready", token };
-    }
-  }
-  return null;
+export function serializeAuthCredential(credential: PublicKeyCredential) {
+  const response = credential.response as AuthenticatorAssertionResponse;
+  return {
+    id: credential.id,
+    rawId: bufToB64(credential.rawId),
+    type: credential.type,
+    response: {
+      authenticatorData: bufToB64(response.authenticatorData),
+      clientDataJSON: bufToB64(response.clientDataJSON),
+      signature: bufToB64(response.signature),
+      userHandle: response.userHandle ? bufToB64(response.userHandle) : null,
+    },
+    extensions: credential.getClientExtensionResults(),
+  };
 }
 
-export async function waitForDesktopAuthToken(
-  sessionId: string,
-  pollSecret: string,
-  timeoutMs = DESKTOP_AUTH_TIMEOUT_MS,
-): Promise<string> {
-  const deadline = Date.now() + timeoutMs;
-
-  while (Date.now() < deadline) {
-    const url = `${API_BASE}/api/auth/desktop/session?session=${encodeURIComponent(sessionId)}`;
-    let response: Response;
-    try {
-      response = await tauriFetch(url, {
-        method: "GET",
-        headers: {
-          [DESKTOP_SESSION_SECRET_HEADER]: pollSecret,
-        },
-      });
-    } catch (error) {
-      throw new DesktopAuthError(
-        "failed",
-        error instanceof Error
-          ? `${getApiBaseUnavailableMessage()} ${error.message}`
-          : getApiBaseUnavailableMessage(),
-      );
-    }
-
-    if (response.status === 404) {
-      throw new DesktopAuthError(
-        "endpoint_unavailable",
-        "Desktop auth session endpoint is unavailable on this server.",
-      );
-    }
-
-    if (response.status === 410) {
-      throw new DesktopAuthError("expired", "Desktop sign-in session expired.");
-    }
-
-    if (!response.ok) {
-      throw new DesktopAuthError("failed", `Desktop sign-in failed (${response.status}).`);
-    }
-
-    const payload = await response.json();
-    const parsed = parseDesktopAuthPollResponse(payload);
-
-    if (!parsed) {
-      throw new DesktopAuthError("failed", "Invalid desktop sign-in response.");
-    }
-
-    if (parsed.status === "ready") {
-      return parsed.token;
-    }
-
-    if (parsed.status === "expired") {
-      throw new DesktopAuthError("expired", "Desktop sign-in session is no longer valid.");
-    }
-
-    if (parsed.status === "missing") {
-      throw new DesktopAuthError(
-        "failed",
-        "Desktop sign-in session credentials are invalid or the session has expired.",
-      );
-    }
-
-    await sleep(DESKTOP_AUTH_POLL_INTERVAL_MS);
+export async function passkeyLoginStart(username: string): Promise<RawRequestOptions> {
+  const response = await sessionFetch("/api/auth/passkeys/login/start", {
+    method: "POST",
+    body: JSON.stringify({ username }),
+  });
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error((data as { error?: string }).error ?? "Failed to start passkey sign-in");
   }
-
-  throw new DesktopAuthError("timeout", "Desktop sign-in timed out. Please try again.");
+  return response.json() as Promise<RawRequestOptions>;
 }
 
-export const __test__ = {
-  parseDesktopAuthInitResponse,
-  parseDesktopAuthPollResponse,
-  getApiBaseUnavailableMessage,
-};
+export async function passkeyLoginFinish(
+  challengeId: string,
+  credential: PublicKeyCredential,
+): Promise<void> {
+  const response = await sessionFetch("/api/auth/passkeys/login/finish", {
+    method: "POST",
+    body: JSON.stringify({ challengeId, credential: serializeAuthCredential(credential) }),
+  });
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error((data as { error?: string }).error ?? "Passkey sign-in failed");
+  }
+}
+
+export async function passkeyRegisterStart(name: string): Promise<RawCreationOptions> {
+  const response = await sessionFetch("/api/auth/passkeys/register/start", {
+    method: "POST",
+    body: JSON.stringify({ name }),
+  });
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error((data as { error?: string }).error ?? "Failed to start passkey registration");
+  }
+  return response.json() as Promise<RawCreationOptions>;
+}
+
+export async function passkeyRegisterFinish(
+  challengeId: string,
+  credential: PublicKeyCredential,
+): Promise<void> {
+  const response = await sessionFetch("/api/auth/passkeys/register/finish", {
+    method: "POST",
+    body: JSON.stringify({
+      challengeId,
+      credential: serializeRegistrationCredential(credential),
+    }),
+  });
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error((data as { error?: string }).error ?? "Passkey registration failed");
+  }
+}

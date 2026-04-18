@@ -1,8 +1,8 @@
-import { invoke } from "@tauri-apps/api/core";
-import { listen } from "@tauri-apps/api/event";
 import { AlertCircle, RefreshCw } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useBufferStore } from "@/features/editor/stores/buffer-store";
+import { invoke } from "@/lib/platform/core";
+import { listen } from "@/lib/platform/events";
 import { useEmbeddedWebview } from "../hooks/use-embedded-webview";
 import { getWebViewerSecurity, normalizeWebViewerUrl } from "../utils/web-viewer-url";
 import { WebViewerToolbar } from "./web-viewer-toolbar";
@@ -453,7 +453,7 @@ export function WebViewer({
     if (!currentUrl) return;
 
     try {
-      const { openUrl } = await import("@tauri-apps/plugin-opener");
+      const { openUrl } = await import("@/lib/platform/opener");
       await openUrl(currentUrl);
     } catch {
       window.open(currentUrl, "_blank");

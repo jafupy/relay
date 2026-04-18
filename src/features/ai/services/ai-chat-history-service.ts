@@ -1,9 +1,9 @@
-import { invoke } from "@tauri-apps/api/core";
 import type { AgentType, Chat, Message, ToolCall } from "@/features/ai/types/ai-chat";
+import { invoke } from "@/lib/platform/core";
 
 /**
  * Chat History Database Utilities
- * TypeScript wrapper for Tauri SQLite backend commands
+ * TypeScript wrapper for Relay SQLite backend commands
  */
 
 // Types matching Rust structs

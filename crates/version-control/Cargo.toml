@@ -1,5 +1,5 @@
 [package]
-name = "athas-version-control"
+name = "relay-version-control"
 version = "0.1.0"
 edition = "2024"
 

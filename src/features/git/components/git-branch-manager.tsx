@@ -106,8 +106,8 @@ const GitBranchManager = ({
       window.requestAnimationFrame(() => inputRef.current?.focus());
     };
 
-    window.addEventListener("athas:open-branch-manager", handleOpenFromPalette);
-    return () => window.removeEventListener("athas:open-branch-manager", handleOpenFromPalette);
+    window.addEventListener("relay:open-branch-manager", handleOpenFromPalette);
+    return () => window.removeEventListener("relay:open-branch-manager", handleOpenFromPalette);
   }, [paletteTarget, repoPath, loadBranches]);
 
   useEffect(() => {

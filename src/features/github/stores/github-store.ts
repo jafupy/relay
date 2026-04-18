@@ -1,6 +1,6 @@
-import { invoke } from "@tauri-apps/api/core";
 import { create } from "zustand";
 import { combine } from "zustand/middleware";
+import { invoke } from "@/lib/platform/core";
 import type {
   PRFilter,
   PullRequest,

@@ -1,4 +1,3 @@
-import { invoke } from "@tauri-apps/api/core";
 import type { ISearchOptions } from "@xterm/addon-search";
 import { Terminal } from "@xterm/xterm";
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -6,6 +5,7 @@ import { connectionStore } from "@/features/remote/services/remote-connection-st
 import { parseRemotePath } from "@/features/remote/utils/remote-path";
 import { useSettingsStore } from "@/features/settings/store";
 import { useProjectStore } from "@/features/window/stores/project-store";
+import { invoke } from "@/lib/platform/core";
 import {
   createTerminalAddons,
   injectLinkStyles,

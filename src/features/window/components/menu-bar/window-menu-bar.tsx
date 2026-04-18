@@ -1,12 +1,9 @@
-import { getCurrentWindow } from "@tauri-apps/api/window";
-import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
-import { exit } from "@tauri-apps/plugin-process";
 import type React from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { themeRegistry } from "@/extensions/themes/theme-registry";
 import type { ThemeDefinition } from "@/extensions/themes/types";
-import { useSettingsStore } from "@/features/settings/store";
-import { Button } from "@/ui/button";
+import { useBufferStore } from "@/features/editor/stores/buffer-store";
+import { getCurrentWebviewWindow } from "@/lib/platform/webview-window";
 import { cn } from "@/utils/cn";
 import Menu from "./menu";
 import MenuItem from "./menu-item";
@@ -15,66 +12,51 @@ import Submenu from "./submenu";
 interface Props {
   activeMenu: string | null;
   setActiveMenu: React.Dispatch<React.SetStateAction<string | null>>;
-  compactFloating?: boolean;
 }
 
-const CustomMenuBar = ({ activeMenu, setActiveMenu, compactFloating = false }: Props) => {
-  const { settings } = useSettingsStore();
+const CustomMenuBar = ({ activeMenu, setActiveMenu }: Props) => {
   const [themes, setThemes] = useState<ThemeDefinition[]>([]);
   const menuBarRef = useRef<HTMLDivElement>(null);
 
-  const handleClickEmit = (event: string, payload?: unknown) => {
+  const emit = (event: string, payload?: unknown) => {
     void getCurrentWebviewWindow().emit(event, payload);
     setActiveMenu(null);
   };
 
   useEffect(() => {
-    const loadThemes = () => {
-      const registryThemes = themeRegistry.getAllThemes();
-      setThemes(registryThemes);
-    };
-
-    loadThemes();
-
-    const unsubscribe = themeRegistry.onRegistryChange(loadThemes);
-    return unsubscribe;
+    const load = () => setThemes(themeRegistry.getAllThemes());
+    load();
+    return themeRegistry.onRegistryChange(load);
   }, []);
 
   const menus = useMemo(
     () => ({
       File: (
         <Menu aria-label="File">
-          <MenuItem shortcut="mod+shift+n" onClick={() => handleClickEmit("menu_new_window")}>
-            New Window
-          </MenuItem>
-          <MenuItem onClick={() => handleClickEmit("menu_new_file")}>New File</MenuItem>
-          <MenuItem shortcut="mod+o" onClick={() => handleClickEmit("menu_open_folder")}>
+          <MenuItem onClick={() => emit("menu_new_file")}>New File</MenuItem>
+          <MenuItem shortcut="mod+o" onClick={() => emit("menu_open_folder")}>
             Open Folder
           </MenuItem>
-          <MenuItem onClick={() => handleClickEmit("menu_close_folder")}>Close Folder</MenuItem>
+          <MenuItem onClick={() => emit("menu_close_folder")}>Close Folder</MenuItem>
           <MenuItem separator />
-          <MenuItem shortcut="mod+s" onClick={() => handleClickEmit("menu_save")}>
+          <MenuItem shortcut="mod+s" onClick={() => emit("menu_save")}>
             Save
           </MenuItem>
-          <MenuItem shortcut="mod+shift+s" onClick={() => handleClickEmit("menu_save_as")}>
+          <MenuItem shortcut="mod+shift+s" onClick={() => emit("menu_save_as")}>
             Save As...
           </MenuItem>
           <MenuItem separator />
-          <MenuItem shortcut="mod+w" onClick={() => handleClickEmit("menu_close_tab")}>
+          <MenuItem shortcut="mod+w" onClick={() => emit("menu_close_tab")}>
             Close Tab
-          </MenuItem>
-          <MenuItem separator />
-          <MenuItem shortcut="mod+q" onClick={async () => await exit(0)}>
-            Quit
           </MenuItem>
         </Menu>
       ),
       Edit: (
         <Menu aria-label="Edit">
-          <MenuItem shortcut="mod+z" onClick={() => handleClickEmit("menu_undo")}>
+          <MenuItem shortcut="mod+z" onClick={() => emit("menu_undo")}>
             Undo
           </MenuItem>
-          <MenuItem shortcut="mod+shift+z" onClick={() => handleClickEmit("menu_redo")}>
+          <MenuItem shortcut="mod+shift+z" onClick={() => emit("menu_redo")}>
             Redo
           </MenuItem>
           <MenuItem separator />
@@ -83,45 +65,35 @@ const CustomMenuBar = ({ activeMenu, setActiveMenu, compactFloating = false }: P
           <MenuItem shortcut="mod+v">Paste</MenuItem>
           <MenuItem shortcut="mod+a">Select All</MenuItem>
           <MenuItem separator />
-          <MenuItem shortcut="mod+f" onClick={() => handleClickEmit("menu_find")}>
+          <MenuItem shortcut="mod+f" onClick={() => emit("menu_find")}>
             Find
           </MenuItem>
-          <MenuItem shortcut="mod+alt+f" onClick={() => handleClickEmit("menu_find_replace")}>
+          <MenuItem shortcut="mod+alt+f" onClick={() => emit("menu_find_replace")}>
             Find and Replace
           </MenuItem>
           <MenuItem separator />
-          <MenuItem shortcut="mod+shift+p" onClick={() => handleClickEmit("menu_command_palette")}>
+          <MenuItem shortcut="mod+shift+p" onClick={() => emit("menu_command_palette")}>
             Command Palette
           </MenuItem>
         </Menu>
       ),
       View: (
         <Menu aria-label="View">
-          <MenuItem shortcut="mod+b" onClick={() => handleClickEmit("menu_toggle_sidebar")}>
+          <MenuItem shortcut="mod+b" onClick={() => emit("menu_toggle_sidebar")}>
             Toggle Sidebar
           </MenuItem>
-          <MenuItem shortcut="mod+j" onClick={() => handleClickEmit("menu_toggle_terminal")}>
+          <MenuItem shortcut="mod+j" onClick={() => emit("menu_toggle_terminal")}>
             Toggle Terminal
           </MenuItem>
-          <MenuItem shortcut="mod+r" onClick={() => handleClickEmit("menu_toggle_ai_chat")}>
+          <MenuItem shortcut="mod+r" onClick={() => emit("menu_toggle_ai_chat")}>
             Toggle AI Chat
           </MenuItem>
           <MenuItem separator />
-          <MenuItem onClick={() => handleClickEmit("menu_split_editor")}>Split Editor</MenuItem>
-          <MenuItem separator />
-          <MenuItem
-            shortcut="alt+m"
-            onClick={() => setActiveMenu((value) => (value ? null : "File"))}
-          >
-            Toggle Menu Bar
-          </MenuItem>
+          <MenuItem onClick={() => emit("menu_split_editor")}>Split Editor</MenuItem>
           <MenuItem separator />
           <Submenu title="Theme">
             {themes.map((theme) => (
-              <MenuItem
-                key={theme.id}
-                onClick={() => handleClickEmit("menu_theme_change", theme.id)}
-              >
+              <MenuItem key={theme.id} onClick={() => emit("menu_theme_change", theme.id)}>
                 {theme.name}
               </MenuItem>
             ))}
@@ -130,114 +102,75 @@ const CustomMenuBar = ({ activeMenu, setActiveMenu, compactFloating = false }: P
       ),
       Go: (
         <Menu aria-label="Go">
-          <MenuItem shortcut="mod+p" onClick={() => handleClickEmit("menu_quick_open")}>
+          <MenuItem shortcut="mod+p" onClick={() => emit("menu_quick_open")}>
             Quick Open
           </MenuItem>
-          <MenuItem shortcut="mod+g" onClick={() => handleClickEmit("menu_go_to_line")}>
+          <MenuItem shortcut="mod+g" onClick={() => emit("menu_go_to_line")}>
             Go to Line
           </MenuItem>
           <MenuItem separator />
-          <MenuItem shortcut="mod+alt+right" onClick={() => handleClickEmit("menu_next_tab")}>
+          <MenuItem shortcut="mod+alt+right" onClick={() => emit("menu_next_tab")}>
             Next Tab
           </MenuItem>
-          <MenuItem shortcut="mod+alt+left" onClick={() => handleClickEmit("menu_prev_tab")}>
+          <MenuItem shortcut="mod+alt+left" onClick={() => emit("menu_prev_tab")}>
             Previous Tab
-          </MenuItem>
-        </Menu>
-      ),
-      Window: (
-        <Menu aria-label="Window">
-          <MenuItem
-            shortcut="alt+f9"
-            onClick={async () => {
-              await getCurrentWindow().minimize();
-              setActiveMenu(null);
-            }}
-          >
-            Minimize
-          </MenuItem>
-          <MenuItem
-            shortcut="alt+f10"
-            onClick={async () => {
-              await getCurrentWindow().maximize();
-              setActiveMenu(null);
-            }}
-          >
-            Maximize
-          </MenuItem>
-          <MenuItem separator />
-          <MenuItem shortcut="mod+q" onClick={async () => await exit(0)}>
-            Quit
-          </MenuItem>
-          <MenuItem separator />
-          <MenuItem
-            shortcut="f11"
-            onClick={async () => {
-              const window = getCurrentWindow();
-              const isFull = await window.isFullscreen();
-              await window.setFullscreen(!isFull);
-              setActiveMenu(null);
-            }}
-          >
-            Toggle Fullscreen
           </MenuItem>
         </Menu>
       ),
       Help: (
         <Menu aria-label="Help">
-          <MenuItem onClick={() => handleClickEmit("menu_help")}>Help</MenuItem>
+          <MenuItem onClick={() => emit("menu_help")}>Help</MenuItem>
           <MenuItem separator />
-          <MenuItem onClick={() => handleClickEmit("menu_about_athas")}>About Athas</MenuItem>
+          <MenuItem
+            onClick={() => {
+              useBufferStore.getState().actions.openContent({ type: "settings" });
+              setActiveMenu(null);
+            }}
+          >
+            Settings
+          </MenuItem>
+          <MenuItem separator />
+          <MenuItem onClick={() => emit("menu_about_relay")}>About Relay</MenuItem>
         </Menu>
       ),
     }),
-    [handleClickEmit, setActiveMenu, themes],
+    [themes, emit, setActiveMenu],
   );
 
   useEffect(() => {
     if (!activeMenu) return;
-
     const handleMouseDown = (e: MouseEvent) => {
       if (menuBarRef.current && !menuBarRef.current.contains(e.target as Node)) {
         setActiveMenu(null);
       }
     };
-
     document.addEventListener("mousedown", handleMouseDown);
     return () => document.removeEventListener("mousedown", handleMouseDown);
   }, [activeMenu, setActiveMenu]);
 
-  if (settings.compactMenuBar && !activeMenu) return null;
-
   return (
-    <div
-      ref={menuBarRef}
-      className={cn(
-        "z-[10030] flex h-6 items-center gap-0.5 rounded-full border border-border/70 bg-primary-bg/65 px-0.5 py-0.5",
-        settings.compactMenuBar &&
-          compactFloating &&
-          "absolute top-[calc(100%+4px)] left-0 rounded-2xl border border-border bg-primary-bg/95 px-1 py-1 shadow-xl backdrop-blur-sm",
-        settings.compactMenuBar &&
-          !compactFloating &&
-          "absolute inset-0 h-full rounded-none border-none bg-transparent px-2 py-0",
-      )}
-    >
-      {Object.keys(menus).map((menuName) => (
-        <Button
-          key={menuName}
-          variant="ghost"
-          size="sm"
-          className={cn(
-            "ui-text-sm h-5 rounded-md px-1.5 text-text-lighter",
-            activeMenu === menuName ? "bg-hover/80 text-text" : "hover:bg-hover/50 hover:text-text",
+    <div ref={menuBarRef} className="flex items-center gap-px">
+      {Object.keys(menus).map((name) => (
+        <div key={name} className="relative">
+          <button
+            type="button"
+            className={cn(
+              "select-none rounded-md px-2 py-1 text-[11px] font-medium tracking-wide transition-colors",
+              activeMenu === name
+                ? "bg-hover text-text"
+                : "text-text-lighter hover:bg-hover/60 hover:text-text",
+            )}
+            onClick={() => setActiveMenu((cur) => (cur === name ? null : name))}
+          >
+            {name}
+          </button>
+          {activeMenu === name && (
+            <div className="absolute left-0 top-full z-[10030] pt-1">
+              {menus[name as keyof typeof menus]}
+            </div>
           )}
-          onClick={() => setActiveMenu((current) => (current === menuName ? null : menuName))}
-        >
-          {menuName}
-        </Button>
+        </div>
       ))}
-
-      {activeMenu && menus[activeMenu as keyof typeof menus]}
     </div>
   );
 };

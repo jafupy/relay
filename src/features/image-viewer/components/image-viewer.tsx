@@ -1,4 +1,3 @@
-import { convertFileSrc } from "@tauri-apps/api/core";
 import { ArrowDown, ArrowUp, FileIcon, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useBufferStore } from "@/features/editor/stores/buffer-store";
@@ -13,8 +12,9 @@ import {
   saveImageToFile,
 } from "@/features/image-editor/utils/image-file-utils";
 import { useResizeObserver } from "@/features/panes/hooks/use-resize-observer";
-import { Button } from "@/ui/button";
 import UnsavedChangesDialog from "@/features/window/components/unsaved-changes-dialog";
+import { convertFileSrc } from "@/lib/platform/core";
+import { Button } from "@/ui/button";
 import { cn } from "@/utils/cn";
 import { getRelativePath } from "@/utils/path-helpers";
 import { useImageZoom } from "../hooks/use-image-zoom";
@@ -53,8 +53,8 @@ export function ImageViewer({ filePath, fileName, bufferId, onClose }: ImageView
     const loadImageSrc = async () => {
       try {
         // Load the image file as binary data and convert to data URL
-        // This avoids CORS issues with Tauri's file protocol
-        const { readFile } = await import("@tauri-apps/plugin-fs");
+        // This avoids CORS issues with Relay's file protocol
+        const { readFile } = await import("@/lib/platform/fs");
         const contents = await readFile(filePath);
 
         // Determine MIME type from file extension

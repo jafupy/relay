@@ -5,6 +5,11 @@
   <img src="public/screenshot.png" alt="Relay Screenshot" width="800">
 </div>
 
+Relay is a modified work derived from
+[Athas](https://github.com/athasdev/athas). Original Athas portions are
+Copyright (C) 2022-2025 Athas. Relay modifications are Copyright (C) 2026
+jafupy and Relay contributors.
+
 ## Features
 
 - AI agents
@@ -39,4 +44,4 @@ Please also review our [Code of Conduct](CODE_OF_CONDUCT.md) and
 
 ## License
 
-[AGPL-3.0](LICENSE)
+[AGPL-3.0-or-later](LICENSE). See [NOTICE.md](NOTICE.md) for attribution.
